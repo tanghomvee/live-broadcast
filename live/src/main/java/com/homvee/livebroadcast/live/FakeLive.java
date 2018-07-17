@@ -1,15 +1,18 @@
 package com.homvee.livebroadcast.live;
 
-import com.gargoylesoftware.htmlunit.BrowserVersion;
-import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
-import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.*;
 import com.gargoylesoftware.htmlunit.html.*;
 import com.gargoylesoftware.htmlunit.util.Cookie;
+import com.gargoylesoftware.htmlunit.util.WebConnectionWrapper;
 import org.apache.http.impl.client.BasicCookieStore;
 
+import javax.imageio.ImageReader;
+import javax.swing.*;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URLDecoder;
+import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Set;
 
@@ -28,19 +31,40 @@ public class FakeLive {
         // 实例化Web客户端
         WebClient webClient=new WebClient(BrowserVersion.CHROME);
         try {
+
+            //启用JS解释器，默认为true
+            webClient.getOptions().setJavaScriptEnabled(true);
+            webClient.getOptions().setActiveXNative(false);
+            //禁用css支持
+            webClient.getOptions().setCssEnabled(false);
+            //js运行错误时，是否抛出异常
+            webClient.getOptions().setThrowExceptionOnScriptError(false);
+
+            webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
+            webClient.getOptions().setTimeout(5000);
+            //设置支持AJAX
+            webClient.setAjaxController(new NicelyResynchronizingAjaxController());
+            webClient.setWebConnection(
+                    new WebConnectionWrapper(webClient) {
+                        @Override
+                        public WebResponse getResponse(WebRequest request) throws IOException {
+                            WebResponse response = super.getResponse(request);
+                            if(request.getUrl().toExternalForm().contains("goalBf3.xml")){
+                                String content = response.getContentAsString(Charset.forName("UTF-8"));
+
+                                WebResponseData data = new WebResponseData(content.getBytes("UTF-8"),
+                                        response.getStatusCode(), response.getStatusMessage(), response.getResponseHeaders());
+                                response = new WebResponse(data, request, response.getLoadTime());
+                            }
+                            return response;
+                        }
+                    }
+
+            );
+
             // 解析获取页面
-            HtmlPage page=webClient.getPage("https://www.douyu.com/t/FACEITLONDONMAJOR?roomIndex=0");
-            // 得到搜索Form
-//            HtmlForm form=page.querySelector("div#");
-//            // 获取查询文本框
-//            HtmlTextInput textField=form.getInputByName("q");
-//            // 获取提交按钮
-//            HtmlSubmitInput button=form.getInputByName("submitButton");
-//            // 文本框“填入”数据
-//            textField.setValueAttribute("java");
-//            // 模拟点击
-//            HtmlPage page2=button.click();
-//            System.out.println(page2.asXml());
+            HtmlPage page=webClient.getPage("https://www.douyu.com/t/2018KPLAutumn");
+
 
             System.out.println(URLDecoder.decode("\\u65ed\\u65ed\\u5b9d\\u5b9d"));
             BasicCookieStore cookieStore = new BasicCookieStore();
@@ -48,17 +72,49 @@ public class FakeLive {
             for (Cookie cookie : cookies2) {
                 cookieStore.addCookie(cookie.toHttpClient());
             }
-
+            //设置一个运行JavaScript的时间
+            webClient.waitForBackgroundJavaScript(5000);
 
            DomElement chatDiv = page.getElementById("js-send-msg");
-          List as =  chatDiv.getByXPath("//a[@]data-type='login'");;
-            DomNodeList<HtmlElement> lis =  chatDiv.getElementsByTagName("li");
-            List<HtmlDivision> divList=page.getByXPath("//li[@class='jschartli']");
-            for (HtmlDivision htmlDivision : divList) {
-                System.out.println("***********************************************8");
-                System.out.println(htmlDivision.asXml());
-            }
 
+           List links = chatDiv.getByXPath("//a[@data-type='login']");
+           HtmlAnchor link = (HtmlAnchor) links.get(0);
+          HtmlPage loginPage = link.click();
+
+            List spans = loginPage.getByXPath("//span[@data-type='login']");
+            HtmlSpan span = (HtmlSpan) spans.get(0);
+            HtmlPage pwdLoginPage = span.click();
+
+            HtmlElement phoneNum = pwdLoginPage.getElementByName("phoneNum");
+            phoneNum.click();
+            phoneNum.type("19940886898");
+            HtmlElement pwd = pwdLoginPage.getElementByName("password");
+            pwd.click();
+            pwd.type("sdh1693522049@");
+
+            //验证码
+            List divs = loginPage.getByXPath("//div[@class='geetest_radar_tip']");
+            HtmlDivision div = (HtmlDivision) divs.get(0);
+            HtmlPage checkPage = div.click();
+
+            //HtmlImage valiCodeImg = (HtmlImage) checkPage.getByXPath("//img[@class='geetest_tip_img']");
+            HtmlImage valiCodeImg = (HtmlImage) checkPage.getByXPath("//img[@class='geetest_item_img']");
+            ImageReader imageReader = valiCodeImg.getImageReader();
+            BufferedImage bufferedImage = imageReader.read(0);
+
+            JFrame f2 = new JFrame();
+            JLabel l = new JLabel();
+            l.setIcon(new ImageIcon(bufferedImage));
+            f2.getContentPane().add(l);
+            f2.setSize(300, 300);
+            f2.setTitle("验证码");
+            f2.setVisible(true);
+
+//           ScriptResult result = page.executeJavaScript("document.getElementById('pk_1248827').onmouseover(window.event)");
+           ScriptResult result = page.executeJavaScript("$('#js-send-msg').find('a[data-type='login']').trigger('click')");
+           HtmlPage jspage = (HtmlPage) result.getNewPage();
+
+            System.out.println(jspage.asXml());
         } catch (FailingHttpStatusCodeException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();

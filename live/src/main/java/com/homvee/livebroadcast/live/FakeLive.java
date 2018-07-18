@@ -63,10 +63,9 @@ public class FakeLive {
             );
 
             // 解析获取页面
-            HtmlPage page=webClient.getPage("https://www.douyu.com/t/2018KPLAutumn");
+            HtmlPage page=webClient.getPage("https://www.douyu.com/4869407");
 
-
-            System.out.println(URLDecoder.decode("\\u65ed\\u65ed\\u5b9d\\u5b9d"));
+            //设置cookie
             BasicCookieStore cookieStore = new BasicCookieStore();
             Set<Cookie> cookies2 =webClient.getCookieManager().getCookies();
             for (Cookie cookie : cookies2) {
@@ -74,54 +73,56 @@ public class FakeLive {
             }
             //设置一个运行JavaScript的时间
             webClient.waitForBackgroundJavaScript(5000);
-
-           DomElement chatDiv = page.getElementById("js-send-msg");
-
-           List links = chatDiv.getByXPath("//a[@data-type='login']");
-           HtmlAnchor link = (HtmlAnchor) links.get(0);
-          HtmlPage loginPage = link.click();
-
-            List spans = loginPage.getByXPath("//span[@data-type='login']");
-            HtmlSpan span = (HtmlSpan) spans.get(0);
-            HtmlPage pwdLoginPage = span.click();
-
-            HtmlElement phoneNum = pwdLoginPage.getElementByName("phoneNum");
-            phoneNum.click();
-            phoneNum.type("19940886898");
-            HtmlElement pwd = pwdLoginPage.getElementByName("password");
-            pwd.click();
-            pwd.type("sdh1693522049@");
-
-            //验证码
-            List divs = loginPage.getByXPath("//div[@class='geetest_radar_tip']");
-            HtmlDivision div = (HtmlDivision) divs.get(0);
-            HtmlPage checkPage = div.click();
-
-            //HtmlImage valiCodeImg = (HtmlImage) checkPage.getByXPath("//img[@class='geetest_tip_img']");
-            HtmlImage valiCodeImg = (HtmlImage) checkPage.getByXPath("//img[@class='geetest_item_img']");
-            ImageReader imageReader = valiCodeImg.getImageReader();
-            BufferedImage bufferedImage = imageReader.read(0);
-
-            JFrame f2 = new JFrame();
-            JLabel l = new JLabel();
-            l.setIcon(new ImageIcon(bufferedImage));
-            f2.getContentPane().add(l);
-            f2.setSize(300, 300);
-            f2.setTitle("验证码");
-            f2.setVisible(true);
-
-//           ScriptResult result = page.executeJavaScript("document.getElementById('pk_1248827').onmouseover(window.event)");
-           ScriptResult result = page.executeJavaScript("$('#js-send-msg').find('a[data-type='login']').trigger('click')");
-           HtmlPage jspage = (HtmlPage) result.getNewPage();
-
-            System.out.println(jspage.asXml());
+            login(page);
+            //发送消息的DIV
+//           DomElement msgDiv = page.getElementById("js-send-msg");
+//
+//           //获取登陆
+//           List loginBtns = msgDiv.getByXPath("//a[@data-type='login']");
+//           HtmlAnchor loginBtn = (HtmlAnchor) loginBtns.get(0);
+//           HtmlPage loginPage = loginBtn.click();
+//
+//            List spans = loginPage.getByXPath("//span[@data-type='login']");
+//            HtmlSpan span = (HtmlSpan) spans.get(0);
+//            HtmlPage pwdLoginPage = span.click();
+//
+//            HtmlElement phoneNum = pwdLoginPage.getElementByName("phoneNum");
+//            phoneNum.click();
+//            phoneNum.type("19940886898");
+//            HtmlElement pwd = pwdLoginPage.getElementByName("password");
+//            pwd.click();
+//            pwd.type("sdh1693522049@");
+//
+//            //验证码
+//            List divs = loginPage.getByXPath("//div[@class='geetest_radar_tip']");
+//            HtmlDivision div = (HtmlDivision) divs.get(0);
+//            HtmlPage checkPage = div.click();
+//
+//            //HtmlImage valiCodeImg = (HtmlImage) checkPage.getByXPath("//img[@class='geetest_tip_img']");
+//            HtmlImage valiCodeImg = (HtmlImage) checkPage.getByXPath("//img[@class='geetest_item_img']");
+//            ImageReader imageReader = valiCodeImg.getImageReader();
+//            BufferedImage bufferedImage = imageReader.read(0);
+//
+//            JFrame f2 = new JFrame();
+//            JLabel l = new JLabel();
+//            l.setIcon(new ImageIcon(bufferedImage));
+//            f2.getContentPane().add(l);
+//            f2.setSize(300, 300);
+//            f2.setTitle("验证码");
+//            f2.setVisible(true);
+//
+////           ScriptResult result = page.executeJavaScript("document.getElementById('pk_1248827').onmouseover(window.event)");
+//           ScriptResult result = page.executeJavaScript("$('#js-send-msg').find('a[data-type='login']').trigger('click')");
+//           HtmlPage jspage = (HtmlPage) result.getNewPage();
+//
+//            System.out.println(jspage.asXml());
         } catch (FailingHttpStatusCodeException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         } catch (MalformedURLException e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
-        } catch (IOException e) {
+        } catch (Exception e) {
             // TODO Auto-generated catch block
             e.printStackTrace();
         }finally{
@@ -130,75 +131,50 @@ public class FakeLive {
 
     }
 
+
     /**
-     *
-     * @param v1
-     * @param v2
-     * @return v1=v2 返回 0；v1 > v2 返回 1；v1 < v2 返回 -1
+     * 解析登陆页
+     * @param page
      */
-//    static  int compare(String v1 , String v2){
-//
-//        v1 = v1.replace("." , "");
-//        v2 = v2.replace("." , "");
-//        Long v1L = 0L, v2L = 0L;
-//        if(v1.length() == v2.length()){
-//
-//        }else if(v1.length() > v2.length()){
-//            for (int i =0 , len = v1.length() - v2.length(); i < len ; i++){
-//                v2 = v2+"0";
-//            }
-//
-//        }else {
-//            for (int i =0 , len = v2.length() - v1.length(); i < len ; i++){
-//                v1 = v1+"0";
-//            }
-//        }
-//        v1L = Long.parseLong(v1);
-//        v2L = Long.parseLong(v2);
-//
-//        return Long.compare(v1L ,v2L);
-//    }
-//
-//
-//    static  void merge(int[] a , int[] b){
-//
-//        for (int i : a) {
-//            System.out.print(i + ",");
-//        }
-//        System.out.println();
-//        for (int j : b) {
-//            System.out.print(j + ",");
-//        }
-//        // 获取数组长度
-//        int len_a = a.length;
-//        int len_b = b.length;
-//        System.out.println("len_a:" + len_a + ",len_b:" + len_b);
-//        int[] result = new int[len_a + len_b];
-//        int i, j, k;
-//        i = j = k = 0;
-//        while (i < len_a && j < len_b) {
-//            if (a[i] <= b[j]){
-//
-//                result[k++] = a[i++];
-//            }
-//            else {
-//                result[k++] = b[j++];
-//            }
-//        }
-//        // 处理数组剩余的值，插入结果数组中
-//        while (i < len_a){
-//
-//            result[k++] = a[i++];
-//        }
-//        while (j < len_b){
-//
-//            result[k++] = b[j++];
-//        }
-//
-//        for (int p : result) {
-//            System.out.print(p + ",");
-//        }
-//
-//
-//    }
+    static void login(HtmlPage page) throws Exception {
+        //1.触发主页的登陆页面
+        List loginBtns = page.getByXPath("//a[@data-button-type='login']");
+        HtmlAnchor loginBtn = (HtmlAnchor) loginBtns.get(0);
+        HtmlPage loginPage = loginBtn.click();
+
+        //2.触发主页的密码登陆按钮
+        List pwdBtns = loginPage.getByXPath("//span[@data-type='login']");
+        HtmlSpan pwdBtn = (HtmlSpan) pwdBtns.get(0);
+        HtmlPage pwdLoginPage = pwdBtn.click();
+
+        List phonePwdLoginSpans = pwdLoginPage.getByXPath("//span[@data-subtype='login-by-phoneNum']");
+        HtmlSpan phonePwdLoginSpan = (HtmlSpan) phonePwdLoginSpans.get(0);
+        HtmlPage phonePwdLoginPage = phonePwdLoginSpan.click();
+
+        //3.触发输入手机号码和密码
+        HtmlElement phoneNumInput = pwdLoginPage.getElementByName("phoneNum");
+        phoneNumInput.click();
+        phoneNumInput.type("19940886898");
+        HtmlElement pwdInput = pwdLoginPage.getElementByName("password");
+        pwdInput.click();
+        pwdInput.type("sdh1693522049@");
+
+        //4.触发验证码
+        List codeBtns = pwdLoginPage.getByXPath("//div[@id='gt-captcha-1']");
+        HtmlDivision codeBtn = (HtmlDivision) codeBtns.get(0);
+//        HtmlDivision codeBtn = (HtmlDivision) pwdLoginPage.getElementsById("gt-captcha-1");
+        HtmlPage checkPage = codeBtn.click();
+
+        HtmlImage valiCodeImg = (HtmlImage) checkPage.getByXPath("//img[@class='geetest_item_img']");
+        ImageReader imageReader = valiCodeImg.getImageReader();
+        BufferedImage bufferedImage = imageReader.read(0);
+
+        JFrame f2 = new JFrame();
+        JLabel l = new JLabel();
+        l.setIcon(new ImageIcon(bufferedImage));
+        f2.getContentPane().add(l);
+        f2.setSize(300, 300);
+        f2.setTitle("验证码");
+        f2.setVisible(true);
+    }
 }

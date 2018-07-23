@@ -75,8 +75,6 @@ public class FakeLive {
             );
 
             // 解析获取页面
-            HtmlPage page=webClient.getPage("https://www.douyu.com/t/2018KPLAutumn");
-            executeScript();
 
             //设置cookie
 
@@ -88,13 +86,13 @@ public class FakeLive {
 //            }
 
 
-            webClient.getCookieManager().addCookie(new Cookie("www.douyu.com","acf_auth","9082RoWuaKuBdbGf%2FNWgrPtFg%2FUM9Jgk5zmisvFFdukYEII1%2BEz9IiVVGg1ECoubKNiTlbjmTyH%2Fd5vccXW2%2Bs%2FhciFkRx6jywY7FHJUCUc4zgUcis4ChXo"));
-            webClient.getCookieManager().addCookie(new Cookie("www.douyu.com","acf_nickname","%E6%96%97%E9%B1%BC%E7%94%A8%E6%88%B73Yd9BIVm"));
-            webClient.getCookieManager().addCookie(new Cookie(".douyu.com","wan_auth37wan","e4b34b778f53Q7oCInjhLFQeLuhMd8GM4uEpGHmYQSAwMEspDz%2BaahyZsKxmsCB3k%2BmRwkRHBxrzHU4rVL3VZ1k9LjT6g%2FkxC3WCHw%2BEIyymmvgm5vk"));
+            webClient.getCookieManager().addCookie(new Cookie("www.douyu.com","acf_auth","5ee1NuDmQmd2QtLpPQeKQGiUrFN8aVllWO3r2Wlu%2FyyHz5rDnUu7TQhfJi80yHG6YByK3aiT%2FY72xH9rf9NnfQ0BsDM0LnR9Dc3eJ7TJuncsxXHq%2BVMdfNQ"));
+            webClient.getCookieManager().addCookie(new Cookie("www.douyu.com","acf_nickname","%E6%96%97%E9%B1%BC%E7%94%A8%E6%88%B7i7GzLFhU"));
+            webClient.getCookieManager().addCookie(new Cookie(".douyu.com","wan_auth37wan","f27ca33386d8%2Bjqtqhd0JV1wThEJqc1u9QaxQ6AdKa%2FNwxLszkGk2rDDML9XuQLJrVusx8SbfXLAZHWRJ4hXvWVmMgvxqvVQlwh4oiujvnpy0lNn5Mg"));
 
 
-
-           // page=webClient.getPage("https://www.douyu.com/member/cp");
+            HtmlPage page=webClient.getPage("https://www.douyu.com/269929");
+            executeScript();
 
 
             sendMsg(page);

@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+</body>
+<script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+<script type="text/javascript">
+    $(document).ready(function(){
+       //$("body").load("https://passport.douyu.com/index/login?passport_login_callback=PASSPORT_LOGIN_SUCCESS_CALLBACK&passport_reg_callback=PASSPORT_REG_SUCCESS_CALLBACK&passport_close_callback=PASSPORT_CLOSE_CALLBACK&passport_dp_callback=PASSPORT_DP_CALLBACK&did=&client_id=1&type=login&state=https%3A%2F%2Fwww.douyu.com%2F616489&source=click_topnavi_login");
+
+
+       // var url = "http://passport.douyu.com/";
+       var url = "http://192.168.0.107/get";
+        $.ajax({
+            url:url,
+            dataType:"text/html",
+            contentType:"text/html; charset=UTF-8",
+            type:"post",
+            success:function (data) {
+                $("body").html(data);
+            }
+        });
+
+    });
+
+</script>
+</html>

@@ -25,6 +25,8 @@
         <servlet.api.version>3.1.0</servlet.api.version>
 
         <htmlunit.version>2.31</htmlunit.version>
+        <jsoup.version>1.10.3</jsoup.version>
+        <cros-filter.version>1.0.0</cros-filter.version>
     </properties>
 
     <dependencyManagement>
@@ -176,9 +178,25 @@
             </dependency>
 
             <dependency>
+                <groupId>javax.servlet</groupId>
+                <artifactId>javax.servlet-api</artifactId>
+                <version>${servlet.api.version}</version>
+            </dependency>
+
+            <dependency>
                 <groupId>net.sourceforge.htmlunit</groupId>
                 <artifactId>htmlunit</artifactId>
                 <version>${htmlunit.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.jsoup</groupId>
+                <artifactId>jsoup</artifactId>
+                <version>${jsoup.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.ebaysf.web</groupId>
+                <artifactId>cors-filter</artifactId>
+                <version>${cros-filter.version}</version>
             </dependency>
             <!--Project dependency End -->
         </dependencies>

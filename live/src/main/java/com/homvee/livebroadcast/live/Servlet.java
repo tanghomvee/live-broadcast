@@ -1,7 +1,12 @@
 package com.homvee.livebroadcast.live;
 
+import com.gargoylesoftware.htmlunit.BrowserVersion;
+import com.gargoylesoftware.htmlunit.WebClient;
+import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.util.TextUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
 
 import javax.servlet.ServletException;
 import javax.servlet.annotation.WebServlet;
@@ -14,6 +19,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.Random;
 
 /**
  * Copyright (c) 2018$. ddyunf.com all rights reserved
@@ -28,9 +34,16 @@ public class Servlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setCharacterEncoding("UTF-8");
-
-        String result = doJsonPost("http://passport.douyu.com" , null);
-        response.getWriter().write(result);
+        response.setContentType("application/json");
+        String content="{\"content\":\"我来了哈哈哈哈哈哈"+System.currentTimeMillis() +"\" ,\"operate\":\"chat\"}";
+        Random random = new Random();
+        int k = random.nextInt(10);
+        if(k % 2 == 4){
+            content="{\"content\":\"5000\",\"operate\":\"wait\"}";
+        }else if(k == 3){
+            content="{\"content\":\"https://www.douyu.com/t/lpl\",\"operate\":\"go\"}";
+        }
+        response.getWriter().write(content);
         response.getWriter().flush();
         response.getWriter().close();
 

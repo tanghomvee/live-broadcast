@@ -20,7 +20,10 @@ chrome.runtime.onMessage.addListener(
 		        console.log(data);
 		        sendMsg2Content(data,sender.tab.id);
 		       sendResponse({state: "ok"});
-		    }
+		    },
+			error:function () {
+                sendMsg2Content({},sender.tab.id);
+            }
 		}); 	
     }
 });

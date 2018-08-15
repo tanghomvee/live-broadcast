@@ -34,7 +34,15 @@ public class Servlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json");
-        String content=getData(request.getParameter("name"),"chat");
+        String content = null;
+        try{
+            content = getData(request.getParameter("name"),"chat");
+        }catch (Exception ex){
+            ex.printStackTrace();
+            JSONObject retJSON = new JSONObject();
+            retJSON.put("content" , "");
+            retJSON.put("operate" , "chat");
+        }
         response.getWriter().write(content);
         response.getWriter().flush();
         response.getWriter().close();
@@ -60,15 +68,21 @@ public class Servlet extends HttpServlet {
 
         String content = "";
 
-        if(index == -1){
-            operate = "wait";
-            content = "10000";
+        if(index != 0){
+//            operate = "wait";
+//            content = "10000";
+            String data  = "" + (System.currentTimeMillis() /1000);
+            for (int i = 0 , len = data.length(); i < len ; i++){
+                int code =Character.getNumericValue(data.toCharArray()[i]);
+                content = content + randStrs[code];
+            }
         }else{
             cnt ++ ;
-            content = contents[cnt];
+            if (cnt < contents.length ){
+                content = contents[cnt];
+            }
 
             String data  = "" + (System.currentTimeMillis() /1000);
-            System.out.println(data);
             String randStr = "";
             for (int i = 0 , len = data.length(); i < len ; i++){
                 int code =Character.getNumericValue(data.toCharArray()[i]);
@@ -88,7 +102,7 @@ public class Servlet extends HttpServlet {
 
     public static int cnt = 0;
 
-    int getAcct(String acct){
+    synchronized int getAcct(String acct){
         if(accts == null || accts.length==0){
             cnt=0;
             accts = new String[]{
@@ -294,7 +308,7 @@ public class Servlet extends HttpServlet {
             };
         }
         int index = ArrayUtils.indexOf(accts , acct);
-        if(index != 0) {
+        if(index == 0) {
             accts = ArrayUtils.remove(accts , index);
         }
         return index;

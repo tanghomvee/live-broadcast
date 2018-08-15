@@ -1,6 +1,6 @@
 $(function(){
 
-var  timeout = 30000;
+var  timeout = 10000;
 var chatList= [];
 var interval = setInterval(function(){
  sendMsg2Bg();

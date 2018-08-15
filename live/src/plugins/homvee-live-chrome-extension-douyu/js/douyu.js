@@ -34,10 +34,7 @@ chrome.runtime.onMessage.addListener(function (params, sender, sendResponse) {
 				},params.content / 1);
 		}
    }else{
-        var tmp =window.setTimeout(function(){
-            sendMsg2Bg();
-            window.clearTimeout(tmp);
-        },timeout);
+      window.location.reload();
 	}
 });
 
@@ -99,11 +96,18 @@ function isOk(params){
 }
 
 function sendMsg2Bg(){
-	var nameSpan = $("#header").find("span[class='l-txt']");
-	var usrName = nameSpan.html();
-	chrome.runtime.sendMessage({operate: "chat" , name:usrName}, function(response) {
-  		console.log("bg resp " + response);
-	});
+	try{
+
+        var nameSpan = $("#header").find("span[class='l-txt']");
+        var usrName = nameSpan.html();
+        chrome.runtime.sendMessage({operate: "chat" , name:usrName}, function(response) {
+            console.log("bg resp " + response);
+        });
+
+	}catch (e) {
+        window.location.reload();
+    }
+
 }
 
 function getRandom(num) {

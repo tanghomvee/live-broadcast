@@ -1,5 +1,6 @@
 package com.homvee.livebroadcast.live;
 
+import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.lang3.ArrayUtils;
 
 import javax.servlet.ServletException;
@@ -49,8 +50,10 @@ public class Servlet extends HttpServlet {
     public String getData(String acct ,String operate){
 
         String[] randStrs = new String[]{
-                "^_^ "," ԅ(¯㉨¯ԅ) "," （￢㉨￢）   ","  ٩(♡㉨♡ )۶  ","  ヽ(○^㉨^)ﾉ♪ ","  (╥ ㉨ ╥`)   ","  ҉٩(*^㉨^*)  ",
-                " （≧㉨≦） "," （⊙㉨⊙） "," (๑•́ ㉨ •̀๑) "," ◟(░´㉨`░)◜ "
+//                "^_^ "," ԅ(¯㉨¯ԅ) "," （￢㉨￢）   ","  ٩(♡㉨♡ )۶  ","  ヽ(○^㉨^)ﾉ♪ ","  (╥ ㉨ ╥`)   ","  ҉٩(*^㉨^*)  ",
+//                " （≧㉨≦） "," （⊙㉨⊙） "," (๑•́ ㉨ •̀๑) "," ◟(░´㉨`░)◜ ",
+
+                "·","^","`",".","_","~",",","、","¯","♡","o_o","I","i","|","l"
         };
 
         int index = getAcct(acct);
@@ -63,22 +66,24 @@ public class Servlet extends HttpServlet {
         }else{
             cnt ++ ;
             content = contents[cnt];
-        }
 
-
-        String data  = "" + (System.currentTimeMillis() /1000);
-        System.out.println(data);
-        String randStr = "";
-        for (int i = 0 ; i < data.length() ; i++){
-            String str = randStrs[Integer.valueOf(data.toCharArray()[i] + "")];
-            if(randStr.indexOf(str) > -1){
-                continue;
+            String data  = "" + (System.currentTimeMillis() /1000);
+            System.out.println(data);
+            String randStr = "";
+            for (int i = 0 , len = data.length(); i < len ; i++){
+                int code =Character.getNumericValue(data.toCharArray()[i]);
+                randStr = randStr + randStrs[code];
             }
-            randStr = randStr + str;
+
+            content = content + randStr;
         }
 
-        String rs = "{\"content\":\"" + content + randStr + "\" ,\"operate\":\""+ operate+"\"}";
-        return rs;
+
+
+        JSONObject retJSON = new JSONObject();
+        retJSON.put("content" , content);
+        retJSON.put("operate" , operate);
+        return retJSON.toJSONString();
     }
 
     public static int cnt = 0;

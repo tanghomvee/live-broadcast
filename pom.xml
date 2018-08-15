@@ -24,6 +24,7 @@
         <spring.version>5.0.5.RELEASE</spring.version>
         <servlet.api.version>3.1.0</servlet.api.version>
 
+        <fastjson.version>1.2.36</fastjson.version>
         <htmlunit.version>2.31</htmlunit.version>
         <jsoup.version>1.10.3</jsoup.version>
         <cros-filter.version>1.0.0</cros-filter.version>
@@ -181,6 +182,12 @@
                 <groupId>javax.servlet</groupId>
                 <artifactId>javax.servlet-api</artifactId>
                 <version>${servlet.api.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>fastjson</artifactId>
+                <version>${fastjson.version}</version>
             </dependency>
 
             <dependency>

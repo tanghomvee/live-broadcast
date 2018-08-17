@@ -62,6 +62,18 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
         if(content == null){
             return null;
         }
+        Long preId = content.getPreId();
+        if(preId != null && preId > 0){
+            Content contentTmp = this.findOne(preId);
+            if (contentTmp != null){
+                if(contentTmp.getRecentUsedTime() == null){
+                    return null;
+                }
+                if(content.getRecentUsedTime() != null && contentTmp.getRecentUsedTime().getTime() < content.getRecentUsedTime().getTime()){
+                    return null;
+                }
+            }
+        }
         content.setRecentUsedTime(new Date());
         contentDao.save(content);
         content.setContent(content.getContent() + getRandomStr());

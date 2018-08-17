@@ -30,5 +30,38 @@
             <artifactId>spring-webmvc</artifactId>
         </dependency>
     </dependencies>
-    
+
+    <build>
+        <!-- 指定properties配置文件变量所在路径该路径存在于src/main/resources下 -->
+        <filters>
+            <filter>src/main/resources/env/${env}</filter>
+        </filters>
+        <resources>
+            <resource>
+                <!-- 指定含maven变量的配置文件所在的目录-->
+                <directory>src/main/resources</directory>
+                <!--指定读取配置文件的过滤条件(即activeByDefault为true的配置文件)  -->
+                <filtering>true</filtering>
+            </resource>
+
+            <resource>
+                <!-- 指定含maven变量的配置文件所在的目录-->
+                <directory>src/test/resources</directory>
+                <!--指定读取配置文件的过滤条件(即activeByDefault为true的配置文件)  -->
+                <filtering>true</filtering>
+            </resource>
+
+        </resources>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
 </project>

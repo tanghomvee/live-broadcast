@@ -6,7 +6,7 @@ package com.homvee.livebroadcast.common.enums;
  * @author ddyunf
  */
 public enum YNEnum {
-    YES(1,"有效"), NO(-1,"无效");
+    YES(1,"有效"), NO(0,"无效");
 
 	private Integer val;
 	private String desc;

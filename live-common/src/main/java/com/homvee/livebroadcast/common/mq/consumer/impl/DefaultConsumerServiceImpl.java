@@ -1,7 +1,6 @@
 package com.homvee.livebroadcast.common.mq.consumer.impl;
 
 import com.homvee.livebroadcast.common.mq.consumer.DefaultConsumerService;
-import com.slst.common.mq.consumer.DefaultConsumerService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.consumer.listener.MessageListener;

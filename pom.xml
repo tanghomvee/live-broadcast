@@ -9,11 +9,11 @@
     <version>1.0-SNAPSHOT</version>
     <packaging>pom</packaging>
     <modules>
-        <module>live</module>
         <module>live-common</module>
         <module>live-dao</module>
         <module>live-service</module>
         <module>live-web</module>
+        <module>live-plugins</module>
     </modules>
 
     <properties>

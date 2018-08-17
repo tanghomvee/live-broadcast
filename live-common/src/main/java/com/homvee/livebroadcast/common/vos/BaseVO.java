@@ -89,4 +89,8 @@ public class BaseVO implements Serializable{
     public void setChangeTime(Date changeTime) {
         this.changeTime = changeTime;
     }
+
+    public static String[] getIgnoreProperties(){
+       return new String[]{"creator" , "createTime"};
+    }
 }

@@ -1,0 +1,92 @@
+package com.homvee.livebroadcast.web.ctrls;
+
+import com.google.common.collect.Lists;
+import com.homvee.livebroadcast.common.enums.YNEnum;
+import com.homvee.livebroadcast.common.vos.*;
+import com.homvee.livebroadcast.dao.acct.model.Account;
+import com.homvee.livebroadcast.service.acct.AccountService;
+import com.homvee.livebroadcast.web.BaseCtrl;
+import org.apache.commons.lang3.ArrayUtils;
+import org.springframework.beans.BeanUtils;
+import org.springframework.stereotype.Controller;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+import javax.annotation.Resource;
+import java.util.Date;
+
+/**
+ * Copyright (c) 2018$. ddyunf.com all rights reserved
+ *
+ * @author Homvee.Tang(tanghongwei @ ddcloudf.com)
+ * @version V1.0
+ * @Description TODO(用一句话描述该文件做什么)
+ * @date 2018-08-17 10:38
+ */
+@Controller
+@RequestMapping(path = "/acct")
+public class AccountCtrl extends BaseCtrl {
+
+   @Resource
+   private AccountService accountService;
+
+    @RequestMapping(path = {"/add"}, method = {RequestMethod.GET, RequestMethod.POST})
+    @ResponseBody
+   public Msg save(String acctName){
+       if(StringUtils.isEmpty(acctName)){
+           return Msg.error("参数错误");
+       }
+       Account account = new Account();
+       account.setUserId(getUser().getId());
+       account.setCreator(getUser().getUserName());
+       accountService.save(Lists.newArrayList(account));
+       return Msg.success();
+   }
+
+    @RequestMapping(path = {"/list"}, method = {RequestMethod.GET, RequestMethod.POST})
+    @ResponseBody
+    public Msg list(AccountVO accountVO, Pager pager){
+        pager = accountService.findByConditions(accountVO , pager);
+        return Msg.success(pager);
+    }
+
+   @RequestMapping(path = {"/one"}, method = {RequestMethod.GET, RequestMethod.POST})
+   @ResponseBody
+   public Msg findOne(Long id){
+       if(StringUtils.isEmpty(id) || id < 1){
+           return Msg.error("参数错误");
+       }
+       Account account = accountService.findOne(id);
+       if(account == null){
+           return Msg.error("账户不存在");
+       }
+        AccountVO accountVO = new AccountVO();
+        BeanUtils.copyProperties(account ,accountVO);
+       return Msg.success(accountVO);
+   }
+
+   @RequestMapping(path = {"/edit"}, method = {RequestMethod.GET, RequestMethod.POST})
+   @ResponseBody
+   public Msg edit(AccountVO accountVO){
+       if(StringUtils.isEmpty(accountVO) || accountVO.getId() < 1){
+           return Msg.error("参数错误");
+       }
+       Account account = accountService.findOne(accountVO.getId());
+       if(account == null){
+           return Msg.error("账户不存在");
+       }
+
+       if(YNEnum.getByVal(accountVO.getYn()) == null){
+           accountVO.setYn(account.getYn());
+       }
+
+       BeanUtils.copyProperties(accountVO ,account , ArrayUtils.add(BaseVO.getIgnoreProperties() , "userId"));
+       account.setChanger(getUser().getUserName());
+       account.setChangeTime(new Date());
+       accountService.save(Lists.newArrayList(account));
+       return Msg.success();
+   }
+
+}

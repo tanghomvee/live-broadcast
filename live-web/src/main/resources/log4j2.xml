@@ -100,6 +100,14 @@
             <appender-ref ref="${ERROR_FILE_NAME}"/>
         </logger>
 
+        <logger name="org.hibernate.engine.internal.StatisticalLoggingSessionEventListener" level="warn">
+            <appender-ref ref="Console"/>
+            <appender-ref ref="${DEBUG_FILE_NAME}"/>
+            <appender-ref ref="${INFO_FILE_NAME}"/>
+            <appender-ref ref="${WARN_FILE_NAME}"/>
+            <appender-ref ref="${ERROR_FILE_NAME}"/>
+        </logger>
+
         <root level="${log.level}">
             <appender-ref ref="Console"/>
             <appender-ref ref="${DEBUG_FILE_NAME}"/>

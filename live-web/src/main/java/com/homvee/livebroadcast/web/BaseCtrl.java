@@ -1,5 +1,13 @@
 package com.homvee.livebroadcast.web;
 
+import com.homvee.livebroadcast.common.constants.SessionKey;
+import com.homvee.livebroadcast.common.vos.UserVO;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpSession;
+
 /**
  * Copyright (c) 2018$. ddyunf.com all rights reserved
  *
@@ -9,4 +17,24 @@ package com.homvee.livebroadcast.web;
  * @date 2018-08-16 09:34
  */
 public class BaseCtrl {
+    protected Logger LOGGER = null;
+
+    @Resource
+    private HttpSession session;
+
+    public BaseCtrl() {
+        LOGGER = LoggerFactory.getLogger(this.getClass());
+    }
+
+
+    protected UserVO getUser() {
+
+        return (UserVO) session.getAttribute(SessionKey.USER);
+
+    }
+    protected void setUser(UserVO user) {
+
+      session.setAttribute(SessionKey.USER , user);
+
+    }
 }

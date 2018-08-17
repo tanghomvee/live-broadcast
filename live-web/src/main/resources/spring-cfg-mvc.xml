@@ -6,7 +6,7 @@
     http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd"
 	default-autowire="byName">
 
-	<context:component-scan base-package="com.homvee.livebroadcast.web.ctrs"/>
+	<context:component-scan base-package="com.homvee.livebroadcast.web.ctrls"/>
 
 	<mvc:default-servlet-handler/>
 	<bean class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -41,26 +41,22 @@
 	<mvc:resources location="/" mapping="/index.html"/>
 
 	<!--权限配置-->
-<!--	<mvc:interceptors>
-		&lt;!&ndash;&lt;!&ndash;登陆拦截&ndash;&gt;&ndash;&gt;
+	<mvc:interceptors>
+		<!--&lt;!&ndash;登陆拦截&ndash;&gt;-->
 		<mvc:interceptor>
 			<mvc:mapping path="/**"/>
-			<mvc:exclude-mapping path="/user/login" />&lt;!&ndash;账号登录 &ndash;&gt;
-			<mvc:exclude-mapping path="/user/selecteduser" />&lt;!&ndash;选择用户登录 &ndash;&gt;
-			<mvc:exclude-mapping path="/collector/collect" />&lt;!&ndash;设备上报 &ndash;&gt;
-			<mvc:exclude-mapping path="/slstweb/data/upload3" />&lt;!&ndash;设备上报 &ndash;&gt;
-			<mvc:exclude-mapping path="/srv/*" />&lt;!&ndash;数据使用方请求路径，1.0&ndash;&gt;
-			<mvc:exclude-mapping path="/soundtooth/callout" />&lt;!&ndash;声牙电话回掉&ndash;&gt;
+			<mvc:exclude-mapping path="/user/login" /><!--账号登录 -->
+			<mvc:exclude-mapping path="/content/chat/**" /><!--声牙电话回掉-->
 
-			<bean class="com.slst.user.web.interceptors.UsrLoginInterceptor"/>
+			<bean class="com.homvee.livebroadcast.web.interceptors.UsrLoginInterceptor"/>
 		</mvc:interceptor>
 
-		&lt;!&ndash;&lt;!&ndash;权限拦截&ndash;&gt;
+		<!--&lt;!&ndash;权限拦截&ndash;&gt;
 		<mvc:interceptor>
 			<mvc:mapping path="/**"/>
 			<bean class="com.slst.user.web.interceptors.UsrAuthInterceptor"/>
-		</mvc:interceptor>&ndash;&gt;
-	</mvc:interceptors>-->
+		</mvc:interceptor>-->
+	</mvc:interceptors>
 
 	<import resource="spring-cfg-converters.xml"/>
 	<import resource="spring-cfg-view.xml"/>

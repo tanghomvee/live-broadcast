@@ -31,25 +31,25 @@
     </bean>
 
     <!--1 配置数据源 -->
-    <bean id="${datasource.slst.master.key}"  parent="dbConfig">
-        <property name="driverClassName" value="${slst.db.master.driver}" />
-        <property name="url" value="${slst.db.master.url}" />
-        <property name="username" value="${slst.db.master.username}" />
-        <property name="password" value="${slst.db.master.password}" />
+    <bean id="${datasource.livebroadcast.master.key}"  parent="dbConfig">
+        <property name="driverClassName" value="${livebroadcast.db.master.driver}" />
+        <property name="url" value="${livebroadcast.db.master.url}" />
+        <property name="username" value="${livebroadcast.db.master.username}" />
+        <property name="password" value="${livebroadcast.db.master.password}" />
     </bean>
 
-    <bean id="${datasource.slst.slave.key}" parent="dbConfig">
-        <property name="driverClassName" value="${slst.db.slave.driver}" />
-        <property name="url" value="${slst.db.slave.url}" />
-        <property name="username" value="${slst.db.slave.username}" />
-        <property name="password" value="${slst.db.slave.password}" />
+    <bean id="${datasource.livebroadcast.slave.key}" parent="dbConfig">
+        <property name="driverClassName" value="${livebroadcast.db.slave.driver}" />
+        <property name="url" value="${livebroadcast.db.slave.url}" />
+        <property name="username" value="${livebroadcast.db.slave.username}" />
+        <property name="password" value="${livebroadcast.db.slave.password}" />
     </bean>
 
     <!--2 配置数据源的选择策略 -->
     <bean id="randomStrategy" class="io.shardingsphere.core.api.algorithm.masterslave.RandomMasterSlaveLoadBalanceAlgorithm" />
     <master-slave:data-source id="masterSlaveDataSource"
-                              master-data-source-name="${datasource.slst.master.key}"
-                              slave-data-source-names="${datasource.slst.slave.key}"
+                              master-data-source-name="${datasource.livebroadcast.master.key}"
+                              slave-data-source-names="${datasource.livebroadcast.slave.key}"
                               strategy-ref="randomStrategy" />
 
     <!--3 Spring整合jpa -->
@@ -57,7 +57,7 @@
         <property name="dataSource" ref="masterSlaveDataSource" />
         <property name="packagesToScan"  >
             <list>
-                <value>com.homvee.livebroadcast.dao.**</value>
+                <value>com.homvee.livebroadcast.dao.**.model</value>
             </list>
         </property>
         <property name="jpaVendorAdapter">

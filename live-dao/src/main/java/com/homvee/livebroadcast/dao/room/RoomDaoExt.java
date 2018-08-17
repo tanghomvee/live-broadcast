@@ -1,5 +1,8 @@
 package com.homvee.livebroadcast.dao.room;
 
+import com.homvee.livebroadcast.common.vos.Pager;
+import com.homvee.livebroadcast.common.vos.RoomVO;
+
 /**
  * Copyright (c) 2018$. ddyunf.com all rights reserved
  *
@@ -11,4 +14,11 @@ package com.homvee.livebroadcast.dao.room;
 public interface RoomDaoExt {
 
 
+    /**
+     * find by page
+     * @param roomVO
+     * @param pager
+     * @return
+     */
+    Pager findByConditions(RoomVO roomVO, Pager pager);
 }

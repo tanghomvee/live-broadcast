@@ -3,7 +3,10 @@ $(function(){
 var  timeout = 10000;
 var chatList= [];
 var interval = setInterval(function(){
- sendMsg2Bg();
+   var sendBtn = $("#js-send-msg").find("div[data-type='send']");
+   if (sendBtn && sendBtn.length > 0){
+       sendMsg2Bg();
+   }
 },timeout);
 
 chrome.runtime.onMessage.addListener(function (params, sender, sendResponse) {

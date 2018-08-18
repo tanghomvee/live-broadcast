@@ -50,18 +50,15 @@ body {
 	padding: 10px;
 	//border:1px solid #dfe6ec;
 	margin: 10px 0px;
-	.el-form-item {
-		margin-bottom: 10px;
-	}
 }
-
-.fade-enter-active,
-.fade-leave-active {
+.toolbar .el-form-item {
+	margin-bottom: 10px;
+}
+.fade-enter-active,.fade-leave-active {
 	transition: all .2s ease;
 }
 
-.fade-enter,
-.fade-leave-active {
+.fade-enter,.fade-leave-active {
 	opacity: 0;
 }
 </style>

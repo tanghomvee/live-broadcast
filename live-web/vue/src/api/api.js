@@ -1,8 +1,19 @@
 import axios from 'axios';
 
-let base = '';
+let base = 'http://localhost';
 
-export const requestLogin = params => { return axios.post(`${base}/login`, params).then(res => res.data); };
+export const requestLogin = params => {
+    return axios({
+        method:"post",
+        url:"http://localhost/user/login",
+        data:params,
+        headers:{
+            'Content-Type':'application/x-www-form-urlencoded'
+        }
+    }).then(res =>{
+        console.info(res);
+    });
+};
 
 export const getUserList = params => { return axios.get(`${base}/user/list`, { params: params }); };
 

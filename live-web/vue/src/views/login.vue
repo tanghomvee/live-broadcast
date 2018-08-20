@@ -49,7 +49,7 @@
             //_this.$router.replace('/table');
             this.logining = true;
             NProgress.start();
-            var loginParams = { username: this.loginForm.account, password: this.loginForm.checkPass };
+            var loginParams = { username: this.loginForm.account, password: this.loginForm.pwd };
             requestLogin(loginParams).then(data => {
               this.logining = false;
               NProgress.done();

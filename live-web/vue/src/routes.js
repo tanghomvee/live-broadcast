@@ -1,11 +1,12 @@
-import Login from './views/Login.vue'
-import NotFound from './views/404.vue'
-import Home from './views/Home.vue'
-import Main from './views/Main.vue'
-import Table from './views/nav1/Table.vue'
-import Form from './views/nav1/Form.vue'
-import user from './views/nav1/user.vue'
-import echarts from './views/charts/echarts.vue'
+import Login from './views/Login.vue';
+import NotFound from './views/404.vue';
+import Home from './views/Home.vue';
+import Main from './views/Main.vue';
+import content from './views/content/list.vue';
+import acct from './views/acct/list.vue';
+import Form from './views/content/Form.vue';
+import user from './views/content/user.vue';
+import echarts from './views/charts/echarts.vue';
 
 let routes = [
     {
@@ -24,13 +25,24 @@ let routes = [
     {
         path: '/',
         component: Home,
-        name: '导航一',
+        name: '对话管理',
         iconCls: 'el-icon-message',//图标样式class
         children: [
             { path: '/main', component: Main, name: '主页', hidden: true },
-            { path: '/table', component: Table, name: 'Table' },
+            { path: '/content/list', component: content, name: '内容列表' },
             { path: '/form', component: Form, name: 'Form' },
             { path: '/user', component: user, name: '列表' },
+        ]
+    },
+    {
+        path: '/',
+        component: Home,
+        name: '账户管理',
+        iconCls: 'el-icon-',//图标样式class
+        children: [
+            { path: '/main', component: Main, name: '主页', hidden: true },
+            { path: '/acct/list', component: acct, name: '账户列表' }
+
         ]
     },
     {

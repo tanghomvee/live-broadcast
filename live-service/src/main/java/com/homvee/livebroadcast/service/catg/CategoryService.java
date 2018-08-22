@@ -40,4 +40,19 @@ public interface CategoryService extends BaseService<Category, Long> {
      * @return
      */
     Pager findByConditions(CategoryVO categoryVO, Pager pager);
+
+    /**
+     * findByParentIdAndUserId
+     * @param parentId
+     * @param userId
+     * @return
+     */
+    List<Category> findByParentIdAndUserId(Long parentId, Long userId);
+
+    /**
+     * del
+     * @param ids
+     * @return
+     */
+    Integer delByIds(Long[] ids);
 }

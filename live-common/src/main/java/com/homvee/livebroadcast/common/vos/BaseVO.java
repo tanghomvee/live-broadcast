@@ -1,6 +1,7 @@
 package com.homvee.livebroadcast.common.vos;
 
 import java.io.Serializable;
+import java.math.BigInteger;
 import java.util.Date;
 
 /**
@@ -50,6 +51,7 @@ public class BaseVO implements Serializable{
         this.id = id;
     }
 
+
     public Integer getYn() {
         return yn;
     }
@@ -91,6 +93,6 @@ public class BaseVO implements Serializable{
     }
 
     public static String[] getIgnoreProperties(){
-       return new String[]{"creator" , "createTime"};
+       return new String[]{"creator" , "createTime" , "yn"};
     }
 }

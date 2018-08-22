@@ -77,6 +77,7 @@ public class ContentCtrl extends BaseCtrl {
    @RequestMapping(path = {"/list"}, method = {RequestMethod.GET, RequestMethod.POST})
    @ResponseBody
    public Msg list(ContentVO contentVO, Pager pager){
+       contentVO.setUserId(getUser().getId());
        pager = contentService.findByConditions(contentVO , pager);
        return Msg.success(pager);
    }
@@ -95,6 +96,15 @@ public class ContentCtrl extends BaseCtrl {
        BeanUtils.copyProperties(content ,contentVO);
        return Msg.success(contentVO);
    }
+   @RequestMapping(path = {"/del"}, method = {RequestMethod.GET, RequestMethod.POST})
+   @ResponseBody
+   public Msg del(Long[] ids){
+       if(StringUtils.isEmpty(ids) || ids.length < 1){
+           return Msg.error("参数错误");
+       }
+       contentService.delByIds(ids);
+       return Msg.success();
+   }
 
    @RequestMapping(path = {"/edit"}, method = {RequestMethod.GET, RequestMethod.POST})
    @ResponseBody
@@ -105,10 +115,6 @@ public class ContentCtrl extends BaseCtrl {
        Content content = contentService.findOne(contentVO.getId());
        if(content == null){
            return Msg.error("直播内容不存在");
-       }
-
-       if(YNEnum.getByVal(contentVO.getYn()) == null){
-           contentVO.setYn(content.getYn());
        }
 
        BeanUtils.copyProperties(contentVO ,content , ArrayUtils.add(BaseVO.getIgnoreProperties() , "userId"));

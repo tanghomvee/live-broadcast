@@ -2,6 +2,8 @@ package com.homvee.livebroadcast.dao.acct;
 
 import com.homvee.livebroadcast.dao.acct.model.Account;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
 
 import java.util.List;
 
@@ -23,4 +25,20 @@ public interface AccountDao extends JpaRepository<Account, Long> , AccountDaoExt
      */
     List<Account> findByAcctNameAndUserIdAndYn(String acctName, Long userId, Integer yn);
 
+    /**
+     * find
+     * @param userId
+     * @param val
+     * @return
+     */
+    List<Account> findByUserIdAndYn(Long userId, Integer val);
+
+    /**
+     * del
+     * @param ids
+     * @return
+     */
+    @Modifying
+    @Query(value = "update t_account set yn=0 ,changeTime=now() where id in(?1)" , nativeQuery = true)
+    Integer delByIds(List<Long> ids);
 }

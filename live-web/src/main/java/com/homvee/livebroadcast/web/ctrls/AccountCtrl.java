@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Copyright (c) 2018$. ddyunf.com all rights reserved
@@ -41,6 +42,7 @@ public class AccountCtrl extends BaseCtrl {
        Account account = new Account();
        account.setUserId(getUser().getId());
        account.setCreator(getUser().getUserName());
+       account.setAcctName(acctName);
        accountService.save(Lists.newArrayList(account));
        return Msg.success();
    }
@@ -48,8 +50,16 @@ public class AccountCtrl extends BaseCtrl {
     @RequestMapping(path = {"/list"}, method = {RequestMethod.GET, RequestMethod.POST})
     @ResponseBody
     public Msg list(AccountVO accountVO, Pager pager){
+        accountVO.setUserId(getUser().getId());
         pager = accountService.findByConditions(accountVO , pager);
         return Msg.success(pager);
+    }
+
+    @RequestMapping(path = {"/all"}, method = {RequestMethod.GET, RequestMethod.POST})
+    @ResponseBody
+    public Msg all(){
+        List<Account> accounts = accountService.findByUserId(getUser().getId());
+        return Msg.success(accounts);
     }
 
    @RequestMapping(path = {"/one"}, method = {RequestMethod.GET, RequestMethod.POST})
@@ -66,6 +76,15 @@ public class AccountCtrl extends BaseCtrl {
         BeanUtils.copyProperties(account ,accountVO);
        return Msg.success(accountVO);
    }
+   @RequestMapping(path = {"/del"}, method = {RequestMethod.GET, RequestMethod.POST})
+   @ResponseBody
+   public Msg del(Long[] ids){
+       if(StringUtils.isEmpty(ids) || ids.length < 1){
+           return Msg.error("参数错误");
+       }
+       accountService.delByIds(ids);
+       return Msg.success();
+   }
 
    @RequestMapping(path = {"/edit"}, method = {RequestMethod.GET, RequestMethod.POST})
    @ResponseBody
@@ -76,10 +95,6 @@ public class AccountCtrl extends BaseCtrl {
        Account account = accountService.findOne(accountVO.getId());
        if(account == null){
            return Msg.error("账户不存在");
-       }
-
-       if(YNEnum.getByVal(accountVO.getYn()) == null){
-           accountVO.setYn(account.getYn());
        }
 
        BeanUtils.copyProperties(accountVO ,account , ArrayUtils.add(BaseVO.getIgnoreProperties() , "userId"));

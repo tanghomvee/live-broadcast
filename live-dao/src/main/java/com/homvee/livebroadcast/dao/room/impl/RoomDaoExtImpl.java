@@ -26,19 +26,19 @@ public class RoomDaoExtImpl extends JpaDaoSupport<Room,Long> implements RoomDaoE
 
         Map<String , Object> params = Maps.newHashMap();
         params.put("yn" , YNEnum.YES.getVal());
-        if (StringUtils.isEmpty(roomVO.getRoomName())){
+        if (!StringUtils.isEmpty(roomVO.getRoomName())){
             sql.append(" AND roomName like :roomName");
             params.put("roomName" , "%" + roomVO.getRoomName() + "%");
         }
-        if (StringUtils.isEmpty(roomVO.getUrl())){
+        if (!StringUtils.isEmpty(roomVO.getUrl())){
             sql.append(" AND url like :url");
             params.put("url" ,"%" + roomVO.getUrl() + "%");
         }
-        if (StringUtils.isEmpty(roomVO.getUserId())){
+        if (!StringUtils.isEmpty(roomVO.getUserId())){
             sql.append(" AND userId = :userId");
             params.put("userId" ,roomVO.getUserId() );
         }
-        if (StringUtils.isEmpty(roomVO.getWay())){
+        if (!StringUtils.isEmpty(roomVO.getWay())){
             sql.append(" AND way = :way");
             params.put("way" ,roomVO.getWay() );
         }

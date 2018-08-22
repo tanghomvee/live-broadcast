@@ -24,7 +24,7 @@
       return {
         logining: false,
         loginForm: {
-          account: 'admin',
+          account: 'Homvee',
             pwd: '123456'
         },
         loginFormValidator: {
@@ -49,19 +49,23 @@
             //_this.$router.replace('/table');
             this.logining = true;
             NProgress.start();
-            var loginParams = { username: this.loginForm.account, password: this.loginForm.pwd };
-            requestLogin(loginParams).then(data => {
+            var loginParams = { userName: this.loginForm.account, pwd: this.loginForm.pwd };
+            requestLogin(loginParams , _this).then(resp => {
               this.logining = false;
               NProgress.done();
-              let { msg, code, user } = data;
-              if (code !== 200) {
+              if(!resp){
+                  return;
+              }
+
+              let { msg, flag, data } = resp;
+              if (flag !== "success") {
                 this.$message({
-                  message: msg,
-                  type: 'error'
+                  "message": msg,
+                  "type": 'error'
                 });
               } else {
-                sessionStorage.setItem('user', JSON.stringify(user));
-                this.$router.push({ path: '/table' });
+                sessionStorage.setItem('user', JSON.stringify(data));
+                this.$router.push({ path: '/content/list' });
               }
             });
           } else {

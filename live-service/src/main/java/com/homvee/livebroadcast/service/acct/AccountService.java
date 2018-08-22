@@ -48,4 +48,17 @@ public interface AccountService extends BaseService<Account, Long> {
      * @return
      */
     Pager findByConditions(AccountVO accountVO, Pager pager);
+
+    /**
+     * find by userId
+     * @param userId
+     * @return
+     */
+    List<Account> findByUserId(Long userId);
+
+    /**
+     * del
+     * @param ids
+     */
+    void delByIds(Long[] ids);
 }

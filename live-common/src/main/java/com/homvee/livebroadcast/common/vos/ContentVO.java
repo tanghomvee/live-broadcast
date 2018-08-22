@@ -14,18 +14,24 @@ public class ContentVO extends BaseVO {
 
     private Long roomId;
 
+    private String roomName;
+
     private Long acctId;
+    private String acctName;
 
     private Long userId;
+    private String userName;
     /**
      * 使用次数
      */
-    private Integer useNum;
+    private Integer used;
 
     /**
      * 内容分类
      */
     private Long catgId;
+    private Long parentCatgId;
+    private String catgName;
 
     /**
      * 最近使用时间
@@ -39,6 +45,7 @@ public class ContentVO extends BaseVO {
      * 上一条聊天的内容ID
      */
     private Long preId;
+    private String preContent;
 
     public Long getRoomId() {
         return roomId;
@@ -64,12 +71,12 @@ public class ContentVO extends BaseVO {
         this.userId = userId;
     }
 
-    public Integer getUseNum() {
-        return useNum;
+    public Integer getUsed() {
+        return used;
     }
 
-    public void setUseNum(Integer useNum) {
-        this.useNum = useNum;
+    public void setUsed(Integer used) {
+        this.used = used;
     }
 
     public Long getCatgId() {
@@ -102,5 +109,53 @@ public class ContentVO extends BaseVO {
 
     public void setPreId(Long preId) {
         this.preId = preId;
+    }
+
+    public String getRoomName() {
+        return roomName;
+    }
+
+    public void setRoomName(String roomName) {
+        this.roomName = roomName;
+    }
+
+    public String getAcctName() {
+        return acctName;
+    }
+
+    public void setAcctName(String acctName) {
+        this.acctName = acctName;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
+    }
+
+    public String getCatgName() {
+        return catgName;
+    }
+
+    public void setCatgName(String catgName) {
+        this.catgName = catgName;
+    }
+
+    public String getPreContent() {
+        return preContent;
+    }
+
+    public void setPreContent(String preContent) {
+        this.preContent = preContent;
+    }
+
+    public Long getParentCatgId() {
+        return parentCatgId;
+    }
+
+    public void setParentCatgId(Long parentCatgId) {
+        this.parentCatgId = parentCatgId;
     }
 }

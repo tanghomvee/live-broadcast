@@ -10,6 +10,7 @@ package com.homvee.livebroadcast.common.vos;
  */
 public class AccountVO extends BaseVO {
     private String acctName;
+    private String userName;
 
     private Long userId;
 
@@ -27,5 +28,13 @@ public class AccountVO extends BaseVO {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 }

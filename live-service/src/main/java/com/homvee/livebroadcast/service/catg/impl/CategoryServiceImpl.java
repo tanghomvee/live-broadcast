@@ -1,5 +1,7 @@
 package com.homvee.livebroadcast.service.catg.impl;
 
+import com.google.common.collect.Lists;
+import com.homvee.livebroadcast.common.enums.YNEnum;
 import com.homvee.livebroadcast.common.vos.CategoryVO;
 import com.homvee.livebroadcast.common.vos.Pager;
 import com.homvee.livebroadcast.dao.catg.CategoryDao;
@@ -7,6 +9,7 @@ import com.homvee.livebroadcast.dao.catg.model.Category;
 import com.homvee.livebroadcast.service.BaseServiceImpl;
 import com.homvee.livebroadcast.service.catg.CategoryService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -40,5 +43,19 @@ public class CategoryServiceImpl extends BaseServiceImpl<Category , Long> implem
     @Override
     public Pager findByConditions(CategoryVO categoryVO, Pager pager) {
         return categoryDao.findByConditions(categoryVO , pager);
+    }
+
+    @Override
+    public List<Category> findByParentIdAndUserId(Long parentId, Long userId) {
+        if (parentId == null){
+            return categoryDao.findByParentIdIsNullAndUserIdAndYn(userId,YNEnum.YES.getVal());
+        }
+        return  categoryDao.findByParentIdAndUserIdAndYn(parentId,userId,YNEnum.YES.getVal());
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public Integer delByIds(Long[] ids) {
+        return  categoryDao.delByIds(Lists.newArrayList(ids));
     }
 }

@@ -1,5 +1,6 @@
 package com.homvee.livebroadcast.service.room.impl;
 
+import com.google.common.collect.Lists;
 import com.homvee.livebroadcast.common.enums.YNEnum;
 import com.homvee.livebroadcast.common.vos.Pager;
 import com.homvee.livebroadcast.common.vos.RoomVO;
@@ -8,6 +9,7 @@ import com.homvee.livebroadcast.dao.room.model.Room;
 import com.homvee.livebroadcast.service.BaseServiceImpl;
 import com.homvee.livebroadcast.service.room.RoomService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -55,5 +57,16 @@ public class RoomServiceImpl extends BaseServiceImpl<Room ,Long> implements Room
     @Override
     public Room findByUrl(String url) {
         return roomDao.findByUrlAndYn(url , YNEnum.YES.getVal());
+    }
+
+    @Override
+    public List<Room> findByUserId(Long userId) {
+        return roomDao.findByUserIdAndYn(userId , YNEnum.YES.getVal());
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public Integer delByIds(Long[] ids) {
+        return  roomDao.delByIds(Lists.newArrayList(ids));
     }
 }

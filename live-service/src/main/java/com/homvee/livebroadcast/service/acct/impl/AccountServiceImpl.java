@@ -1,5 +1,8 @@
 package com.homvee.livebroadcast.service.acct.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.google.common.collect.Lists;
 import com.homvee.livebroadcast.common.enums.YNEnum;
 import com.homvee.livebroadcast.common.vos.AccountVO;
 import com.homvee.livebroadcast.common.vos.Pager;
@@ -8,6 +11,8 @@ import com.homvee.livebroadcast.dao.acct.model.Account;
 import com.homvee.livebroadcast.service.BaseServiceImpl;
 import com.homvee.livebroadcast.service.acct.AccountService;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -45,6 +50,29 @@ public class AccountServiceImpl extends BaseServiceImpl<Account,Long> implements
 
     @Override
     public Pager findByConditions(AccountVO accountVO, Pager pager) {
-        return accountDao.findByConditions(accountVO , pager);
+        pager = accountDao.findByConditions(accountVO , pager);
+
+        if (pager != null && !CollectionUtils.isEmpty(pager.getData())){
+            List<AccountVO> vos = Lists.newArrayList();
+            for (Object obj: pager.getData() ){
+                String tmp = JSONObject.toJSONString(obj);
+                AccountVO vo = JSON.toJavaObject(JSONObject.parseObject(tmp) , AccountVO.class);
+                vos.add(vo);
+            }
+            pager.setData(vos);
+        }
+
+        return pager;
+    }
+
+    @Override
+    public List<Account> findByUserId(Long userId) {
+        return accountDao.findByUserIdAndYn(userId, YNEnum.YES.getVal());
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void delByIds(Long[] ids) {
+        accountDao.delByIds(Lists.newArrayList(ids));
     }
 }

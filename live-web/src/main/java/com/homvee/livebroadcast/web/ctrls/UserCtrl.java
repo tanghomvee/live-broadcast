@@ -32,6 +32,7 @@ public class UserCtrl extends BaseCtrl {
    @RequestMapping(path = {"/login"}, method = {RequestMethod.GET, RequestMethod.POST})
    @ResponseBody
    public Msg login(String userName , String pwd){
+
        if(StringUtils.isEmpty(userName) || StringUtils.isEmpty(pwd)){
            return Msg.error("参数错误");
        }
@@ -42,7 +43,7 @@ public class UserCtrl extends BaseCtrl {
        UserVO userVO = new UserVO();
        BeanUtils.copyProperties(user ,userVO);
        setUser(userVO);
-       return Msg.success();
+       return Msg.success(userVO);
    }
 
 }

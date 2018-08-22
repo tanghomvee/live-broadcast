@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
 import java.util.Date;
+import java.util.List;
 
 /**
  * Copyright (c) 2018$. ddyunf.com all rights reserved
@@ -57,8 +58,15 @@ public class RoomCtrl extends BaseCtrl {
    @RequestMapping(path = {"/list"}, method = {RequestMethod.GET, RequestMethod.POST})
    @ResponseBody
    public Msg list(RoomVO roomVO, Pager pager){
+       roomVO.setUserId(getUser().getId());
        pager = roomService.findByConditions(roomVO , pager);
        return Msg.success(pager);
+   }
+   @RequestMapping(path = {"/all"}, method = {RequestMethod.GET, RequestMethod.POST})
+   @ResponseBody
+   public Msg all(){
+       List<Room>  rooms= roomService.findByUserId(getUser().getId());
+       return Msg.success(rooms);
    }
 
    @RequestMapping(path = {"/one"}, method = {RequestMethod.GET, RequestMethod.POST})
@@ -85,10 +93,6 @@ public class RoomCtrl extends BaseCtrl {
        Room room = roomService.findOne(roomVO.getId());
        if(room == null){
            return Msg.error("直播间不存在");
-       }
-
-       if(YNEnum.getByVal(roomVO.getYn()) == null){
-           roomVO.setYn(roomVO.getYn());
        }
 
        BeanUtils.copyProperties(roomVO ,room , ArrayUtils.add(BaseVO.getIgnoreProperties() , "userId"));

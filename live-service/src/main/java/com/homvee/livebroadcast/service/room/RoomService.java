@@ -62,4 +62,18 @@ public interface RoomService extends BaseService<Room, Long> {
      * @return
      */
     Room findByUrl(String url);
+
+    /**
+     * find by userid
+     * @param userId
+     * @return
+     */
+    List<Room> findByUserId(Long userId);
+
+    /**
+     * del
+     * @param ids
+     * @return
+     */
+    Integer delByIds(Long[] ids);
 }

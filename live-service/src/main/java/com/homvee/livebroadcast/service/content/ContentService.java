@@ -57,4 +57,10 @@ public interface ContentService extends BaseService<Content, Long> {
      * @return
      */
     Content nextContent(Long id, Long userId, Long accountId);
+
+    /**
+     * del
+     * @param ids
+     */
+    void delByIds(Long[] ids);
 }

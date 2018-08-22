@@ -1,5 +1,7 @@
 package com.homvee.livebroadcast.service.room.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.homvee.livebroadcast.common.enums.YNEnum;
 import com.homvee.livebroadcast.common.vos.Pager;
@@ -10,6 +12,7 @@ import com.homvee.livebroadcast.service.BaseServiceImpl;
 import com.homvee.livebroadcast.service.room.RoomService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -51,7 +54,18 @@ public class RoomServiceImpl extends BaseServiceImpl<Room ,Long> implements Room
 
     @Override
     public Pager findByConditions(RoomVO roomVO, Pager pager) {
-        return roomDao.findByConditions(roomVO , pager);
+        pager = roomDao.findByConditions(roomVO , pager);
+        if (pager != null && !CollectionUtils.isEmpty(pager.getData())){
+            List<RoomVO> vos = Lists.newArrayList();
+            for (Object obj: pager.getData() ){
+                String tmp = JSONObject.toJSONString(obj);
+                RoomVO vo = JSON.toJavaObject(JSONObject.parseObject(tmp) , RoomVO.class);
+                vos.add(vo);
+            }
+            pager.setData(vos);
+        }
+
+        return pager;
     }
 
     @Override

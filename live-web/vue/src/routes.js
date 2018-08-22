@@ -4,6 +4,8 @@ import Home from './views/Home.vue';
 import Main from './views/Main.vue';
 import content from './views/content/list.vue';
 import acct from './views/acct/list.vue';
+import catg from './views/catg/list.vue';
+import room from './views/room/list.vue';
 import Form from './views/content/Form.vue';
 import user from './views/content/user.vue';
 import echarts from './views/charts/echarts.vue';
@@ -42,6 +44,28 @@ let routes = [
         children: [
             { path: '/main', component: Main, name: '主页', hidden: true },
             { path: '/acct/list', component: acct, name: '账户列表' }
+
+        ]
+    },
+    {
+        path: '/',
+        component: Home,
+        name: '分类管理',
+        iconCls: 'el-icon-',//图标样式class
+        children: [
+            { path: '/main', component: Main, name: '主页', hidden: true },
+            { path: '/catg/list', component: catg, name: '分类列表' }
+
+        ]
+    },
+    {
+        path: '/',
+        component: Home,
+        name: '房间管理',
+        iconCls: 'el-icon-',//图标样式class
+        children: [
+            { path: '/main', component: Main, name: '主页', hidden: true },
+            { path: '/room/list', component: room, name: '房间列表' }
 
         ]
     },

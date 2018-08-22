@@ -10,6 +10,7 @@ package com.homvee.livebroadcast.common.vos;
  */
 public class RoomVO extends BaseVO {
     private String roomName;
+    private String userName;
 
     private String url;
 
@@ -51,5 +52,13 @@ public class RoomVO extends BaseVO {
 
     public void setWay(Integer way) {
         this.way = way;
+    }
+
+    public String getUserName() {
+        return userName;
+    }
+
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 }

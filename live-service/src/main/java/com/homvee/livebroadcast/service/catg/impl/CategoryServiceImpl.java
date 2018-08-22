@@ -1,5 +1,7 @@
 package com.homvee.livebroadcast.service.catg.impl;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.homvee.livebroadcast.common.enums.YNEnum;
 import com.homvee.livebroadcast.common.vos.CategoryVO;
@@ -10,6 +12,7 @@ import com.homvee.livebroadcast.service.BaseServiceImpl;
 import com.homvee.livebroadcast.service.catg.CategoryService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -42,7 +45,18 @@ public class CategoryServiceImpl extends BaseServiceImpl<Category , Long> implem
 
     @Override
     public Pager findByConditions(CategoryVO categoryVO, Pager pager) {
-        return categoryDao.findByConditions(categoryVO , pager);
+        pager = categoryDao.findByConditions(categoryVO , pager);
+        if (pager != null && !CollectionUtils.isEmpty(pager.getData())){
+            List<CategoryVO> vos = Lists.newArrayList();
+            for (Object obj: pager.getData() ){
+                String tmp = JSONObject.toJSONString(obj);
+                CategoryVO vo = JSON.toJavaObject(JSONObject.parseObject(tmp) , CategoryVO.class);
+                vos.add(vo);
+            }
+            pager.setData(vos);
+        }
+
+        return pager;
     }
 
     @Override

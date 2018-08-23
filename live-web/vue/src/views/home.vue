@@ -14,7 +14,7 @@
 					<span class="el-dropdown-link userinfo-inner"><img :src="this.sysUserAvatar" /> {{userName}}</span>
 					<el-dropdown-menu slot="dropdown">
 						<el-dropdown-item>我的消息</el-dropdown-item>
-						<el-dropdown-item>设置</el-dropdown-item>
+						<el-dropdown-item @click.native="setting">设置</el-dropdown-item>
 						<el-dropdown-item divided @click.native="logout">退出登录</el-dropdown-item>
 					</el-dropdown-menu>
 				</el-dropdown>
@@ -78,7 +78,7 @@
 				sysName:'直播机器平台',
 				collapsed:false,
 				userName: '',
-				sysUserAvatar: '',
+				sysUserAvatar: '../assets/user.png',
 				form: {
 					name: '',
 					region: '',
@@ -114,9 +114,11 @@
 				}).catch(() => {
 
 				});
-
-
 			},
+            setting: function () {
+                var _this = this;
+                _this.$router.push('/user/setting');
+            },
 			//折叠导航栏
 			collapse:function(){
 				this.collapsed=!this.collapsed;
@@ -129,8 +131,8 @@
 			var user = sessionStorage.getItem('user');
 			if (user) {
 				user = JSON.parse(user);
-				this.userName = user.name || '';
-				this.sysUserAvatar = user.avatar || '';
+				this.userName = user.userName || '';
+				this.sysUserAvatar = user.avatar || '../assets/user.png';
 			}
 
 		}

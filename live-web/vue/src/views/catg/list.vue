@@ -94,11 +94,11 @@
 </template>
 
 <script>
-	import util from '../../common/js/util';
-	import NProgress from 'nprogress';
-	import {listCatg,addCatg,oneCatg,editCatg ,delCatg,parentCatg} from '../../api/api';
+    import util from '../../common/js/util';
+    import NProgress from 'nprogress';
+    import {addCatg, delCatg, editCatg, listCatg, parentCatg} from '../../api/api';
 
-	export default {
+    export default {
 		data:function() {
 			return {
 				filters: {

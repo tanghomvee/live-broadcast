@@ -1,5 +1,8 @@
+import {JSEncrypt} from 'jsencrypt';
+
 var SIGN_REGEXP = /([yMdhsm])(\1*)/g;
 var DEFAULT_PATTERN = 'yyyy-MM-dd';
+var public_key = "MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCOf+929MZBj/PvUtIGh0sCbe+BnVjkkBJbhuN+4DqTWpRAlZGpN0VPH8qOyzrKnRwu46oB8FFVAh3dDXgXELx0MC1I/dNyLaG26NTVDfZh2fnSRjcpxTf82LQZbfxxNoYgmRIDgg6thwAvZqTCSy8JjRkRDDJEthLko+Zli/b1TQIDAQAB";
 function padding(s, len) {
     var len = len - (s + '').length;
     for (var i = 0; i < len; i++) { s = '0' + s; }
@@ -87,6 +90,15 @@ export default {
             }).catch(function (res) {
                 console.warn(res);
             });
+        }
+    },
+    Encryption:{
+        RSA:{
+            encrypt:function (data) {
+                var encrypt = new JSEncrypt();
+                encrypt.setPublicKey(public_key);
+                return encrypt.encrypt(data);
+            }
         }
     }
 

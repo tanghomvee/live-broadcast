@@ -73,11 +73,11 @@
 </template>
 
 <script>
-	import util from '../../common/js/util';
-	import NProgress from 'nprogress';
-	import {listAcct,addAcct,oneAcct,editAcct ,delAcct} from '../../api/api';
+    import util from '../../common/js/util';
+    import NProgress from 'nprogress';
+    import {addAcct, delAcct, editAcct, listAcct} from '../../api/api';
 
-	export default {
+    export default {
 		data:function() {
 			return {
 				filters: {
@@ -134,7 +134,7 @@
 				};
 				this.listLoading = true;
 				NProgress.start();
-                listAcct(params , this).then(function() {
+                listAcct(params , this).then((res) => {
                     if(!res){
                         return;
 					}

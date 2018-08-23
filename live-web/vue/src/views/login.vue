@@ -4,7 +4,7 @@
     <el-form-item prop="account">
       <el-input type="text" v-model="loginForm.account" auto-complete="off" placeholder="账号"></el-input>
     </el-form-item>
-    <el-form-item prop="checkPass">
+    <el-form-item prop="pwd">
       <el-input type="password" v-model="loginForm.pwd" auto-complete="off" placeholder="密码"></el-input>
     </el-form-item>
     <el-checkbox v-model="checked" checked class="remember">记住密码</el-checkbox>
@@ -16,9 +16,11 @@
 </template>
 
 <script>
-  import { requestLogin } from '../api/api';
-  import NProgress from 'nprogress';
-  export default {
+    import {requestLogin} from '../api/api';
+    import util from '../common/js/util';
+    import NProgress from 'nprogress';
+
+    export default {
       name:"login",
       data:function() {
       return {
@@ -46,10 +48,9 @@
         var _this = this;
         this.$refs.loginForm.validate((valid) => {
           if (valid) {
-            //_this.$router.replace('/table');
             this.logining = true;
             NProgress.start();
-            var loginParams = { userName: this.loginForm.account, pwd: this.loginForm.pwd };
+            var loginParams = { userName: this.loginForm.account, pwd: util.Encryption.RSA.encrypt(this.loginForm.pwd) };
             requestLogin(loginParams , _this).then(resp => {
               this.logining = false;
               NProgress.done();
@@ -59,10 +60,7 @@
 
               let { msg, flag, data } = resp;
               if (flag !== "success") {
-                this.$message({
-                  "message": msg,
-                  "type": 'error'
-                });
+                  util.Msg.error(_this , msg);
               } else {
                 sessionStorage.setItem('user', JSON.stringify(data));
                 this.$router.push({ path: '/content/list' });

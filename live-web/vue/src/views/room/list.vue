@@ -4,11 +4,11 @@
 		<el-col :span="24" class="toolbar" style="padding-bottom: 0px;">
 			<el-form :inline="true" :model="filters">
 				<el-form-item>
-					<el-input v-model="filters.acctName" placeholder="账户名称"></el-input>
+					<el-input v-model="filters.roomName" placeholder="账户名称"></el-input>
 				</el-form-item>
 				
 				<el-form-item>
-					<el-button type="primary" v-on:click="getAccts">查询</el-button>
+					<el-button type="primary" v-on:click="getRooms">查询</el-button>
 				</el-form-item>
 				<el-form-item>
 					<el-button type="primary" @click="handleAdd">新增</el-button>
@@ -17,7 +17,7 @@
 		</el-col>
 
 		<!--列表-->
-		<el-table :data="accts" highlight-current-row v-loading="listLoading" @selection-change="selsChange" style="width: 100%;">
+		<el-table :data="rooms" highlight-current-row v-loading="listLoading" @selection-change="selsChange" style="width: 100%;">
 			<el-table-column type="selection" width="55">
 			</el-table-column>
 			<el-table-column type="index" width="60">
@@ -25,9 +25,11 @@
 			<el-table-column prop="userName" label="用户名" width="auto">
 			</el-table-column>
 			
-			<el-table-column prop="acctName" label="账户名称" width="auto">
+			<el-table-column prop="roomName" label="房间名称" width="auto">
 			</el-table-column>
-			
+			<el-table-column prop="url" label="房间直播地址" width="auto">
+			</el-table-column>
+
 			<el-table-column label="操作" width="150">
 				<template scope="scope">
 					<el-button size="small" @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
@@ -46,10 +48,13 @@
 		<!--编辑界面-->
 		<el-dialog title="编辑" v-model="editFormVisible" :close-on-click-modal="false">
 			<el-form :model="editForm" label-width="80px" :rules="editFormRules" ref="editForm">
-				<el-form-item label="账户名称">
-					<el-input v-model="editForm.acctName" placeholder="账户名称"></el-input>
+				<el-form-item label="房间名称">
+					<el-input v-model="editForm.roomName" placeholder="房间名称"></el-input>
 				</el-form-item>
-			
+				<el-form-item label="房间直播地址">
+					<el-input v-model="editForm.roomName" placeholder="房间直播地址链接"></el-input>
+				</el-form-item>
+
 			</el-form>
 			<div slot="footer" class="dialog-footer">
 				<el-button @click.native="editFormVisible = false">取消</el-button>
@@ -60,8 +65,11 @@
 		<!--新增界面-->
 		<el-dialog title="新增" v-model="addFormVisible" :close-on-click-modal="false">
 			<el-form :model="addForm" label-width="80px" :rules="addFormRules" ref="addForm">
-				<el-form-item label="账户名称">
-					<el-input v-model="addForm.acctName" placeholder="账户名称"></el-input>
+				<el-form-item label="房间名称">
+					<el-input v-model="addForm.roomName" placeholder="房间名称"></el-input>
+				</el-form-item>
+				<el-form-item label="房间直播地址">
+					<el-input v-model="addForm.roomName" placeholder="房间直播地址链接"></el-input>
 				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
@@ -75,15 +83,15 @@
 <script>
 	import util from '../../common/js/util';
 	import NProgress from 'nprogress';
-	import {listAcct,addAcct,oneAcct,editAcct ,delAcct} from '../../api/api';
+	import {listRoom,addRoom,editRoom ,delRoom} from '../../api/api';
 
 	export default {
 		data:function() {
 			return {
 				filters: {
-                    acctName:null
+                    roomName:null
 				},
-                accts: [],
+                rooms: [],
 				total: 0,
 				page: 1,
 				listLoading: false,
@@ -95,26 +103,34 @@
                     id: [
                         { required: true, message: '请选择修改的内容', trigger: 'blur' }
                     ],
-                    acctName: [
-                        { required: true, message: '请输入账户名', trigger: 'blur' }
+                    roomName: [
+                        { required: true, message: '请输入房间名', trigger: 'blur' }
+                    ],
+                    url: [
+                        { required: true, message: '请输入房间直播地址', trigger: 'blur' }
                     ]
 				},
 				//编辑界面数据
 				editForm: {
 					id: null,
-                    acctName: ''
+                    roomName: '',
+					url:null
 				},
 
 				addFormVisible: false,//新增界面是否显示
 				addLoading: false,
 				addFormRules: {
-                    acctName: [
-                        { required: true, message: '请输入账户名', trigger: 'blur' }
+                    roomName: [
+                        { required: true, message: '请输入房间名', trigger: 'blur' }
+                    ],
+                    url: [
+                        { required: true, message: '请输入房间直播地址', trigger: 'blur' }
                     ]
 				},
 				//新增界面数据
 				addForm: {
-                    acctName: ''
+                    roomName: '',
+                    url:null
 				}
 
 			}
@@ -123,47 +139,43 @@
 			
 			handleCurrentChange:function(val) {
 				this.page = val;
-				this.getAccts();
+				this.getRooms();
 			},
 			//获取内容列表
-			getAccts:function() {
+			getRooms:function() {
 				let params = {
 					pageNum: this.page,
                     pageSize:10,
-                    acctName: this.filters.acctName
+                    roomName: this.filters.roomName
 				};
 				this.listLoading = true;
 				NProgress.start();
-                listAcct(params , this).then((res) => {
+                listRoom(params , this).then((res) => {
                     if(!res){
                         return;
 					}
 					this.total = res.total;
-					this.accts = res.data.data;
+					this.rooms = res.data.data;
 					this.listLoading = false;
 					NProgress.done();
 				});
 			},
 			//删除
 			handleDel: function (index, row) {
-				this.$confirm('确认删除该记录吗?', '提示', {
-					type: 'warning'
-				}).then(() => {
-					this.listLoading = true;
-					NProgress.start();
-					let para = { ids: row.id };
-                    delAcct(para).then((res) => {
-						this.listLoading = false;
-						NProgress.done();
-						this.$message({
-							message: '删除成功',
-							type: 'success'
-						});
-						this.getAccts();
-					});
-				}).catch(() => {
 
-				});
+			    var _this = this;
+			    util.Msg.warning(_this , null , function () {
+                    _this.listLoading = true;
+                    NProgress.start();
+                    let para = { ids: row.id };
+                    delRoom(para).then(function() {
+                        _this.listLoading = false;
+                        NProgress.done();
+                        util.Msg.success(_this);
+                        _this.getRooms();
+                    });
+                });
+
 			},
 			//显示编辑界面
 			handleEdit: function (index, row) {
@@ -175,52 +187,49 @@
 
 				this.addFormVisible = true;
 				this.addForm = {
-                    acctName: ''
+                    roomName: '',
+                    url:null
 				};
 			},
 			//编辑
 			editSubmit: function () {
+                var _this = this;
 				this.$refs.editForm.validate((valid) => {
 					if (valid) {
-						this.$confirm('确认提交吗？', '提示', {}).then(() => {
-							this.editLoading = true;
-							NProgress.start();
-							let para = Object.assign({}, this.editForm);
-							editAcct(para).then((res) => {
-								this.editLoading = false;
-								NProgress.done();
-								this.$message({
-									message: '提交成功',
-									type: 'success'
-								});
-								this.$refs['editForm'].resetFields();
-								this.editFormVisible = false;
-								this.getAccts();
-							});
-						});
+					    util.Msg.confirm(_this , null ,function () {
+                            _this.editLoading = true;
+                            NProgress.start();
+                            let para = Object.assign({}, this.editForm);
+                            editRoom(para).then(function() {
+                                _this.editLoading = false;
+                                NProgress.done();
+                                util.Msg.success(_this);
+                                _this.$refs['editForm'].resetFields();
+                                _this.editFormVisible = false;
+                                _this.getRooms();
+                            });
+                        });
 					}
 				});
 			},
 			//新增
 			addSubmit: function () {
+                var _this = this;
 				this.$refs.addForm.validate((valid) => {
 					if (valid) {
-						this.$confirm('确认提交吗？', '提示', {}).then(() => {
-							this.addLoading = true;
-							NProgress.start();
-							let para = Object.assign({}, this.addForm);
-							addAcct(para).then((res) => {
-								this.addLoading = false;
-								NProgress.done();
-								this.$message({
-									message: '提交成功',
-									type: 'success'
-								});
-								this.$refs['addForm'].resetFields();
-								this.addFormVisible = false;
-								this.getAccts();
-							});
-						});
+                        util.Msg.confirm(_this , null ,function () {
+                            _this.addLoading = true;
+                            NProgress.start();
+                            let para = Object.assign({}, this.addForm);
+                            addRoom(para).then(function() {
+                                _this.addLoading = false;
+                                NProgress.done();
+                                util.Msg.success(_this);
+                                _this.$refs['addForm'].resetFields();
+                                _this.addFormVisible = false;
+                                _this.getRooms();
+                            });
+                        });
 					}
 				});
 			},
@@ -230,28 +239,23 @@
 			//批量删除
 			batchRemove: function () {
 				var ids = this.sels.map(item => item.id).toString();
-				this.$confirm('确认删除选中记录吗？', '提示', {
-					type: 'warning'
-				}).then(() => {
-					this.listLoading = true;
-					NProgress.start();
-					let para = { ids: ids };
-					delAcct(para).then((res) => {
-						this.listLoading = false;
-						NProgress.done();
-						this.$message({
-							message: '删除成功',
-							type: 'success'
-						});
-						this.getAccts();
-					});
-				}).catch(() => {
+                var _this = this;
+                util.Msg.warning(_this , null ,function () {
+                    _this.listLoading = true;
+                    NProgress.start();
+                    let para = { ids: ids };
+                    delRoom(para).then(function() {
+                        _this.listLoading = false;
+                        NProgress.done();
+                        util.Msg.success(_this);
+                        _this.getRooms();
+                    });
+                });
 
-				});
 			}
 		},
 		mounted() {
-			this.getAccts();
+			this.getRooms();
 		}
 	}
 

@@ -23,7 +23,7 @@ import java.util.Map;
 public class RoomDaoExtImpl extends JpaDaoSupport<Room,Long> implements RoomDaoExt {
     @Override
     public Pager findByConditions(RoomVO roomVO, Pager pager) {
-        StringBuffer sql = new StringBuffer("SELECT tr.*.tu.userName FROM t_room tr ");
+        StringBuffer sql = new StringBuffer("SELECT tr.*,tu.userName FROM t_room tr ");
         sql.append(" left join t_user tu on tu.id = tr.userId");
         sql.append("   where tr.yn=:yn  AND tu.yn=1  ");
 

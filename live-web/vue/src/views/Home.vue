@@ -11,7 +11,7 @@
 			</el-col>
 			<el-col :span="4" class="userinfo">
 				<el-dropdown trigger="hover">
-					<span class="el-dropdown-link userinfo-inner"><img :src="this.sysUserAvatar" /> {{sysUserName}}</span>
+					<span class="el-dropdown-link userinfo-inner"><img :src="this.sysUserAvatar" /> {{userName}}</span>
 					<el-dropdown-menu slot="dropdown">
 						<el-dropdown-item>我的消息</el-dropdown-item>
 						<el-dropdown-item>设置</el-dropdown-item>
@@ -75,9 +75,9 @@
 	export default {
 		data() {
 			return {
-				sysName:'VUEADMIN',
+				sysName:'直播机器平台',
 				collapsed:false,
-				sysUserName: '',
+				userName: '',
 				sysUserAvatar: '',
 				form: {
 					name: '',
@@ -92,14 +92,14 @@
 			}
 		},
 		methods: {
-			onSubmit() {
+			onSubmit:function() {
 				console.log('submit!');
 			},
-			handleopen() {
-				//console.log('handleopen');
+			handleopen:function() {
+				console.log('handleopen');
 			},
-			handleclose() {
-				//console.log('handleclose');
+			handleclose:function() {
+				console.log('handleclose');
 			},
 			handleselect: function (a, b) {
 			},
@@ -129,7 +129,7 @@
 			var user = sessionStorage.getItem('user');
 			if (user) {
 				user = JSON.parse(user);
-				this.sysUserName = user.name || '';
+				this.userName = user.name || '';
 				this.sysUserAvatar = user.avatar || '';
 			}
 

@@ -1,4 +1,5 @@
 import axios from 'axios';
+import util from '../common/js/util';
 
 let base = 'http://localhost';
 
@@ -28,10 +29,8 @@ export const ajax = (url , method  , headers , params , calller) => {
 
         if (msg){
             if(calller){
-                calller.$message({
-                    "message": msg,
-                    "type": "error"
-                });
+
+                util.Msg.error(calller  ,msg);
             }
             return;
         }
@@ -41,14 +40,11 @@ export const ajax = (url , method  , headers , params , calller) => {
     }).catch(function (error) {
         console.log(error);
         if(calller){
-            calller.$message({
-                "message": "系统错误",
-                "type": "error"
-            });
+
+            util.Msg.error(calller ,"系统错误");
         }
     });
 };
-
 
 
 export const requestLogin = (params,caller) => {

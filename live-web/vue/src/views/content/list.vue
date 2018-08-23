@@ -141,8 +141,7 @@
 <script>
 	import util from '../../common/js/util';
 	import NProgress from 'nprogress';
-	import { getUserListPage, removeUser, batchRemoveUser, editUser, addUser,
-		listContent,delContent,allRoom,allAcct,addContent,editContent,oneContent,parentCatg,childrenCatg } from '../../api/api';
+	import {listContent,delContent,allRoom,allAcct,addContent,editContent,oneContent,parentCatg,childrenCatg } from '../../api/api';
 
 	export default {
 		data:function() {
@@ -305,24 +304,19 @@
 			},
 			//删除
 			handleDel: function (index, row) {
-				this.$confirm('确认删除该记录吗?', '提示', {
-					type: 'warning'
-				}).then(() => {
-					this.listLoading = true;
-					NProgress.start();
-					let para = { ids: row.id };
-                    delContent(para).then((res) => {
-						this.listLoading = false;
-						NProgress.done();
-						this.$message({
-							message: '删除成功',
-							type: 'success'
-						});
-						this.getContents();
-					});
-				}).catch(() => {
+                var _this = this;
+                util.Msg.warning(_this , null , function(resp) {
+                    _this.listLoading = true;
+                    NProgress.start();
+                    let para = { ids: row.id };
+                    delContent(para).then(function(){
+                        _this.listLoading = false;
+                        NProgress.done();
+                        util.Msg.success(_this , null);
+                        _this.getContents();
+                    });
+                });
 
-				});
 			},
 			//显示编辑界面
 			handleEdit: function (index, row) {
@@ -350,55 +344,50 @@
 			},
 			//编辑
 			editSubmit: function () {
+                var _this = this;
 				this.$refs.editForm.validate((valid) => {
 					if (valid) {
-						this.$confirm('确认提交吗？', '提示', {}).then(() => {
-							this.editLoading = true;
-							NProgress.start();
-							let para = Object.assign({}, this.editForm);
+                        util.Msg.confirm(_this , null , function(resp) {
+                            _this.editLoading = true;
+                            NProgress.start();
+                            let para = Object.assign({}, this.editForm);
                             if(!para.catgId){
                                 para.catgId = para.parentCatgId;
                             }
-							//para.birth = (!para.birth || para.birth == '') ? '' : util.formatDate.format(new Date(para.birth), 'yyyy-MM-dd');
-							editContent(para).then((res) => {
-								this.editLoading = false;
-								NProgress.done();
-								this.$message({
-									message: '提交成功',
-									type: 'success'
-								});
-								this.$refs['editForm'].resetFields();
-								this.editFormVisible = false;
-								this.getContents();
-							});
-						});
+                            editContent(para).then(function()  {
+                                _this.editLoading = false;
+                                NProgress.done();
+                                util.Msg.success(_this);
+                                _this.$refs['editForm'].resetFields();
+                                _this.editFormVisible = false;
+                                _this.getContents();
+                            });
+                        });
 					}
 				});
 			},
 			//新增
 			addSubmit: function () {
+                var _this = this;
 				this.$refs.addForm.validate((valid) => {
 					if (valid) {
-						this.$confirm('确认提交吗？', '提示', {}).then(() => {
-							this.addLoading = true;
-							NProgress.start();
-							let para = Object.assign({}, this.addForm);
-							if(!para.catgId){
-							    para.catgId = para.parentCatgId;
-							}
-							//para.birth = (!para.birth || para.birth == '') ? '' : util.formatDate.format(new Date(para.birth), 'yyyy-MM-dd');
-							addContent(para).then((res) => {
-								this.addLoading = false;
-								NProgress.done();
-								this.$message({
-									message: '提交成功',
-									type: 'success'
-								});
-								this.$refs['addForm'].resetFields();
-								this.addFormVisible = false;
-								this.getContents();
-							});
-						});
+						util.Msg.confirm(_this , null ,function () {
+                            _this.addLoading = true;
+                            NProgress.start();
+                            let para = Object.assign({}, this.addForm);
+                            if(!para.catgId){
+                                para.catgId = para.parentCatgId;
+                            }
+                            addContent(para).then(function() {
+                                _this.addLoading = false;
+                                NProgress.done();
+                                util.Msg.success(_this);
+                                _this.$refs['addForm'].resetFields();
+                                _this.addFormVisible = false;
+                                _this.getContents();
+                            });
+                        });
+
 					}
 				});
 			},
@@ -407,25 +396,19 @@
 			},
 			//批量删除
 			batchRemove: function () {
-				var ids = this.sels.map(item => item.id).toString();
-				this.$confirm('确认删除选中记录吗？', '提示', {
-					type: 'warning'
-				}).then(() => {
-					this.listLoading = true;
+                var _this = this;
+                var ids = this.sels.map(item => item.id).toString();
+                util.Msg.warning(_this , null ,function (){
+                    _this.listLoading = true;
 					NProgress.start();
 					let para = { ids: ids };
-					delContent(para).then((res) => {
-						this.listLoading = false;
+					delContent(para).then(function() {
+                        _this.listLoading = false;
 						NProgress.done();
-						this.$message({
-							message: '删除成功',
-							type: 'success'
-						});
-						this.getContents();
+                        util.Msg.success(_this);
+                        _this.getContents();
 					});
-				}).catch(() => {
-
-				});
+                });
 			}
 		},
 		mounted() {

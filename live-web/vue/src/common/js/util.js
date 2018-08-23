@@ -56,6 +56,38 @@ export default {
             return null;
         }
 
+    },
+    Msg: {
+        confirm:function (caller , msg , callback) {
+            caller.$confirm(msg || "确认此操作吗?" , "提示消息" , {}).then(function (res) {
+                if(callback){
+                    callback(res);
+                }
+            }).catch(function (res) {
+                console.warn(res);
+            });
+        },
+        success:function (caller , msg ) {
+            caller.$message({
+                message: msg || "操作成功",
+                type: "success"
+            });
+        },
+        error:function (caller , msg ) {
+            caller.$message({
+                message: msg || "操作失败",
+                type: "error"
+            });
+        },
+        warning:function (caller , msg , callback) {
+            caller.$confirm(msg || "确认此操作吗?" , "提示消息" , {type: "warning"}).then(function (res) {
+                if(callback){
+                    callback(res);
+                }
+            }).catch(function (res) {
+                console.warn(res);
+            });
+        }
     }
 
 };

@@ -61,7 +61,7 @@
 				</el-form-item>
 
 				<el-form-item label="选择父级类目">
-					<el-select v-model="editForm.parentId" placeholder="请选择父级类目">
+					<el-select v-model="editForm.parentId" placeholder="请选择父级类目" :clearable="true">
 						<el-option v-for="item in parentCatgs" :key="item.id" :value="item.id" :label="item.catgName"></el-option>
 					</el-select>
 				</el-form-item>
@@ -80,7 +80,7 @@
 				</el-form-item>
 
 				<el-form-item label="选择父级类目">
-					<el-select v-model="addForm.parentId" placeholder="请选择父级类目">
+					<el-select v-model="addForm.parentId" placeholder="请选择父级类目" :clearable="true">
 						<el-option v-for="item in parentCatgs" :key="item.id" :value="item.id" :label="item.catgName"></el-option>
 					</el-select>
 				</el-form-item>
@@ -213,9 +213,9 @@
 				this.$refs.editForm.validate((valid) => {
 					if (valid) {
                         util.Msg.confirm(_this , null , function () {
-                            this.editLoading = true;
+                            _this.editLoading = true;
                             NProgress.start();
-                            let para = Object.assign({}, this.editForm);
+                            let para = Object.assign({}, _this.editForm);
                             editCatg(para).then(function() {
                                 _this.editLoading = false;
                                 NProgress.done();
@@ -236,7 +236,7 @@
                         util.Msg.confirm(_this , null , function () {
                             _this.addLoading = true;
                             NProgress.start();
-                            let para = Object.assign({}, this.addForm);
+                            let para = Object.assign({}, _this.addForm);
                             addCatg(para).then(function(){
                                 _this.addLoading = false;
                                 NProgress.done();

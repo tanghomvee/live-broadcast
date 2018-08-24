@@ -359,7 +359,7 @@
                         util.Msg.confirm(_this , null , function(resp) {
                             _this.editLoading = true;
                             NProgress.start();
-                            let para = Object.assign({}, this.editForm);
+                            let para = Object.assign({}, _this.editForm);
                             if(!para.catgId){
                                 para.catgId = para.parentCatgId;
                             }
@@ -383,7 +383,7 @@
 						util.Msg.confirm(_this , null ,function () {
                             _this.addLoading = true;
                             NProgress.start();
-                            let para = Object.assign({}, this.addForm);
+                            let para = Object.assign({}, _this.addForm);
                             if(!para.catgId){
                                 para.catgId = para.parentCatgId;
                             }

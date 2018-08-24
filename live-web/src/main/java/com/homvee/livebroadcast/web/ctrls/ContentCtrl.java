@@ -71,6 +71,7 @@ public class ContentCtrl extends BaseCtrl {
        content.setUsed(0);
        content.setUserId(getUser().getId());
        content.setCreator(getUser().getUserName());
+       content.setYn(YNEnum.YES.getVal());
        contentService.save(Lists.newArrayList(content));
        return Msg.success();
    }
@@ -158,9 +159,16 @@ public class ContentCtrl extends BaseCtrl {
        }
 
        Room room = rooms.get(0);
+       String operate = "wait" ;
+       Object txt = 10000;
+       JSONObject retJSON = new JSONObject();
+       if (WayEnum.STOP.getVal().equals(room.getWay())){
+           retJSON.put("operate" , operate);
+           retJSON.put("content" , txt);
+           return Msg.success(retJSON);
+       }
 
        Content content = null;
-
        if (WayEnum.AUTO.getVal().equals(room.getWay())){
            content = contentService.nextContent(room.getId() , user.getId());
        }else{
@@ -173,9 +181,8 @@ public class ContentCtrl extends BaseCtrl {
            content = contentService.nextContent(room.getId() , user.getId() , account.getId());
        }
 
-       String operate = "wait" ;
-       Object txt = 10000;
-       JSONObject retJSON = new JSONObject();
+
+
 
        if (content != null){
            operate = "chat";

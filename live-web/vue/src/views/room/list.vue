@@ -24,7 +24,10 @@
 			</el-table-column>
 			<el-table-column prop="userName" label="用户名" width="auto">
 			</el-table-column>
-			
+
+			<el-table-column prop="way" label="交流方式" :formatter="getWayDesc"  width="auto">
+			</el-table-column>
+
 			<el-table-column prop="roomName" label="房间名称" width="auto">
 			</el-table-column>
 			<el-table-column prop="url" label="房间直播地址" width="auto">
@@ -51,9 +54,15 @@
 				<el-form-item label="房间名称">
 					<el-input v-model="editForm.roomName" placeholder="房间名称"></el-input>
 				</el-form-item>
-				<el-form-item label="房间直播地址">
-					<el-input v-model="editForm.roomName" placeholder="房间直播地址链接"></el-input>
+				<el-form-item label="交流方式">
+					<el-select v-model="editForm.way" placeholder="请选择交流方式">
+						<el-option v-for="item in ways" :key="item.id" :value="item.id" :label="item.desc"></el-option>
+					</el-select>
 				</el-form-item>
+				<el-form-item label="房间直播地址">
+					<el-input type="textarea" v-model="editForm.url" placeholder="房间直播地址链接"></el-input>
+				</el-form-item>
+
 
 			</el-form>
 			<div slot="footer" class="dialog-footer">
@@ -68,8 +77,13 @@
 				<el-form-item label="房间名称">
 					<el-input v-model="addForm.roomName" placeholder="房间名称"></el-input>
 				</el-form-item>
+				<el-form-item label="交流方式">
+					<el-select v-model="addForm.way" placeholder="请选择交流方式">
+						<el-option v-for="item in ways" :key="item.id" :value="item.id" :label="item.desc"></el-option>
+					</el-select>
+				</el-form-item>
 				<el-form-item label="房间直播地址">
-					<el-input v-model="addForm.roomName" placeholder="房间直播地址链接"></el-input>
+					<el-input type="textarea" v-model="addForm.url" placeholder="房间直播地址链接"></el-input>
 				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
@@ -108,12 +122,16 @@
                     ],
                     url: [
                         { required: true, message: '请输入房间直播地址', trigger: 'blur' }
+                    ],
+                    way: [
+                        { required: true, message: '请选择交流方式', trigger: 'blur' }
                     ]
 				},
 				//编辑界面数据
 				editForm: {
 					id: null,
                     roomName: '',
+					way:null,
 					url:null
 				},
 
@@ -125,18 +143,32 @@
                     ],
                     url: [
                         { required: true, message: '请输入房间直播地址', trigger: 'blur' }
+                    ],
+                    way: [
+                        { required: true, message: '请选择交流方式', trigger: 'blur' }
                     ]
 				},
 				//新增界面数据
 				addForm: {
                     roomName: '',
+                    way:null,
                     url:null
-				}
+				},
+				ways:[
+					{key:"NORMAL",id:1,desc:"正常"} , {key:"AUTO",id:2,desc:"自动"},{key:"STOP",id:3,desc:"停止"}
+				]
 
 			}
 		},
 		methods: {
-			
+            getWayDesc:function (row, column) {
+                for(var i=0 , len = this.ways.length; i < len ; i++){
+                    if(row.way == this.ways[i].id){
+                        return this.ways[i].desc;
+					}
+				}
+                return '未知';
+            },
 			handleCurrentChange:function(val) {
 				this.page = val;
 				this.getRooms();
@@ -199,7 +231,7 @@
 					    util.Msg.confirm(_this , null ,function () {
                             _this.editLoading = true;
                             NProgress.start();
-                            let para = Object.assign({}, this.editForm);
+                            let para = Object.assign({}, _this.editForm);
                             editRoom(para).then(function() {
                                 _this.editLoading = false;
                                 NProgress.done();
@@ -220,7 +252,7 @@
                         util.Msg.confirm(_this , null ,function () {
                             _this.addLoading = true;
                             NProgress.start();
-                            let para = Object.assign({}, this.addForm);
+                            let para = Object.assign({}, _this.addForm);
                             addRoom(para).then(function() {
                                 _this.addLoading = false;
                                 NProgress.done();

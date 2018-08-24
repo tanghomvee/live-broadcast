@@ -44,8 +44,8 @@ let routes = [
         children: [
             { path: '/main', component: Main, name: '主页', hidden: true },
             { path: '/content/list', component: content, name: '内容列表' },
-            { path: '/form', component: Form, name: 'Form' },
-            { path: '/user', component: user, name: '列表' },
+           /* { path: '/form', component: Form, name: 'Form' },
+            { path: '/user', component: user, name: '列表' },*/
         ]
     },
     {

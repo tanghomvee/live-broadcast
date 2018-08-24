@@ -39,12 +39,13 @@ public class RoomCtrl extends BaseCtrl {
 
    @RequestMapping(path = {"/add"}, method = {RequestMethod.GET, RequestMethod.POST})
    @ResponseBody
-   public Msg save(String roomName ,Integer way){
-       if(StringUtils.isEmpty(roomName)){
+   public Msg save(String roomName ,Integer way , String url){
+       if(StringUtils.isEmpty(roomName) || StringUtils.isEmpty(url)){
            return Msg.error("参数错误");
        }
        Room room = new Room();
        room.setRoomName(roomName);
+       room.setUrl(url);
        if(WayEnum.getByVal(way) != null){
            room.setWay(way);
        }else {
@@ -117,4 +118,14 @@ public class RoomCtrl extends BaseCtrl {
        roomService.save(Lists.newArrayList(room));
        return Msg.success();
    }
+
+    @RequestMapping(path = {"/del"}, method = {RequestMethod.GET, RequestMethod.POST})
+    @ResponseBody
+    public Msg del(Long[] ids){
+        if(StringUtils.isEmpty(ids) || ids.length < 1){
+            return Msg.error("参数错误");
+        }
+        roomService.delByIds(ids);
+        return Msg.success();
+    }
 }

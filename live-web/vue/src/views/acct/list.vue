@@ -180,7 +180,7 @@
                         util.Msg.confirm(_this , null ,function () {
                             _this.editLoading = true;
                             NProgress.start();
-                            let para = Object.assign({}, this.editForm);
+                            let para = Object.assign({}, _this.editForm);
                             editAcct(para).then(function(){
                                 _this.editLoading = false;
                                 NProgress.done();
@@ -199,9 +199,9 @@
 				this.$refs.addForm.validate((valid) => {
 					if (valid) {
                         util.Msg.confirm(_this , null ,function () {
-                            this.addLoading = true;
+                            _this.addLoading = true;
                             NProgress.start();
-                            let para = Object.assign({}, this.addForm);
+                            let para = Object.assign({}, _this.addForm);
                             addAcct(para).then(function()  {
                                 _this.addLoading = false;
                                 NProgress.done();

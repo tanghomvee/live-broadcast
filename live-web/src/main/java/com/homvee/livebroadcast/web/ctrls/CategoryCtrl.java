@@ -41,6 +41,7 @@ public class CategoryCtrl extends BaseCtrl {
            return Msg.error("参数错误");
        }
        Category category = new Category();
+       category.setCatgName(catgName);
        category.setParentId(parentId);
        category.setUserId(getUser().getId());
        category.setCreator(getUser().getUserName());

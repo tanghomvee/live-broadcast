@@ -38,9 +38,10 @@
 
 	<!-- 静态资源缓存 -->
 	<!--<mvc:resources location="/resources/" mapping="/resources/**" cache-period="864000"/>-->
-	<mvc:resources location="/css/" mapping="/css/**" cache-period="864000"/>
-	<mvc:resources location="/img/" mapping="/img/**" cache-period="864000"/>
-	<mvc:resources location="/vue/" mapping="/vue/**" cache-period="864000"/>
+	<mvc:resources location="/static/css/" mapping="/static/css/**" cache-period="864000"/>
+	<mvc:resources location="/static/img/" mapping="/static/img/**" cache-period="864000"/>
+	<mvc:resources location="/static/fonts/" mapping="/static/fonts/**" cache-period="864000"/>
+	<mvc:resources location="/static/js/" mapping="/static/js/**" cache-period="864000"/>
 	<mvc:resources location="/" mapping="/index.html"/>
 
 	<!--权限配置-->
@@ -51,6 +52,7 @@
 			<mvc:exclude-mapping path="/user/login" /><!--账号登录 -->
 			<mvc:exclude-mapping path="/content/chat/**" />
 			<mvc:exclude-mapping path="/index.html" />
+			<mvc:exclude-mapping path="/static/**" />
 
 			<bean class="com.homvee.livebroadcast.web.interceptors.UsrLoginInterceptor"/>
 		</mvc:interceptor>

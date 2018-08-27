@@ -131,7 +131,7 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
         }
         content.setRecentUsedTime(new Date());
         contentDao.save(content);
-        content.setContent(content.getContent() + getRandomStr());
+//        content.setContent(content.getContent() + getRandomStr());
         return content;
     }
 

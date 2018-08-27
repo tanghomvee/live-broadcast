@@ -23,21 +23,27 @@ chrome.runtime.onMessage.addListener(function (params, sender, sendResponse) {
 			clearInterval(interval);
 			var len = getChats();
 			chat(params);
-			if(getChats() > len){
-				sendResponse({state:'发送成功！'});
-				var tmp =window.setTimeout(function(){
-					sendMsg2Bg();
-					window.clearTimeout(tmp);
-				},timeout);
-			}else{
-				var tmp =window.setTimeout(function(){
-                    window.clearTimeout(tmp);
-                    if (getChats() > 0 && getChats() <= len){
-                        chat(params);
-                    }
-					sendMsg2Bg();
-				},timeout);
-			}        	
+            sendResponse({state:'发送成功！'});
+            var tmp =window.setTimeout(function(){
+                sendMsg2Bg();
+                window.clearTimeout(tmp);
+            },timeout);
+
+			// if(getChats() > len){
+			// 	sendResponse({state:'发送成功！'});
+			// 	var tmp =window.setTimeout(function(){
+			// 		sendMsg2Bg();
+			// 		window.clearTimeout(tmp);
+			// 	},timeout);
+			// }else{
+			// 	var tmp =window.setTimeout(function(){
+             //        window.clearTimeout(tmp);
+             //        if (getChats() > 0 && getChats() <= len){
+             //            chat(params);
+             //        }
+			// 		sendMsg2Bg();
+			// 	},timeout);
+			// }
 		}else if(params.operate=="wait" && params.content){
 			var tmp =window.setTimeout(function(){
 					sendMsg2Bg();

@@ -1,8 +1,8 @@
 {
-  "name": "vueadmin",
+  "name": "live-broadcast",
   "version": "1.0.5",
-  "description": "vue admin project",
-  "author": "taylor <709161610@qq.com>",
+  "description": "live broadcast project",
+  "author": "tanghomvee",
   "license": "MIT",
   "scripts": {
     "dev": "node build/dev-server.js",

@@ -78,7 +78,7 @@
 				sysName:'直播机器平台',
 				collapsed:false,
 				userName: '',
-				sysUserAvatar: '../assets/user.png',
+				sysUserAvatar: "/static/img/user.png",
 				form: {
 					name: '',
 					region: '',
@@ -132,7 +132,7 @@
 			if (user) {
 				user = JSON.parse(user);
 				this.userName = user.userName || '';
-				this.sysUserAvatar = user.avatar || '../assets/user.png';
+				this.sysUserAvatar = user.avatar || "/static/img/user.png";
 			}
 
 		}

@@ -7,7 +7,7 @@
 *only the first to call sendResponse() for a particular event will succeed in sending the response.
 *All other responses to that event will be ignored.
 */
-var url = "http://localhost/content/chat";
+var url = "http://47.106.127.75:9527/content/chat";
 var authKey = "d423e8dd0bbf44caad5a31ddc15055e0";
 chrome.runtime.onMessage.addListener(
   function(params, sender, sendResponse) {

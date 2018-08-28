@@ -8,7 +8,7 @@
 				</el-form-item>
 
 				<el-form-item label="父级类目">
-					<el-select v-model="editForm.parentId" placeholder="请选择父级类目" :clearable="true">
+					<el-select v-model="filters.parentId" placeholder="请选择父级类目" :clearable="true">
 						<el-option v-for="item in parentCatgs" :key="item.id" :value="item.id" :label="item.catgName"></el-option>
 					</el-select>
 				</el-form-item>

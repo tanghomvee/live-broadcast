@@ -26,8 +26,8 @@
       return {
         logining: false,
         loginForm: {
-          account: 'Homvee',
-            pwd: '123456'
+          account: '',
+            pwd: ''
         },
         loginFormValidator: {
           account: [

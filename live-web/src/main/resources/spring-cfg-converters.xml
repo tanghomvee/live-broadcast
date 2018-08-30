@@ -40,23 +40,32 @@
 
 
     <!-- FastJson转换器 -->
-    <bean id="fastJsonHttpMessageConverter" class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">  
-        <property name="supportedMediaTypes">  
-            <list>  
+    <bean id="fastJsonCfg" class="com.alibaba.fastjson.support.config.FastJsonConfig">
+        <property name="serializerFeatures">
+            <list>
+                <!--序列化保留null-->
+                <value>WriteMapNullValue</value>
+                <value>QuoteFieldNames</value>
+                <value>WriteDateUseDateFormat</value>
+                <value>WriteNullStringAsEmpty</value>
+            </list>
+        </property>
+        <property name="features">
+            <list>
+                <!--按字段顺序进行反序列化-->
+                <value>OrderedField</value>
+            </list>
+        </property>
+    </bean>
+    <bean id="fastJsonHttpMessageConverter" class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">
+        <property name="supportedMediaTypes">
+            <list>
                 <value>application/json;charset=${default.charset}</value>
-                <!-- 避免IE出现下载JSON文件的情况 --> 
-                <value>text/html;charset=${default.charset}</value> 
-            </list>  
-        </property>  
-        <!-- 功能枚举数组 -->
-        <property name="features">  
-            <list>  
-                <value>WriteMapNullValue</value>  
-                <value>QuoteFieldNames</value>  
-                <value>WriteDateUseDateFormat</value>  
-                <value>WriteNullStringAsEmpty</value>  
-            </list>  
-        </property>  
-    </bean> 
+                <!-- 避免IE出现下载JSON文件的情况 -->
+                <value>text/html;charset=${default.charset}</value>
+            </list>
+        </property>
+        <property name="fastJsonConfig" ref="fastJsonCfg"/>
+    </bean>
 
 </beans>

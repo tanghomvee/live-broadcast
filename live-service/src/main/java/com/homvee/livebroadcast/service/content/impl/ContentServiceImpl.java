@@ -162,6 +162,18 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
         }
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public synchronized Content loopContent(Long roomId, Long userId, Long acctId) {
+        Integer cntUsed = contentDao.countUsedByRoomId(roomId);
+        Integer cnt = contentDao.countByRoomId(roomId);
+        if (cnt.equals(cntUsed)){
+            contentDao.resetUsed(roomId);
+        }
+
+        return nextContent(roomId,  userId, acctId);
+    }
+
 
     private String getRandomStr(){
         String data  = "" + (System.currentTimeMillis() /1000);

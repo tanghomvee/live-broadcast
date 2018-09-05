@@ -20,7 +20,7 @@ public class BaseCtrl {
     protected Logger LOGGER = null;
 
     @Resource
-    private HttpSession session;
+    protected HttpSession session;
 
     public BaseCtrl() {
         LOGGER = LoggerFactory.getLogger(this.getClass());
@@ -32,9 +32,14 @@ public class BaseCtrl {
         return (UserVO) session.getAttribute(SessionKey.USER);
 
     }
+
     protected void setUser(UserVO user) {
-
       session.setAttribute(SessionKey.USER , user);
-
+    }
+    protected void setRoomChatInterval(Long roomId ,Long time) {
+      session.setAttribute(roomId.toString() , time);
+    }
+    protected Long getRoomChatInterval(Long roomId) {
+      return (Long) session.getAttribute(roomId.toString());
     }
 }

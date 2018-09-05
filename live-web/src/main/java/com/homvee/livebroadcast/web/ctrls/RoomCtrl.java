@@ -2,7 +2,6 @@ package com.homvee.livebroadcast.web.ctrls;
 
 import com.google.common.collect.Lists;
 import com.homvee.livebroadcast.common.enums.WayEnum;
-import com.homvee.livebroadcast.common.enums.YNEnum;
 import com.homvee.livebroadcast.common.vos.BaseVO;
 import com.homvee.livebroadcast.common.vos.Msg;
 import com.homvee.livebroadcast.common.vos.Pager;
@@ -39,7 +38,7 @@ public class RoomCtrl extends BaseCtrl {
 
    @RequestMapping(path = {"/add"}, method = {RequestMethod.GET, RequestMethod.POST})
    @ResponseBody
-   public Msg save(String roomName ,Integer way , String url){
+   public Msg save(String roomName ,Integer way , String url,Long intervalTime){
        if(StringUtils.isEmpty(roomName) || StringUtils.isEmpty(url)){
            return Msg.error("参数错误");
        }
@@ -53,6 +52,7 @@ public class RoomCtrl extends BaseCtrl {
        }
        room.setUserId(getUser().getId());
        room.setCreator(getUser().getUserName());
+       room.setIntervalTime(intervalTime);
        roomService.save(Lists.newArrayList(room));
        return Msg.success();
    }
@@ -100,6 +100,7 @@ public class RoomCtrl extends BaseCtrl {
        room.setChanger(getUser().getUserName());
        room.setChangeTime(new Date());
        roomService.save(Lists.newArrayList(room));
+
        return Msg.success();
    }
    @RequestMapping(path = {"/switch"}, method = {RequestMethod.GET, RequestMethod.POST})

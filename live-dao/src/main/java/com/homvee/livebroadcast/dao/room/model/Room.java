@@ -29,6 +29,20 @@ public class Room extends BaseEntity {
      */
     private Integer way;
 
+    /**
+     * 每句对话内容的间隔时间单位秒
+     */
+    private Long intervalTime;
+
+
+    public Long getIntervalTime() {
+        return intervalTime;
+    }
+
+    public void setIntervalTime(Long intervalTime) {
+        this.intervalTime = intervalTime;
+    }
+
     public String getRoomName() {
         return roomName;
     }

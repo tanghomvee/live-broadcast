@@ -27,8 +27,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
-import javax.servlet.ServletException;
-import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
@@ -139,7 +137,7 @@ public class ContentCtrl extends BaseCtrl {
 
    @RequestMapping(path = {"/chat"}, method = {RequestMethod.GET, RequestMethod.POST})
    @ResponseBody
-   public Msg chat(String url , String acctName , String authKey){
+   public synchronized Msg chat(String url , String acctName , String authKey){
 
 
        if(StringUtils.isEmpty(url) || StringUtils.isEmpty(acctName) || StringUtils.isEmpty(authKey)){
@@ -168,17 +166,38 @@ public class ContentCtrl extends BaseCtrl {
            return Msg.success(retJSON);
        }
 
+
+       Long interval = room.getIntervalTime();
+
+       if(interval != null ){
+           Long lastTime = getRoomChatInterval(room.getId());
+           setRoomChatInterval(room.getId() , System.currentTimeMillis());
+           if (lastTime != null){
+               interval = interval * 1000;
+               Long deltaSeconds = System.currentTimeMillis() - lastTime;
+               if(deltaSeconds < interval){
+                   retJSON.put("operate" , operate);
+                   retJSON.put("content" , interval - deltaSeconds);
+                   return Msg.success(retJSON);
+               }
+           }
+       }
+
+
        Content content = null;
        if (WayEnum.AUTO.getVal().equals(room.getWay())){
            content = contentService.nextContent(room.getId() , user.getId());
-       }else{
+       }else {
            List<Account> accounts = accountService.findByAcctNameAndUserId(acctName , user.getId());
            if(CollectionUtils.isEmpty(accounts) || accounts.size() != 1){
                return Msg.error("账户不存在");
            }
-
            Account account = accounts.get(0);
-           content = contentService.nextContent(room.getId() , user.getId() , account.getId());
+           if(WayEnum.NORMAL.getVal().equals(room.getWay())){
+               content = contentService.nextContent(room.getId() , user.getId() , account.getId());
+           }else{
+               content = contentService.loopContent(room.getId() , user.getId() , account.getId());
+           }
        }
 
 

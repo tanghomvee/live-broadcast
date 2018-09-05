@@ -6,7 +6,7 @@ package com.homvee.livebroadcast.common.enums;
  * @author ddyunf
  */
 public enum WayEnum {
-	NORMAL(1,"正常") , AUTO(2,"自动"),STOP(3,"停止");
+	NORMAL(1,"正常") , AUTO(2,"自动"),STOP(3,"停止"),LOOP(4,"循环");
 
 	private Integer val;
 	private String desc;

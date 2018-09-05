@@ -63,4 +63,13 @@ public interface ContentService extends BaseService<Content, Long> {
      * @param ids
      */
     void delByIds(Long[] ids);
+
+    /**
+     * 循环去对话
+     * @param roomId
+     * @param userId
+     * @param acctId
+     * @return
+     */
+    Content loopContent(Long roomId, Long userId, Long acctId);
 }

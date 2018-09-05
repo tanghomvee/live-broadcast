@@ -30,6 +30,10 @@
 
 			<el-table-column prop="roomName" label="房间名称" width="auto">
 			</el-table-column>
+
+			<el-table-column prop="intervalTime" label="间隔时间(秒)" width="auto">
+			</el-table-column>
+
 			<el-table-column prop="url" label="房间直播地址" width="auto">
 			</el-table-column>
 
@@ -59,6 +63,9 @@
 						<el-option v-for="item in ways" :key="item.id" :value="item.id" :label="item.desc"></el-option>
 					</el-select>
 				</el-form-item>
+				<el-form-item label="间隔时间">
+					<el-input v-model="editForm.intervalTime" placeholder="间隔时间(秒)"></el-input>
+				</el-form-item>
 				<el-form-item label="房间直播地址">
 					<el-input type="textarea" v-model="editForm.url" placeholder="房间直播地址链接"></el-input>
 				</el-form-item>
@@ -81,6 +88,9 @@
 					<el-select v-model="addForm.way" placeholder="请选择交流方式">
 						<el-option v-for="item in ways" :key="item.id" :value="item.id" :label="item.desc"></el-option>
 					</el-select>
+				</el-form-item>
+				<el-form-item label="间隔时间">
+					<el-input v-model="addForm.intervalTime" placeholder="间隔时间(秒)"></el-input>
 				</el-form-item>
 				<el-form-item label="房间直播地址">
 					<el-input type="textarea" v-model="addForm.url" placeholder="房间直播地址链接"></el-input>
@@ -132,6 +142,7 @@
 					id: null,
                     roomName: '',
 					way:null,
+                    intervalTime:null,
 					url:null
 				},
 
@@ -152,10 +163,11 @@
 				addForm: {
                     roomName: '',
                     way:null,
+                    intervalTime:null,
                     url:null
 				},
 				ways:[
-					{key:"NORMAL",id:1,desc:"正常"} , {key:"AUTO",id:2,desc:"自动"},{key:"STOP",id:3,desc:"停止"}
+					{key:"NORMAL",id:1,desc:"正常"} , {key:"AUTO",id:2,desc:"自动"},{key:"STOP",id:3,desc:"停止"},{key:"STOP",id:4,desc:"循环"}
 				]
 
 			}

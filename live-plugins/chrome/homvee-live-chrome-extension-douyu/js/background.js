@@ -38,7 +38,7 @@ chrome.runtime.onMessage.addListener(
 		        sendMsg2Content(data,sender.tab.id);
 		    },
 			error:function () {
-                sendMsg2Content({},sender.tab.id);
+                sendMsg2Content({"operate":"wait","content" : 20000},sender.tab.id);
             }
 		}); 	
     }

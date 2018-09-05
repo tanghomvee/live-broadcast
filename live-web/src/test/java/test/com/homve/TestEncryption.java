@@ -1,5 +1,6 @@
 package test.com.homve;
 
+import com.google.common.collect.Lists;
 import com.homvee.livebroadcast.common.enums.EncryptionEnum;
 import org.apache.commons.codec.binary.Base64;
 
@@ -8,6 +9,7 @@ import java.security.KeyPairGenerator;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -20,12 +22,15 @@ import java.util.Map;
  */
 public class TestEncryption {
 
+    static class Test{
+
+    }
     public static void main(String[] args) throws Exception {
 
-        String data = 123456+"";
-        System.out.println(EncryptionEnum.RSA.encrypt(data));
-        System.out.println(EncryptionEnum.RSA.encrypt(data));
-        System.out.println(EncryptionEnum.RSA.decode(EncryptionEnum.RSA.encrypt(data)));
+        List<Test> tests = Lists.newArrayList();
+        while (true){
+            tests.add(new Test());
+        }
     }
 
 

@@ -65,7 +65,7 @@
 		<el-dialog title="编辑" v-model="editFormVisible" :close-on-click-modal="false">
 			<el-form :model="editForm" label-width="80px" :rules="editFormRules" ref="editForm">
 				<el-form-item label="选择房间">
-					<el-select v-model="editForm.roomId" placeholder="请选择直播房间">
+					<el-select v-model="editForm.roomId" placeholder="请选择直播房间"  @change="getPreContents">
 						<el-option v-for="item in rooms" :key="item.id" :value="item.id" :label="item.roomName"></el-option>
 					</el-select>
 				</el-form-item>
@@ -101,7 +101,7 @@
 		<el-dialog title="新增" v-model="addFormVisible" :close-on-click-modal="false">
 			<el-form :model="addForm" label-width="80px" :rules="addFormRules" ref="addForm">
 				<el-form-item label="选择房间">
-					<el-select v-model="addForm.roomId" placeholder="请选择直播房间">
+					<el-select v-model="addForm.roomId" placeholder="请选择直播房间" @change="getPreContents">
 						<el-option v-for="item in rooms" :key="item.id" :value="item.id" :label="item.roomName"></el-option>
 					</el-select>
 				</el-form-item>
@@ -276,10 +276,11 @@
                     _this.childrenCatgs = res.data;
                 });
 			},
-            getPreContents:function(){
+            getPreContents:function(val){
                 let params = {
                     pageNum: this.page,
-                    pageSize:10
+                    roomId: val,
+                    pageSize:1000000
                 };
                 var _this = this;
                 listContent(params , this).then(function(res)  {
@@ -332,7 +333,7 @@
                 this.getRooms();
                 this.getAccts();
                 this.getParentCatgs();
-                this.getPreContents();
+                this.getPreContents(row.roomId);
 				this.editFormVisible = true;
 				this.editForm = Object.assign({}, row);
 			},
@@ -341,7 +342,7 @@
                 this.getRooms();
                 this.getAccts();
                 this.getParentCatgs();
-                this.getPreContents();
+                //this.getPreContents();
 				this.addFormVisible = true;
 				this.addForm = {
                     roomId: null,

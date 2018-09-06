@@ -171,7 +171,6 @@ public class ContentCtrl extends BaseCtrl {
 
        if(interval != null ){
            Long lastTime = getRoomChatInterval(room.getId());
-           setRoomChatInterval(room.getId() , System.currentTimeMillis());
            if (lastTime != null){
                interval = interval * 1000;
                Long deltaSeconds = System.currentTimeMillis() - lastTime;
@@ -206,6 +205,9 @@ public class ContentCtrl extends BaseCtrl {
        if (content != null){
            operate = "chat";
            txt = content.getContent();
+           if(interval != null ){
+               setRoomChatInterval(room.getId() , System.currentTimeMillis());
+           }
        }
 
        retJSON.put("operate" , operate);

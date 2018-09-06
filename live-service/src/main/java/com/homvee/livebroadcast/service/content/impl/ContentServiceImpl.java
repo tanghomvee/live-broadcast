@@ -53,8 +53,8 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
     private String[] randStrs = new String[]{
 //                "^_^ "," ԅ(¯㉨¯ԅ) "," （￢㉨￢）   ","  ٩(♡㉨♡ )۶  ","  ヽ(○^㉨^)ﾉ♪ ","  (╥ ㉨ ╥`)   ","  ҉٩(*^㉨^*)  ",
 //                " （≧㉨≦） "," （⊙㉨⊙） "," (๑•́ ㉨ •̀๑) "," ◟(░´㉨`░)◜ ",
-
-            "·","^","`",".","_","~",",","、","¯","♡","o_o","I","i","|","l"
+//            "·","^","`",".","_","~",",","、","¯","♡","o_o","I","i","|","l"
+            "♘","♞","♖","♜","♗","♝","♛","♕","♚","♔","㊣","♬","♫","♪","♩"
     };
 
     @Override
@@ -131,7 +131,7 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
         }
         content.setRecentUsedTime(new Date());
         contentDao.save(content);
-//        content.setContent(content.getContent() + getRandomStr());
+        content.setContent(content.getContent() + getRandomStr());
         return content;
     }
 
@@ -170,8 +170,13 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
         if (cnt.equals(cntUsed)){
             contentDao.resetUsed(roomId);
         }
-
-        return nextContent(roomId,  userId, acctId);
+        Content retContent = null;
+        Content content = nextContent(roomId,  userId, acctId);
+        if (content != null){
+            retContent = new Content();
+            retContent.setContent(content.getContent() + getRandomStr());
+        }
+        return retContent;
     }
 
 

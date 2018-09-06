@@ -83,7 +83,7 @@
 					</el-select>
 				</el-form-item>
 				<el-form-item label="选择父级内容">
-					<el-select v-model="addForm.preId" placeholder="选择父级内容">
+					<el-select v-model="editForm.preId" placeholder="选择父级内容">
 						<el-option v-for="item in pres" :key="item.id" :value="item.id" :label="item.content"></el-option>
 					</el-select>
 				</el-form-item>

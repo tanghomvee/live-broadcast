@@ -185,7 +185,7 @@ public class ContentCtrl extends BaseCtrl {
 
        Content content = null;
        if (WayEnum.AUTO.getVal().equals(room.getWay())){
-           content = contentService.nextContent(room.getId() , user.getId());
+           content = contentService.autoContent(room.getId() , user.getId());
        }else {
            List<Account> accounts = accountService.findByAcctNameAndUserId(acctName , user.getId());
            if(CollectionUtils.isEmpty(accounts) || accounts.size() != 1){

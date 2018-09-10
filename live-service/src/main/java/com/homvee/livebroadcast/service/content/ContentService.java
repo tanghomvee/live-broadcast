@@ -47,7 +47,7 @@ public interface ContentService extends BaseService<Content, Long> {
      * @param userId
      * @return
      */
-    Content nextContent(Long roomId , Long userId);
+    Content autoContent(Long roomId , Long userId);
 
     /**
      * find

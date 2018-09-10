@@ -143,7 +143,7 @@ public class ContentCtrl extends BaseCtrl {
        if(StringUtils.isEmpty(url) || StringUtils.isEmpty(acctName) || StringUtils.isEmpty(authKey)){
            return Msg.error("参数错误");
        }
-
+       acctName = acctName.trim();
 
        User user = userService.findByAuthKey(authKey);
 

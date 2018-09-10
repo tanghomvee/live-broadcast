@@ -42,7 +42,7 @@ public class AccountCtrl extends BaseCtrl {
        Account account = new Account();
        account.setUserId(getUser().getId());
        account.setCreator(getUser().getUserName());
-       account.setAcctName(acctName);
+       account.setAcctName(acctName.trim());
        accountService.save(Lists.newArrayList(account));
        return Msg.success();
    }
@@ -100,6 +100,7 @@ public class AccountCtrl extends BaseCtrl {
        BeanUtils.copyProperties(accountVO ,account , ArrayUtils.add(BaseVO.getIgnoreProperties() , "userId"));
        account.setChanger(getUser().getUserName());
        account.setChangeTime(new Date());
+       account.setAcctName(account.getAcctName().trim());
        accountService.save(Lists.newArrayList(account));
        return Msg.success();
    }

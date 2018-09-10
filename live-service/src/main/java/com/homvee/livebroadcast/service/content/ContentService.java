@@ -5,6 +5,7 @@ import com.homvee.livebroadcast.common.vos.Pager;
 import com.homvee.livebroadcast.dao.content.model.Content;
 import com.homvee.livebroadcast.service.BaseService;
 
+import java.math.BigInteger;
 import java.util.List;
 
 /**
@@ -72,4 +73,11 @@ public interface ContentService extends BaseService<Content, Long> {
      * @return
      */
     Content loopContent(Long roomId, Long userId, Long acctId);
+
+    /**
+     * find acctId by room id
+     * @param roomId
+     * @return
+     */
+    List<BigInteger> findAcctByRoomId(Long roomId);
 }

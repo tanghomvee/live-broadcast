@@ -2,6 +2,7 @@ package test.com.homve;
 
 import com.google.common.collect.Lists;
 import com.homvee.livebroadcast.common.enums.EncryptionEnum;
+import com.homvee.livebroadcast.common.vos.Msg;
 import org.apache.commons.codec.binary.Base64;
 
 import java.security.KeyPair;
@@ -11,6 +12,8 @@ import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Copyright (c) 2018$. ddyunf.com all rights reserved
@@ -27,6 +30,26 @@ public class TestEncryption {
     }
     public static void main(String[] args) throws Exception {
 
+        ConcurrentLinkedQueue<Long> linkedQueue = new ConcurrentLinkedQueue();
+        for (Long acctId=1L ; acctId < 10 ; acctId ++) {
+            linkedQueue.offer(acctId);
+        }
+        for (Long acctId=1L ; acctId < 10 ; acctId ++) {
+            try {
+                if (!linkedQueue.isEmpty()) {
+                    if (linkedQueue.contains(acctId)) {
+                        if (!linkedQueue.element().equals(acctId)) {
+                            System.out.println(acctId);
+                            continue;
+                        }
+                        acctId = linkedQueue.poll();
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            linkedQueue.offer(acctId);
+        }
         List<Test> tests = Lists.newArrayList();
         while (true){
             tests.add(new Test());

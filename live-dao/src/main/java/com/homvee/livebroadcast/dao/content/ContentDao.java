@@ -5,6 +5,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
+import java.math.BigInteger;
+import java.util.List;
+
 /**
  * Copyright (c) 2018$. ddyunf.com all rights reserved
  *
@@ -59,7 +62,20 @@ public interface ContentDao extends JpaRepository<Content, Long>,ContentDaoExt {
     @Query(value = " select count(id) from t_content where yn=1 and roomId=?1 " , nativeQuery = true)
     Integer countByRoomId(Long roomId);
 
+    /**
+     * reset state
+     * @param roomId
+     * @return
+     */
     @Modifying
     @Query(value = " update t_content set used=0  where yn=1 and roomId=?1 " , nativeQuery = true)
     Integer resetUsed(Long roomId);
+
+    /**
+     * find
+     * @param roomId
+     * @return
+     */
+    @Query(value = " select acctId from t_content where yn=1 and roomId=?1 " , nativeQuery = true)
+    List<BigInteger> findAcctByRoomId(Long roomId);
 }

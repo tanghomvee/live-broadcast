@@ -20,6 +20,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
+import java.math.BigInteger;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
@@ -179,6 +180,11 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
             retContent.setContent(content.getContent() + getRandomStr());
         }
         return retContent;
+    }
+
+    @Override
+    public List<BigInteger> findAcctByRoomId(Long roomId) {
+        return contentDao.findAcctByRoomId(roomId);
     }
 
 

@@ -208,7 +208,7 @@ public class ContentCtrl extends BaseCtrl {
 
        Room room = rooms.get(0);
        String operate = "wait" ;
-       Object txt = 10000;
+       Object txt = 5000;
        JSONObject retJSON = new JSONObject();
        if (WayEnum.STOP.getVal().equals(room.getWay())){
            retJSON.put("operate" , operate);

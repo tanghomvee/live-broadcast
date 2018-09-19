@@ -78,4 +78,14 @@ public interface ContentDao extends JpaRepository<Content, Long>,ContentDaoExt {
      */
     @Query(value = " select acctId from t_content where yn=1 and roomId=?1 " , nativeQuery = true)
     List<BigInteger> findAcctByRoomId(Long roomId);
+
+    /**
+     * find
+     * @param roomId
+     * @param acctId
+     * @param userId
+     * @return
+     */
+    @Query(value = " select * from t_content where yn=1 and roomId=?1 AND acctId=?2 AND userId=?3" , nativeQuery = true)
+    List<Content> findByRoomIdAndAcctIdAndUserId(Long roomId, Long acctId , Long userId);
 }

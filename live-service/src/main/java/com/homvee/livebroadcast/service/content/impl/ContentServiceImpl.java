@@ -3,8 +3,10 @@ package com.homvee.livebroadcast.service.content.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
+import com.homvee.livebroadcast.common.components.RedisComponent;
 import com.homvee.livebroadcast.common.vos.ContentVO;
 import com.homvee.livebroadcast.common.vos.Pager;
+import com.homvee.livebroadcast.dao.acct.model.Account;
 import com.homvee.livebroadcast.dao.catg.model.Category;
 import com.homvee.livebroadcast.dao.content.ContentDao;
 import com.homvee.livebroadcast.dao.content.model.Content;
@@ -21,10 +23,7 @@ import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.math.BigInteger;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Copyright (c) 2018$. ddyunf.com all rights reserved
@@ -48,11 +47,14 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
     @Resource
     private UserService userService;
 
+    @Resource
+    private RedisComponent redisComponent;
+
     private String[] randStrs = new String[]{
 //                "^_^ "," ԅ(¯㉨¯ԅ) "," （￢㉨￢）   ","  ٩(♡㉨♡ )۶  ","  ヽ(○^㉨^)ﾉ♪ ","  (╥ ㉨ ╥`)   ","  ҉٩(*^㉨^*)  ",
 //                " （≧㉨≦） "," （⊙㉨⊙） "," (๑•́ ㉨ •̀๑) "," ◟(░´㉨`░)◜ ",
 //            "·","^","`",".","_","~",",","、","¯","♡","o_o","I","i","|","l"
-            "♘","♞","♖","♜","♗","♝","♛","♕","♚","♔","㊣","♬","♫","♪","♩"
+            "来","哈哈","呀！", "呢","好","哦","吗？","♘","♞","♖","♜","♗","♝","♛","♕","♚","♔","㊣","哇","嘛","高","行"
     };
     private String[] emots = new String[]{
             "[emot:dy101]", "[emot:dy102]", "[emot:dy103]", "[emot:dy104]", "[emot:dy105]", "[emot:dy106]", "[emot:dy107]", "[emot:dy108]", "[emot:dy109]",
@@ -115,15 +117,37 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
      * 如果访问量大需要优化
      * @param roomId
      * @param userId
+     * @param account
      * @return
      */
     @Override
-    public synchronized Content autoContent(Long roomId, Long userId) {
-        Content content = contentDao.findByRoomIdAndUserId(roomId,userId);
-        if(content == null){
+    public synchronized Content autoContent(Long roomId, Long userId, Account account) {
+        List<Content> contents = contentDao.findByRoomIdAndAcctIdAndUserId(roomId,account.getId() , userId);
+        if(CollectionUtils.isEmpty(contents)){
             return null;
         }
 
+        Content content = contents.get(0);
+
+        String roomKey = "room-" + roomId;
+        String val = account.getId().toString();
+
+        Long minutes5 = 300L;
+        Long max5 = System.currentTimeMillis() - minutes5*1000;
+        redisComponent.removeZSetValByScore(roomKey , 0L , max5 );
+
+        LinkedHashSet<String> vals = redisComponent.getZSetVal(roomKey , 0L ,Long.valueOf(Integer.MAX_VALUE));
+        int len = vals.size();
+        int maxIndex = len / 3;
+        if(maxIndex >=3){
+            maxIndex = 3;
+        }
+        redisComponent.expire(roomKey , 3600L);
+        if(Lists.newArrayList(vals).indexOf(val) >= maxIndex){
+            return null;
+        }
+        redisComponent.addZSet(roomKey , val , System.currentTimeMillis());
+        Long count = redisComponent.incr(roomKey + "-" + val , minutes5);
         Random random = new Random();
         int nums = random.nextInt(4);
 
@@ -131,12 +155,18 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
         while (nums >=0){
             retEmot = retEmot + emots[random.nextInt(emots.length)];
             nums--;
+            if(count != null && count % 10 == 0){
+                retEmot = retEmot + randStrs[random.nextInt(randStrs.length)];
+                count = null;
+            }
         }
+
 
         content.setContent(retEmot);
 
         return content;
     }
+
 
     @Override
     public synchronized Content nextContent(Long roomId, Long userId, Long accountId) {

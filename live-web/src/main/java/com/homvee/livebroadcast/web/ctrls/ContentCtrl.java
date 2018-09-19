@@ -30,10 +30,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.annotation.Resource;
-import java.math.BigInteger;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -78,30 +76,7 @@ public class ContentCtrl extends BaseCtrl {
                     return -1L;
                 }
             });
-    private LoadingCache<String, ConcurrentLinkedQueue> cacheLinkedQueue = CacheBuilder.newBuilder()
-            //最多存放1000个数据
-            .maximumSize(1000)
-            //缓存1H，1H之后进行回收
-            .expireAfterWrite(5, TimeUnit.MINUTES)
-            //开启，记录状态数据功能
-            .recordStats()
-            //设置并发级别为8，并发级别是指可以同时写缓存的线程数
-            .concurrencyLevel(10)
-            .build(new CacheLoader<String, ConcurrentLinkedQueue>() {
-                //数据加载，默认返回-1，也可以是查询操作，如从DB查询
-                @Override
-                public ConcurrentLinkedQueue load(String key) throws Exception {
-                    // TODO Auto-generated method stub
-                    List<BigInteger> accts = contentService.findAcctByRoomId(Long.valueOf(key));
-                    ConcurrentLinkedQueue<Long> retLinked =  new ConcurrentLinkedQueue();
-                    if (!CollectionUtils.isEmpty(accts)){
-                        for (BigInteger acct : accts){
-                            retLinked.add(acct.longValue());
-                        }
-                    }
-                    return retLinked;
-                }
-            });
+
 
    @RequestMapping(path = {"/add"}, method = {RequestMethod.GET, RequestMethod.POST})
    @ResponseBody
@@ -151,7 +126,6 @@ public class ContentCtrl extends BaseCtrl {
            return Msg.error("参数错误");
        }
        contentService.delByIds(ids);
-       cacheLinkedQueue.cleanUp();
        return Msg.success();
    }
 
@@ -241,32 +215,13 @@ public class ContentCtrl extends BaseCtrl {
        Content content = null;
        if (WayEnum.AUTO.getVal().equals(room.getWay())){
            Account account = accounts.get(0);
-           Long acctId = account.getId();
-           ConcurrentLinkedQueue<Long> linkedQueue = null;
-           try {
-               linkedQueue = cacheLinkedQueue.get(room.getId().toString());
-               if (!linkedQueue.isEmpty()){
-                   if(linkedQueue.contains(acctId)){
-                       if(!linkedQueue.element().equals(acctId)){
-                           retJSON.put("operate" , operate);
-                           retJSON.put("content" , txt);
-                           return Msg.success(retJSON);
-                       }
-                       acctId = linkedQueue.poll();
-                   }
-               }
-               linkedQueue.offer(acctId);
-               cacheLinkedQueue.put(room.getId().toString() , linkedQueue);
-           } catch (ExecutionException e) {
-               LOGGER.error("" , e);
+           content = contentService.autoContent(room.getId() , user.getId(), account);
+           if (content == null){
                retJSON.put("operate" , operate);
-               retJSON.put("content" , txt);
+               retJSON.put("content" , 2000);
                return Msg.success(retJSON);
            }
-
-           content = contentService.autoContent(room.getId() , user.getId());
        }else {
-
            Account account = accounts.get(0);
            if(WayEnum.NORMAL.getVal().equals(room.getWay())){
                content = contentService.nextContent(room.getId() , user.getId() , account.getId());
@@ -274,9 +229,6 @@ public class ContentCtrl extends BaseCtrl {
                content = contentService.loopContent(room.getId() , user.getId() , account.getId());
            }
        }
-
-
-
 
        if (content != null){
            operate = "chat";
@@ -290,6 +242,7 @@ public class ContentCtrl extends BaseCtrl {
        retJSON.put("content" , txt);
        return Msg.success(retJSON);
    }
+
 
     private void setRoomChatInterval(Long roomId ,Long time) {
         cache.put(roomId.toString() , time);

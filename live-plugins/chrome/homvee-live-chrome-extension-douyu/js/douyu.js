@@ -1,6 +1,7 @@
 $(function(){
 
 var  timeout = 10000;
+var  securityStartTime = null;
 var chatList= [];
 var interval = setInterval(function(){
    var sendBtn = $("#js-send-msg").find("div[data-type='send']");
@@ -56,43 +57,20 @@ chrome.runtime.onMessage.addListener(function (params, sender, sendResponse) {
 });
 
 function chat(params){
-	var sendBtn = $("#js-send-msg").find("div[data-type='send']");
+	if (existAcctSecurityTip()){
+		var now = new Date().getTime();
+        if(!securityStartTime){
+            securityStartTime = now;
+        }else if((now - securityStartTime) / 1000 > 24*3600){
+            window.location.reload();
+		}
+
+        return;
+	}
+    var sendBtn = $("#js-send-msg").find("div[data-type='send']");
 	var content = $("#js-send-msg").find("textarea");
 	var chat =  params.content || "haha[emot:dy101] ^_^ ";
-
-
-	/*var chats = $("#js-chat-cont").find(".jschartli.hy-chat").find(".chat-msg-item.text-cont");
-	if(chats && chats.length > 0){
-        //var index = getRandom(chats.length);
-        var index = chats.length - 1;
-        chat = $(chats[index]).text();
-		if (chat) {
-			if (chat.indexOf("美") > -1){
-				chat = chat.replace("美" , "靓");
-			}
-			if (chat.indexOf("哈") > -1){
-				chat = chat.replace("哈" , "拉");
-			}
-			if (chat.indexOf("什么") > -1){
-				chat = chat.replace("什么" , "撒子");
-			}
-			if (chat.indexOf("姐姐") > -1){
-				chat = chat.replace("姐姐" , "美女");
-			}
-			if (chat.indexOf("爱你") > -1){
-				chat = chat.replace("爱你" , "love u");
-			}
-			if (chatList.indexOf(chat) == -1){
-                chatList.push(chat);
-            }
-            chat =chatList.length > 30 ? chatList.shift() : "" ;
-            chat = chat  + "[emot:dy101]" + "[emot:dy101]" ;
-
-		}
-	}else {
-        chat = "[emot:dy101]";
-	}*/
-
+	
 	content.val(chat);
 	sendBtn.trigger("click");
 }
@@ -122,6 +100,15 @@ function sendMsg2Bg(){
 
 function getRandom(num) {
 	return Math.floor(Math.random()*num);
+}
+
+function existAcctSecurityTip() {
+	var securityTip = $(".account-security");
+	if(!securityTip || securityTip.length < 1){
+		return false;
+	}
+//$(securityTip).is(":hidden") ||
+	return  $(securityTip).is(":visible");
 }
 
 });

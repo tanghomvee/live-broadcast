@@ -2,6 +2,7 @@ package com.homvee.livebroadcast.service.content;
 
 import com.homvee.livebroadcast.common.vos.ContentVO;
 import com.homvee.livebroadcast.common.vos.Pager;
+import com.homvee.livebroadcast.dao.acct.model.Account;
 import com.homvee.livebroadcast.dao.content.model.Content;
 import com.homvee.livebroadcast.service.BaseService;
 
@@ -46,9 +47,10 @@ public interface ContentService extends BaseService<Content, Long> {
      * find recently content
      * @param roomId
      * @param userId
+     * @param account
      * @return
      */
-    Content autoContent(Long roomId , Long userId);
+    Content autoContent(Long roomId, Long userId, Account account);
 
     /**
      * find

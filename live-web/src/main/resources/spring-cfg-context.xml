@@ -55,7 +55,7 @@
 
 
     <import resource="classpath*:spring-cfg-jpa.xml"/>
-    <!--<import resource="classpath*:spring-cfg-redis.xml"/>
-    <import resource="classpath*:spring-cfg-mq-consumer.xml"/>
+    <import resource="classpath*:spring-cfg-redis.xml"/>
+    <!--<import resource="classpath*:spring-cfg-mq-consumer.xml"/>
     <import resource="classpath*:spring-cfg-mq-producer.xml"/>-->
 </beans>

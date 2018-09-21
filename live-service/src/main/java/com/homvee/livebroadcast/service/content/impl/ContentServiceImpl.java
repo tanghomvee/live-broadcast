@@ -149,9 +149,9 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
         redisComponent.addZSet(roomKey , val , System.currentTimeMillis());
         Long count = redisComponent.incr(roomKey + "-" + val , minutes5);
         Random random = new Random();
-        int nums = random.nextInt(4);
-        if (nums == 0){
-            nums = 1;
+        int nums = random.nextInt(6);
+        if (nums < 3){
+            nums = 3;
         }
         String retEmot = StringUtils.isEmpty(content.getContent()) ? content.getContent() : "";
         retEmot = retEmot + getRandomEmotion(nums) ;

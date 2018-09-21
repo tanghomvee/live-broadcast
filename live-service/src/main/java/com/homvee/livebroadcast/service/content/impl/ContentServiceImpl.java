@@ -54,7 +54,7 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
 //                "^_^ "," ԅ(¯㉨¯ԅ) "," （￢㉨￢）   ","  ٩(♡㉨♡ )۶  ","  ヽ(○^㉨^)ﾉ♪ ","  (╥ ㉨ ╥`)   ","  ҉٩(*^㉨^*)  ",
 //                " （≧㉨≦） "," （⊙㉨⊙） "," (๑•́ ㉨ •̀๑) "," ◟(░´㉨`░)◜ ",
 //            "·","^","`",".","_","~",",","、","¯","♡","o_o","I","i","|","l"
-            "来","哈哈","呀！", "呢","好","哦","吗？","♘","♞","♖","♜","♗","♝","♛","♕","♚","♔","㊣","哇","嘛","高","行"
+            "来","哈哈","呀！", "呢","好","哦","吗？","666666666","♞","8888888","9494","关注","送点什么","闹热","火火","♚","♔","㊣","哇","嘛","高","行"
     };
     private String[] emots = new String[]{
             "[emot:dy101]", "[emot:dy102]", "[emot:dy103]", "[emot:dy104]", "[emot:dy105]", "[emot:dy106]", "[emot:dy107]", "[emot:dy108]", "[emot:dy109]",
@@ -138,32 +138,27 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
 
         LinkedHashSet<String> vals = redisComponent.getZSetVal(roomKey , 0L ,Long.valueOf(Integer.MAX_VALUE));
         int len = vals.size();
-        int maxIndex = len / 3;
-        if(maxIndex >=3){
+        int maxIndex = len > 3 ? len / 3 : 0;
+        if(maxIndex >=3 ){
             maxIndex = 3;
         }
         redisComponent.expire(roomKey , 3600L);
-        if(Lists.newArrayList(vals).indexOf(val) >= maxIndex){
+        if(Lists.newArrayList(vals).indexOf(val) > maxIndex){
             return null;
         }
         redisComponent.addZSet(roomKey , val , System.currentTimeMillis());
         Long count = redisComponent.incr(roomKey + "-" + val , minutes5);
         Random random = new Random();
         int nums = random.nextInt(4);
-
-        String retEmot = StringUtils.isEmpty(content.getContent()) ? content.getContent() : "";
-        while (nums >=0){
-            retEmot = retEmot + emots[random.nextInt(emots.length)];
-            nums--;
-            if(count != null && count % 10 == 0){
-                retEmot = retEmot + randStrs[random.nextInt(randStrs.length)];
-                count = null;
-            }
+        if (nums == 0){
+            nums = 1;
         }
-
-
+        String retEmot = StringUtils.isEmpty(content.getContent()) ? content.getContent() : "";
+        retEmot = retEmot + getRandomEmotion(nums) ;
+        if(count != null && count % 10 == 0){
+            retEmot = retEmot + getRandomStr(nums);
+        }
         content.setContent(retEmot);
-
         return content;
     }
 
@@ -207,7 +202,7 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
         Content content = nextContent(roomId,  userId, acctId);
         if (content != null){
             retContent = new Content();
-            retContent.setContent(content.getContent() + getRandomStr());
+            retContent.setContent(content.getContent() + getRandomStr(2) + getRandomEmotion(2));
         }
         return retContent;
     }
@@ -218,13 +213,21 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
     }
 
 
-    private String getRandomStr(){
-        String data  = "" + (System.currentTimeMillis() /1000);
+    private String getRandomStr(int nums){
         String rs = "";
-        for (int i = 0 , len = data.length(); i < len ; i++){
-            int code =Character.getNumericValue(data.toCharArray()[i]);
-            rs = rs + randStrs[code];
+        Random random = new Random();
+        for (int i = 0 ; i < nums ; i++){
+            rs = rs + randStrs[random.nextInt(randStrs.length)];
         }
         return rs;
     }
+    private String getRandomEmotion(int nums){
+        String rs = "";
+        Random random = new Random();
+        for (int i = 0 ; i < nums ; i++){
+            rs = rs + emots[random.nextInt(emots.length)];
+        }
+        return rs;
+    }
+
 }

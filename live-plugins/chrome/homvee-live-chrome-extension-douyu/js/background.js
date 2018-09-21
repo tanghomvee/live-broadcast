@@ -20,12 +20,9 @@ chrome.runtime.onMessage.addListener(
     }
 
     if (params.operate == "chat"){
-
         params["url"] = sender.tab.url;
         params["authKey"] = authKey;
-
     	$.ajax({
-
 		    url:url,
 		    data:params || {},
             timeout: 60000,
@@ -42,6 +39,9 @@ chrome.runtime.onMessage.addListener(
                 sendMsg2Content({"operate":"wait","content" : 60000},sender.tab.id);
             }
 		}); 	
+    }else{
+        console.error("参数错误：" + params);
+        sendMsg2Content(null,sender.tab.id);
     }
 });
 

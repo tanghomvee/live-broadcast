@@ -2,11 +2,11 @@ $(function(){
 
 var  timeout = 10000;
 var  securityStartTime = null;
-var chatList= [];
 var interval = setInterval(function(){
    var sendBtn = $("#js-send-msg").find("div[data-type='send']");
    if (sendBtn && sendBtn.length > 0){
        sendMsg2Bg();
+       clearInterval(interval);
    }
 },timeout);
 
@@ -20,9 +20,7 @@ chrome.runtime.onMessage.addListener(function (params, sender, sendResponse) {
 		if(params.operate=="go" && params.content){
 			window.location.href = params.content;
 			return;
-		}else if(params.operate=="chat" && params.content){
-			clearInterval(interval);
-			var len = getChats();
+		}else if(params.operate=="chat"){
 			chat(params);
             sendResponse({state:'发送成功！'});
             var tmp =window.setTimeout(function(){
@@ -30,28 +28,14 @@ chrome.runtime.onMessage.addListener(function (params, sender, sendResponse) {
                 window.clearTimeout(tmp);
             },timeout);
 
-			// if(getChats() > len){
-			// 	sendResponse({state:'发送成功！'});
-			// 	var tmp =window.setTimeout(function(){
-			// 		sendMsg2Bg();
-			// 		window.clearTimeout(tmp);
-			// 	},timeout);
-			// }else{
-			// 	var tmp =window.setTimeout(function(){
-             //        window.clearTimeout(tmp);
-             //        if (getChats() > 0 && getChats() <= len){
-             //            chat(params);
-             //        }
-			// 		sendMsg2Bg();
-			// 	},timeout);
-			// }
-		}else if(params.operate=="wait" && params.content){
+		}else if(params.operate=="wait"){
 			var tmp =window.setTimeout(function(){
 					sendMsg2Bg();
 					window.clearTimeout(tmp);
-				},params.content / 1);
+				},(params.content || timeout) / 1);
 		}
    }else{
+	  console.error("参数错误"+ params);
       window.location.reload();
 	}
 });

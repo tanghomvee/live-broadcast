@@ -4,6 +4,9 @@
 		<el-form-item prop="account" label="账户名称">
 			<el-input type="text" v-model="settingForm.account" auto-complete="off" placeholder="账号" :disabled="true"></el-input>
 		</el-form-item>
+		<el-form-item prop="account" label="手机号码">
+			<el-input type="text" v-model="settingForm.mobile" auto-complete="off" placeholder="手机号码" :disabled="true"></el-input>
+		</el-form-item>
 		<el-form-item prop="oldPwd" label="输入旧密码">
 			<el-input type="password" v-model="settingForm.oldPwd" auto-complete="off" placeholder="请输入原始密码"></el-input>
 		</el-form-item>
@@ -34,6 +37,7 @@
                     account:null,
                     oldPwd: null,
                     newPwd: null,
+                    mobile: null,
                     reNewPwd: null
                 },
                 settingFormValidator: {
@@ -42,6 +46,9 @@
                     ],
                     newPwd: [
                         { required: true, message: '请输入新密码', trigger: 'blur' }
+                    ],
+                    mobile: [
+                        { required: true, message: '请输入手机号码', trigger: 'blur' }
                     ],
                     reNewPwd: [
                         { required: true, message: '请再次输入新密码', trigger: 'blur' }

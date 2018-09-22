@@ -19,6 +19,8 @@ public class Account extends BaseEntity {
 
     private String acctName;
 
+    private String mobile;
+
     private Long userId;
 
     public String getAcctName() {
@@ -35,5 +37,13 @@ public class Account extends BaseEntity {
 
     public void setUserId(Long userId) {
         this.userId = userId;
+    }
+
+    public String getMobile() {
+        return mobile;
+    }
+
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
     }
 }

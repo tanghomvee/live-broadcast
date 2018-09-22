@@ -52,7 +52,12 @@ module.exports = {
         target:"http://localhost/",
        // secure: false,
         changeOrigin: true
-      }
+      },
+       "/sms/**":{
+            target:"http://localhost/",
+            // secure: false,
+            changeOrigin: true
+        }
     },
     // CSS Sourcemaps off by default because relative paths are "buggy"
     // with this option, according to the CSS-Loader README

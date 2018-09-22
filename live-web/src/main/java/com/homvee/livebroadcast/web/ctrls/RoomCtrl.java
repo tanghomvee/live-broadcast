@@ -38,8 +38,8 @@ public class RoomCtrl extends BaseCtrl {
 
    @RequestMapping(path = {"/add"}, method = {RequestMethod.GET, RequestMethod.POST})
    @ResponseBody
-   public Msg save(String roomName ,Integer way , String url,Long intervalTime){
-       if(StringUtils.isEmpty(roomName) || StringUtils.isEmpty(url)){
+   public Msg save(String roomName ,String mobile ,Integer way , String url,Long intervalTime ,Integer startHour ,Integer endHour){
+       if(StringUtils.isEmpty(roomName) || StringUtils.isEmpty(url)|| StringUtils.isEmpty(mobile)){
            return Msg.error("参数错误");
        }
        Room room = new Room();
@@ -53,6 +53,9 @@ public class RoomCtrl extends BaseCtrl {
        room.setUserId(getUser().getId());
        room.setCreator(getUser().getUserName());
        room.setIntervalTime(intervalTime);
+       room.setEndHour(endHour == null || endHour < 0 ? 0 : endHour);
+       room.setStartHour(startHour == null || startHour < 0 ? 0 : startHour);
+       room.setMobile(mobile);
        roomService.save(Lists.newArrayList(room));
        return Msg.success();
    }
@@ -88,7 +91,7 @@ public class RoomCtrl extends BaseCtrl {
    @RequestMapping(path = {"/edit"}, method = {RequestMethod.GET, RequestMethod.POST})
    @ResponseBody
    public Msg edit(RoomVO roomVO){
-       if(StringUtils.isEmpty(roomVO) || roomVO.getId() < 1){
+       if(StringUtils.isEmpty(roomVO.getRoomName()) || StringUtils.isEmpty(roomVO.getUrl()) || StringUtils.isEmpty(roomVO.getMobile()) || roomVO.getId() < 1){
            return Msg.error("参数错误");
        }
        Room room = roomService.findOne(roomVO.getId());
@@ -129,4 +132,5 @@ public class RoomCtrl extends BaseCtrl {
         roomService.delByIds(ids);
         return Msg.success();
     }
+
 }

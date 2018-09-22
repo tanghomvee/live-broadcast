@@ -41,4 +41,12 @@ public interface AccountDao extends JpaRepository<Account, Long> , AccountDaoExt
     @Modifying
     @Query(value = "update t_account set yn=0 ,changeTime=now() where id in(?1)" , nativeQuery = true)
     Integer delByIds(List<Long> ids);
+
+    /**
+     * find
+     * @param acctName
+     * @param yn
+     * @return
+     */
+    List<Account> findByAcctNameLikeAndYn(String acctName, Integer yn);
 }

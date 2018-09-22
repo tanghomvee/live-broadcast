@@ -61,4 +61,11 @@ public interface AccountService extends BaseService<Account, Long> {
      * @param ids
      */
     void delByIds(Long[] ids);
+
+    /**
+     * find
+     * @param acctName
+     * @return
+     */
+    List<Account> findByAcctName(String acctName);
 }

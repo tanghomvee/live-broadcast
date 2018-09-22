@@ -5,10 +5,18 @@ var  securityStartTime = null;
 var interval = setInterval(function(){
    var sendBtn = $("#js-send-msg").find("div[data-type='send']");
    if (sendBtn && sendBtn.length > 0){
-       sendMsg2Bg();
+       sendMsg2Bg({"operate": "chat"});
        clearInterval(interval);
    }
 },timeout);
+
+
+var intervalLive = setInterval(function(){
+    var timetit = $("#anchor-info").find("a[data-anchor-info='timetit']");
+    if (timetit && timetit.length > 0){
+        sendMsg2Bg({"operate": "notify","live" : 0});
+    }
+},3600 * 1000);
 
 chrome.runtime.onMessage.addListener(function (params, sender, sendResponse) {
 
@@ -24,18 +32,25 @@ chrome.runtime.onMessage.addListener(function (params, sender, sendResponse) {
 			chat(params);
             sendResponse({state:'发送成功！'});
             var tmp =window.setTimeout(function(){
-                sendMsg2Bg();
+                sendMsg2Bg({"operate": "chat"});
                 window.clearTimeout(tmp);
             },timeout);
 
 		}else if(params.operate=="wait"){
 			var tmp =window.setTimeout(function(){
-					sendMsg2Bg();
+					sendMsg2Bg({"operate": "chat"});
 					window.clearTimeout(tmp);
 				},(params.content || timeout) / 1);
-		}
+		}else if(params.operate=="check"){
+            var tmp =window.setTimeout(function(){
+                window.clearTimeout(tmp);
+                if (params.content && existAcctSecurityTip()){
+                    //TODO
+				}
+            },timeout);
+        }
    }else{
-	  console.error("参数错误"+ params);
+	  console.error("参数错误" + params);
       window.location.reload();
 	}
 });
@@ -48,7 +63,7 @@ function chat(params){
         }else if((now - securityStartTime) / 1000 > 24*3600){
             window.location.reload();
 		}
-
+        sendMsg2Bg({"operate": "check"});
         return;
 	}
     var sendBtn = $("#js-send-msg").find("div[data-type='send']");
@@ -59,20 +74,14 @@ function chat(params){
 	sendBtn.trigger("click");
 }
 
-function getChats(){
-	var myChats = $("#js-chat-cont").find(".my-cont");
-	if(!myChats || myChats.length < 1){
-		return 0;
-	}
-	return myChats.length;
-}
 
-function sendMsg2Bg(){
+function sendMsg2Bg(params){
 	try{
 
         var nameSpan = $("#header").find("span[class='l-txt']");
         var usrName = nameSpan.html();
-        chrome.runtime.sendMessage({"operate": "chat" , "acctName":usrName}, function(response) {
+        params["acctName"] = usrName;
+        chrome.runtime.sendMessage(params, function(response) {
             console.log("bg resp " + response);
         });
 

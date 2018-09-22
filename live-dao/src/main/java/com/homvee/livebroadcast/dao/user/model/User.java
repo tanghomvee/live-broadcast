@@ -21,6 +21,11 @@ public class User  extends BaseEntity {
     private String pwd;
     private String authKey;
 
+    /**
+     * 手机号
+     */
+    private String mobile;
+
     public String getUserName() {
         return userName;
     }
@@ -43,5 +48,13 @@ public class User  extends BaseEntity {
 
     public void setAuthKey(String authKey) {
         this.authKey = authKey;
+    }
+
+    public String getMobile() {
+        return mobile;
+    }
+
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
     }
 }

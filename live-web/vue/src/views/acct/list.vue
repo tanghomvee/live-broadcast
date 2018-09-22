@@ -27,6 +27,9 @@
 			
 			<el-table-column prop="acctName" label="账户名称" width="auto">
 			</el-table-column>
+
+			<el-table-column prop="mobile" label="手机号" width="auto">
+			</el-table-column>
 			
 			<el-table-column label="操作" width="150">
 				<template scope="scope">
@@ -49,6 +52,10 @@
 				<el-form-item label="账户名称">
 					<el-input v-model="editForm.acctName" placeholder="账户名称"></el-input>
 				</el-form-item>
+
+				<el-form-item label="手机号码">
+					<el-input v-model="editForm.mobile" placeholder="手机号码"></el-input>
+				</el-form-item>
 			
 			</el-form>
 			<div slot="footer" class="dialog-footer">
@@ -62,6 +69,9 @@
 			<el-form :model="addForm" label-width="80px" :rules="addFormRules" ref="addForm">
 				<el-form-item label="账户名称">
 					<el-input v-model="addForm.acctName" placeholder="账户名称"></el-input>
+				</el-form-item>
+				<el-form-item label="手机号码">
+					<el-input v-model="addForm.mobile" placeholder="手机号码"></el-input>
 				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
@@ -97,12 +107,16 @@
                     ],
                     acctName: [
                         { required: true, message: '请输入账户名', trigger: 'blur' }
+                    ],
+                    mobile: [
+                        { required: true, message: '请输入手机号', trigger: 'blur' }
                     ]
 				},
 				//编辑界面数据
 				editForm: {
 					id: null,
-                    acctName: ''
+                    acctName: '',
+                    mobile: ''
 				},
 
 				addFormVisible: false,//新增界面是否显示
@@ -110,11 +124,15 @@
 				addFormRules: {
                     acctName: [
                         { required: true, message: '请输入账户名', trigger: 'blur' }
+                    ],
+                    mobile: [
+                        { required: true, message: '请输入手机号', trigger: 'blur' }
                     ]
 				},
 				//新增界面数据
 				addForm: {
-                    acctName: ''
+                    acctName: '',
+                    mobile: ''
 				}
 
 			}

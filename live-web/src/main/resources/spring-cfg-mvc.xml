@@ -51,6 +51,7 @@
 			<mvc:mapping path="/**"/>
 			<mvc:exclude-mapping path="/user/login" /><!--账号登录 -->
 			<mvc:exclude-mapping path="/content/chat/**" />
+			<mvc:exclude-mapping path="/sms/**" />
 			<mvc:exclude-mapping path="/index.html" />
 			<mvc:exclude-mapping path="/static/**" />
 			<mvc:exclude-mapping path="/favicon.ico" />

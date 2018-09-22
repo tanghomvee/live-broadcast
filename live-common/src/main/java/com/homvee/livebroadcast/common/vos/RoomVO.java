@@ -23,6 +23,21 @@ public class RoomVO extends BaseVO {
     private Integer way;
 
     /**
+     * 主播手机号
+     */
+    private String mobile;
+
+    /**
+     * 开始时间
+     */
+    private Integer startHour;
+
+    /**
+     * 结束时刻
+     */
+    private Integer endHour;
+
+    /**
      * 每句对话内容的间隔时间单位秒
      */
     private Long intervalTime;
@@ -75,5 +90,29 @@ public class RoomVO extends BaseVO {
 
     public void setUserName(String userName) {
         this.userName = userName;
+    }
+
+    public String getMobile() {
+        return mobile;
+    }
+
+    public void setMobile(String mobile) {
+        this.mobile = mobile;
+    }
+
+    public Integer getStartHour() {
+        return startHour;
+    }
+
+    public void setStartHour(Integer startHour) {
+        this.startHour = startHour;
+    }
+
+    public Integer getEndHour() {
+        return endHour;
+    }
+
+    public void setEndHour(Integer endHour) {
+        this.endHour = endHour;
     }
 }

@@ -24,6 +24,12 @@
 			</el-table-column>
 			<el-table-column prop="userName" label="用户名" width="auto">
 			</el-table-column>
+			<el-table-column prop="mobile" label="手机号码" width="auto">
+			</el-table-column>
+			<el-table-column prop="startHour" label="开始时间" width="auto">
+			</el-table-column>
+			<el-table-column prop="endHour" label="结束时间" width="auto">
+			</el-table-column>
 
 			<el-table-column prop="way" label="交流方式" :formatter="getWayDesc"  width="auto">
 			</el-table-column>
@@ -58,6 +64,19 @@
 				<el-form-item label="房间名称">
 					<el-input v-model="editForm.roomName" placeholder="房间名称"></el-input>
 				</el-form-item>
+				<el-form-item label="手机号码">
+					<el-input v-model="editForm.mobile" placeholder="手机号码"></el-input>
+				</el-form-item>
+				<el-form-item label="开播时间">
+					<el-select v-model="editForm.startHour" placeholder="开播时间">
+						<el-option v-for="item in hours" :key="item.id" :value="item.id" :label="item.desc"></el-option>
+					</el-select>
+				</el-form-item>
+				<el-form-item label="结束时间">
+					<el-select v-model="editForm.endHour" placeholder="结束时间">
+						<el-option v-for="item in hours" :key="item.id" :value="item.id" :label="item.desc"></el-option>
+					</el-select>
+				</el-form-item>
 				<el-form-item label="交流方式">
 					<el-select v-model="editForm.way" placeholder="请选择交流方式">
 						<el-option v-for="item in ways" :key="item.id" :value="item.id" :label="item.desc"></el-option>
@@ -83,6 +102,19 @@
 			<el-form :model="addForm" label-width="80px" :rules="addFormRules" ref="addForm">
 				<el-form-item label="房间名称">
 					<el-input v-model="addForm.roomName" placeholder="房间名称"></el-input>
+				</el-form-item>
+				<el-form-item label="手机号码">
+					<el-input v-model="addForm.mobile" placeholder="手机号码"></el-input>
+				</el-form-item>
+				<el-form-item label="开播时间">
+					<el-select v-model="addForm.startHour" placeholder="开播时间">
+						<el-option v-for="item in hours" :key="item.id" :value="item.id" :label="item.desc"></el-option>
+					</el-select>
+				</el-form-item>
+				<el-form-item label="结束时间">
+					<el-select v-model="addForm.endHour" placeholder="结束时间">
+						<el-option v-for="item in hours" :key="item.id" :value="item.id" :label="item.desc"></el-option>
+					</el-select>
 				</el-form-item>
 				<el-form-item label="交流方式">
 					<el-select v-model="addForm.way" placeholder="请选择交流方式">
@@ -130,9 +162,13 @@
                     roomName: [
                         { required: true, message: '请输入房间名', trigger: 'blur' }
                     ],
+                    mobile: [
+                        { required: true, message: '请输入手机号', trigger: 'blur' }
+                    ],
                     url: [
                         { required: true, message: '请输入房间直播地址', trigger: 'blur' }
                     ],
+
                     way: [
                         { required: true, message: '请选择交流方式', trigger: 'blur' }
                     ]
@@ -142,6 +178,9 @@
 					id: null,
                     roomName: '',
 					way:null,
+                    mobile:null,
+                    startHour:0,
+                    endHour:23,
                     intervalTime:null,
 					url:null
 				},
@@ -155,6 +194,9 @@
                     url: [
                         { required: true, message: '请输入房间直播地址', trigger: 'blur' }
                     ],
+                    mobile: [
+                        { required: true, message: '请输入手机号', trigger: 'blur' }
+                    ],
                     way: [
                         { required: true, message: '请选择交流方式', trigger: 'blur' }
                     ]
@@ -164,10 +206,18 @@
                     roomName: '',
                     way:null,
                     intervalTime:null,
+                    mobile:null,
+                    startHour:0,
+                    endHour:23,
                     url:null
 				},
 				ways:[
 					{key:"NORMAL",id:1,desc:"正常"} , {key:"AUTO",id:2,desc:"自动"},{key:"STOP",id:3,desc:"停止"},{key:"STOP",id:4,desc:"循环"}
+				],
+				hours:[{desc:0,id:0},{desc:1,id:1},{desc:2,id:2},{desc:3,id:3},{desc:4,id:4},{desc:5,id:5},
+					{desc:6,id:6},{desc:7,id:7},{desc:8,id:8},{desc:9,id:9},{desc:10,id:10},{desc:11,id:11},
+					{desc:12,id:12},{desc:13,id:13},{desc:14,id:14},{desc:15,id:15},{desc:16,id:16},{desc:17,id:17},
+					{desc:18,id:18},{desc:19,id:19},{desc:20,id:20},{desc:21,id:21},{desc:22,id:22},{desc:23,id:23}
 				]
 
 			}

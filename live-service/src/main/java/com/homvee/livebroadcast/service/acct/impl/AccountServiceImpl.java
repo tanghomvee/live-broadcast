@@ -75,4 +75,9 @@ public class AccountServiceImpl extends BaseServiceImpl<Account,Long> implements
     public void delByIds(Long[] ids) {
         accountDao.delByIds(Lists.newArrayList(ids));
     }
+
+    @Override
+    public List<Account> findByAcctName(String acctName) {
+        return accountDao.findByAcctNameLikeAndYn(acctName , YNEnum.YES.getVal());
+    }
 }

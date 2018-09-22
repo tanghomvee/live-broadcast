@@ -8,6 +8,7 @@
 *All other responses to that event will be ignored.
 */
 // var url = "http://47.52.229.18:9527/content/chat";
+var domain = "http://localhost";
 var url = "http://localhost/content/chat";
 var authKey = "d423e8dd0bbf44caad5a31ddc15055e0";
 chrome.runtime.onMessage.addListener(
@@ -19,26 +20,37 @@ chrome.runtime.onMessage.addListener(
         sendResponse({"msg" : "background accept ok"});
     }
 
-    if (params.operate == "chat"){
+    if (params.operate == "chat" || params.operate=="check" || params.operate=="notify" ){
         params["url"] = sender.tab.url;
         params["authKey"] = authKey;
-    	$.ajax({
-		    url:url,
-		    data:params || {},
-            timeout: 60000,
-		    dataType:"json",
-		    success:function(data){
-		        console.log(data);
-		        if (data["flag"] == "success") {
-		        	data = data["data"];
-				}
-
-		        sendMsg2Content(data,sender.tab.id);
-		    },
-			error:function () {
-                sendMsg2Content({"operate":"wait","content" : 60000},sender.tab.id);
-            }
-		}); 	
+        switch (params.operate) {
+            case "chat":
+                ajaxFun(domain + "/content/chat" , params , sender);
+                return;
+           case "check":
+               ajaxFun(domain + "/sms/send" , params , sender);
+                return;
+            case "notify":
+                ajaxFun(domain + "/sms/notify" , params , sender);
+                return;
+        }
+    	// $.ajax({
+		//     url:url,
+		//     data:params || {},
+        //     timeout: 60000,
+		//     dataType:"json",
+		//     success:function(data){
+		//         console.log(data);
+		//         if (data["flag"] == "success") {
+		//         	data = data["data"];
+		// 		}
+        //
+		//         sendMsg2Content(data,sender.tab.id);
+		//     },
+		// 	error:function () {
+        //         sendMsg2Content({"operate":"wait","content" : 60000},sender.tab.id);
+        //     }
+		// });
     }else{
         console.error("参数错误：" + params);
         sendMsg2Content(null,sender.tab.id);
@@ -53,4 +65,24 @@ function sendMsg2Content(data,tabId){
  chrome.tabs.sendMessage(tabId, data, function(response) {
     console.log("content resp:"+ response);
   });
+}
+
+function ajaxFun(url , params , sender) {
+    $.ajax({
+        url:url,
+        data:params || {},
+        timeout: 60000,
+        dataType:"json",
+        success:function(data){
+            console.log(data);
+            if (data["flag"] == "success") {
+                data = data["data"];
+            }
+
+            sendMsg2Content(data,sender.tab.id);
+        },
+        error:function () {
+            sendMsg2Content({"operate":"wait","content" : 60000},sender.tab.id);
+        }
+    });
 }

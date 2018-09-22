@@ -34,6 +34,10 @@ public class AccountDaoExtImpl extends JpaDaoSupport<Account,Long>  implements A
             sql.append(" AND ta.acctName like :acctName");
             params.put("acctName" , "%" + accountVO.getAcctName() + "%");
         }
+        if (!StringUtils.isEmpty(accountVO.getMobile())){
+            sql.append(" AND ta.mobile like :mobile");
+            params.put("mobile" , "%" + accountVO.getMobile() + "%");
+        }
         if (!StringUtils.isEmpty(accountVO.getUserId())){
             sql.append(" AND ta.userId = :userId");
             params.put("userId" ,accountVO.getUserId() );

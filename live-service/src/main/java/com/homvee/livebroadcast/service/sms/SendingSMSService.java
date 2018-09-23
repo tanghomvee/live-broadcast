@@ -14,7 +14,8 @@ public interface SendingSMSService {
     /**
      * save
      * @param sendingSMS
+     * @param timeout
      * @return
      */
-    SendingSMS save(SendingSMS sendingSMS);
+    SendingSMS save(SendingSMS sendingSMS, Long timeout);
 }

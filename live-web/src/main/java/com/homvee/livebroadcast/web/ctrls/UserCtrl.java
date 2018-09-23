@@ -59,9 +59,9 @@ public class UserCtrl extends BaseCtrl {
    }
    @RequestMapping(path = {"/setting"}, method = {RequestMethod.GET, RequestMethod.POST})
    @ResponseBody
-   public Msg setting(String userName ,String oldPwd, String newPwd , String reNewPwd){
+   public Msg setting(String userName ,String oldPwd, String newPwd , String reNewPwd , String mobile){
 
-       if(StringUtils.isEmpty(userName) ||StringUtils.isEmpty(oldPwd) || StringUtils.isEmpty(newPwd) || StringUtils.isEmpty(reNewPwd)){
+       if(StringUtils.isEmpty(userName) ||StringUtils.isEmpty(oldPwd) || StringUtils.isEmpty(newPwd) || StringUtils.isEmpty(reNewPwd)|| StringUtils.isEmpty(mobile)){
            return Msg.error("参数错误");
        }
 
@@ -88,6 +88,7 @@ public class UserCtrl extends BaseCtrl {
            return Msg.error("账户不存在");
        }
        user.setPwd(newPwd);
+       user.setMobile(mobile);
        userService.save(Lists.newArrayList(user));
 
        UserVO userVO = new UserVO();

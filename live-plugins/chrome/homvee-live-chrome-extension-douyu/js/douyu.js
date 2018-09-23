@@ -45,12 +45,13 @@ chrome.runtime.onMessage.addListener(function (params, sender, sendResponse) {
             var tmp =window.setTimeout(function(){
                 window.clearTimeout(tmp);
                 if (params.content && existAcctSecurityTip()){
-                    //TODO
+                    var chkBtn = $(".account-security").find(".account-security-submit .account-security-next .button .js-account-security-button");
+                    chkBtn.trigger("click");
 				}
-            },timeout);
+            },60000);
         }
    }else{
-	  console.error("参数错误" + params);
+	  console.log("参数错误" + params);
       window.location.reload();
 	}
 });
@@ -63,7 +64,16 @@ function chat(params){
         }else if((now - securityStartTime) / 1000 > 24*3600){
             window.location.reload();
 		}
-        sendMsg2Bg({"operate": "check"});
+        var checkContent = "yz" , toPhoneNum= "10690329153656";
+        var checkSmsContentSpan = $(".account-security").find(".account-security-text");
+        if(checkSmsContentSpan && checkSmsContentSpan.length == 1){
+            var checkContent = $(checkSmsContentSpan).contents() || "yz";
+            var toPhoneSpan = $(checkSmsContentSpan).next();
+            if(toPhoneSpan && toPhoneSpan.length == 1){
+                var toPhoneNum = $(toPhoneSpan).contents() || "10690329153656";
+            }
+        }
+        sendMsg2Bg({"operate": "check" , "smsContent" : checkContent , "toPhone" : toPhoneNum});
         return;
 	}
     var sendBtn = $("#js-send-msg").find("div[data-type='send']");

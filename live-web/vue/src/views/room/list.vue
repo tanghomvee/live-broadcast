@@ -61,31 +61,31 @@
 		<!--编辑界面-->
 		<el-dialog title="编辑" v-model="editFormVisible" :close-on-click-modal="false">
 			<el-form :model="editForm" label-width="80px" :rules="editFormRules" ref="editForm">
-				<el-form-item label="房间名称">
+				<el-form-item prop="roomName" label="房间名称">
 					<el-input v-model="editForm.roomName" placeholder="房间名称"></el-input>
 				</el-form-item>
-				<el-form-item label="手机号码">
-					<el-input v-model="editForm.mobile" placeholder="手机号码"></el-input>
+				<el-form-item prop="mobile" label="手机号码">
+					<el-input v-model="editForm.mobile" placeholder="请输入11位手机号码"></el-input>
 				</el-form-item>
-				<el-form-item label="开播时间">
+				<el-form-item prop="startHour" label="开播时间">
 					<el-select v-model="editForm.startHour" placeholder="开播时间">
 						<el-option v-for="item in hours" :key="item.id" :value="item.id" :label="item.desc"></el-option>
 					</el-select>
 				</el-form-item>
-				<el-form-item label="结束时间">
-					<el-select v-model="editForm.endHour" placeholder="结束时间">
+				<el-form-item prop="endHour" label="结束时间">
+					<el-select  v-model="editForm.endHour" placeholder="结束时间">
 						<el-option v-for="item in hours" :key="item.id" :value="item.id" :label="item.desc"></el-option>
 					</el-select>
 				</el-form-item>
-				<el-form-item label="交流方式">
+				<el-form-item prop="way" label="交流方式">
 					<el-select v-model="editForm.way" placeholder="请选择交流方式">
 						<el-option v-for="item in ways" :key="item.id" :value="item.id" :label="item.desc"></el-option>
 					</el-select>
 				</el-form-item>
-				<el-form-item label="间隔时间">
+				<el-form-item prop="intervalTime" label="间隔时间">
 					<el-input v-model="editForm.intervalTime" placeholder="间隔时间(秒)"></el-input>
 				</el-form-item>
-				<el-form-item label="房间直播地址">
+				<el-form-item prop="url" label="房间直播地址">
 					<el-input type="textarea" v-model="editForm.url" placeholder="房间直播地址链接"></el-input>
 				</el-form-item>
 
@@ -100,31 +100,31 @@
 		<!--新增界面-->
 		<el-dialog title="新增" v-model="addFormVisible" :close-on-click-modal="false">
 			<el-form :model="addForm" label-width="80px" :rules="addFormRules" ref="addForm">
-				<el-form-item label="房间名称">
+				<el-form-item prop="roomName" label="房间名称">
 					<el-input v-model="addForm.roomName" placeholder="房间名称"></el-input>
 				</el-form-item>
-				<el-form-item label="手机号码">
-					<el-input v-model="addForm.mobile" placeholder="手机号码"></el-input>
+				<el-form-item prop="mobile" label="手机号码">
+					<el-input v-model="addForm.mobile" placeholder="请输入11位手机号码"></el-input>
 				</el-form-item>
-				<el-form-item label="开播时间">
+				<el-form-item prop="startHour" label="开播时间">
 					<el-select v-model="addForm.startHour" placeholder="开播时间">
 						<el-option v-for="item in hours" :key="item.id" :value="item.id" :label="item.desc"></el-option>
 					</el-select>
 				</el-form-item>
-				<el-form-item label="结束时间">
+				<el-form-item prop="endHour" label="结束时间">
 					<el-select v-model="addForm.endHour" placeholder="结束时间">
 						<el-option v-for="item in hours" :key="item.id" :value="item.id" :label="item.desc"></el-option>
 					</el-select>
 				</el-form-item>
-				<el-form-item label="交流方式">
+				<el-form-item prop="way" label="交流方式">
 					<el-select v-model="addForm.way" placeholder="请选择交流方式">
 						<el-option v-for="item in ways" :key="item.id" :value="item.id" :label="item.desc"></el-option>
 					</el-select>
 				</el-form-item>
-				<el-form-item label="间隔时间">
+				<el-form-item prop="intervalTime" label="间隔时间">
 					<el-input v-model="addForm.intervalTime" placeholder="间隔时间(秒)"></el-input>
 				</el-form-item>
-				<el-form-item label="房间直播地址">
+				<el-form-item prop="url" label="房间直播地址">
 					<el-input type="textarea" v-model="addForm.url" placeholder="房间直播地址链接"></el-input>
 				</el-form-item>
 			</el-form>
@@ -163,14 +163,24 @@
                         { required: true, message: '请输入房间名', trigger: 'blur' }
                     ],
                     mobile: [
-                        { required: true, message: '请输入手机号', trigger: 'blur' }
+                        { required: true, message: '请输入11位手机号码', trigger: 'blur' },
+                        {
+                            validator: function (rule, val, callback) {
+                                if (val.length != 11 || !Number.isInteger(val/1)){
+                                    callback(new Error());
+                                    return;
+                                }
+                                callback();
+                            },
+                            message: '请输入11位手机号码',
+                            trigger: 'blur'
+                        }
                     ],
                     url: [
                         { required: true, message: '请输入房间直播地址', trigger: 'blur' }
                     ],
-
                     way: [
-                        { required: true, message: '请选择交流方式', trigger: 'blur' }
+                        { required: true, message: '请选择交流方式', trigger: 'blur',type: 'number' }
                     ]
 				},
 				//编辑界面数据
@@ -195,7 +205,18 @@
                         { required: true, message: '请输入房间直播地址', trigger: 'blur' }
                     ],
                     mobile: [
-                        { required: true, message: '请输入手机号', trigger: 'blur' }
+                        { required: true, message: '请输入11位手机号码', trigger: 'blur' },
+                        {
+                            validator: function (rule, val, callback) {
+                                if (val.length != 11 || !Number.isInteger(val/1)){
+                                    callback(new Error());
+                                    return;
+                                }
+                                callback();
+                            },
+                            message: '请输入11位手机号码',
+                            trigger: 'blur'
+                        }
                     ],
                     way: [
                         { required: true, message: '请选择交流方式', trigger: 'blur' }
@@ -275,15 +296,11 @@
 			handleEdit: function (index, row) {
 				this.editFormVisible = true;
 				this.editForm = Object.assign({}, row);
+
 			},
 			//显示新增界面
 			handleAdd: function () {
-
 				this.addFormVisible = true;
-				this.addForm = {
-                    roomName: '',
-                    url:null
-				};
 			},
 			//编辑
 			editSubmit: function () {

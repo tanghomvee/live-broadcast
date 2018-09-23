@@ -1,7 +1,6 @@
 package com.homvee.livebroadcast.web.ctrls;
 
 import com.alibaba.fastjson.JSONObject;
-import com.homvee.livebroadcast.common.enums.WayEnum;
 import com.homvee.livebroadcast.common.vos.Msg;
 import com.homvee.livebroadcast.dao.acct.model.Account;
 import com.homvee.livebroadcast.dao.room.model.Room;
@@ -44,43 +43,33 @@ public class SMSCtrl extends BaseCtrl {
 
     @RequestMapping(path = {"/send"}, method = {RequestMethod.GET, RequestMethod.POST})
     @ResponseBody
-    public Msg sendMsg(String acctName, String authKey){
-        if(StringUtils.isEmpty(acctName) || StringUtils.isEmpty(authKey)){
+    public Msg sendMsg(String acctName, String authKey , String toPhone , String smsContent){
+        if(StringUtils.isEmpty(acctName) || StringUtils.isEmpty(authKey) || StringUtils.isEmpty(toPhone)){
             return Msg.error("参数错误");
         }
 
         User user = userService.findByAuthKey(authKey);
-
         if(user == null){
             return Msg.error("非法账户");
         }
-
         List<Account> accts = accountService.findByAcctNameAndUserId(acctName.trim() , user.getId());
         if (CollectionUtils.isEmpty(accts)){
             return Msg.error("账号不存在");
         }
-
-
         JSONObject retJSON = new JSONObject();
         retJSON.put("operate" , "check");
         retJSON.put("content" , true);
 
         Account acct = accts.get(0);
         String mobile = acct.getMobile();
-
         PortInfo portInfo = portInfoService.findByPhonNum(mobile);
-
-        String content = "";
         SendingSMS sendingSMS = new SendingSMS();
         sendingSMS.setPhoNum(mobile);
         sendingSMS.setPortNum(portInfo.getPortNum());
-        sendingSMS.setSmsContent(content);
-        sendingSMS.setSmsNumber(mobile);
-        sendingSMS.setSmsState(0);
+        sendingSMS.setSmsContent(smsContent);
+        sendingSMS.setSmsNumber(toPhone);
         sendingSMS.setSmsType(0);
-        sendingSMS = sendingSMSService.save(sendingSMS);
-
-
+        sendingSMS = sendingSMSService.save(sendingSMS, 10 * 60L);
         return Msg.success(retJSON);
     }
 
@@ -135,28 +124,28 @@ public class SMSCtrl extends BaseCtrl {
 
         PortInfo portInfo = portInfoService.findByPhonNum(mobile);
 
-        String content = "该你直播呢";
+        String content = room.getRoomName() + " 同学,你的粉丝望眼欲穿的期待你上线 加油 ^_^";
         SendingSMS sendingSMS4Room = new SendingSMS();
 
         sendingSMS4Room.setPhoNum("123");
-        sendingSMS4Room.setSmsContent(content);
         sendingSMS4Room.setPortNum(portInfo.getPortNum());
+
+        sendingSMS4Room.setSmsContent(content);
         sendingSMS4Room.setSmsNumber(mobile);
-        sendingSMS4Room.setSmsState(0);
         sendingSMS4Room.setSmsType(0);
-        sendingSMS4Room = sendingSMSService.save(sendingSMS4Room);
+        sendingSMS4Room = sendingSMSService.save(sendingSMS4Room, 60*60L);
 
         SendingSMS sendingSMS4User = new SendingSMS();
         mobile = user.getMobile();
         portInfo = portInfoService.findByPhonNum(mobile);
         content = "催促  " + room.getRoomName() + " 直播";
         sendingSMS4User.setPhoNum(mobile);
-        sendingSMS4User.setSmsContent(content);
         sendingSMS4User.setPortNum(portInfo.getPortNum());
+
+        sendingSMS4User.setSmsContent(content);
         sendingSMS4User.setSmsNumber(mobile);
-        sendingSMS4User.setSmsState(0);
         sendingSMS4User.setSmsType(0);
-        sendingSMS4User = sendingSMSService.save(sendingSMS4User);
+        sendingSMS4User = sendingSMSService.save(sendingSMS4User, 60*60L);
 
 
         return Msg.success(retJSON);

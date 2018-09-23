@@ -52,7 +52,7 @@ chrome.runtime.onMessage.addListener(
         //     }
 		// });
     }else{
-        console.error("参数错误：" + params);
+        console.log("参数错误：" + params);
         sendMsg2Content(null,sender.tab.id);
     }
 });

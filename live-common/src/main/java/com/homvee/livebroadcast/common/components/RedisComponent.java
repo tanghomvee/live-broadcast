@@ -262,6 +262,10 @@ public class RedisComponent {
         return false;
     }
 
+    public boolean setStrNx(String key , Long expire){
+        return setRedis(key , expire);
+    }
+
     private boolean setRedis(String key, long expire) {
         try {
             String result = redisTemplate.execute(new RedisCallback<String>() {

@@ -4,11 +4,11 @@
 		<el-form-item prop="account" label="账户名称">
 			<el-input type="text" v-model="settingForm.account" auto-complete="off" placeholder="账号" :disabled="true"></el-input>
 		</el-form-item>
-		<el-form-item prop="account" label="手机号码">
-			<el-input type="text" v-model="settingForm.mobile" auto-complete="off" placeholder="手机号码" :disabled="true"></el-input>
+		<el-form-item prop="mobile" label="手机号码">
+			<el-input type="text" v-model="settingForm.mobile" auto-complete="off" placeholder="请输入11位手机号码"></el-input>
 		</el-form-item>
 		<el-form-item prop="oldPwd" label="输入旧密码">
-			<el-input type="password" v-model="settingForm.oldPwd" auto-complete="off" placeholder="请输入原始密码"></el-input>
+			<el-input type="password" v-model="settingForm.oldPwd" auto-complete="off" placeholder="请输入原始密码" ></el-input>
 		</el-form-item>
 		<el-form-item prop="newPwd" label="输入新密码">
 			<el-input type="password" v-model="settingForm.newPwd" auto-complete="off" placeholder="请输入新密码"></el-input>
@@ -48,7 +48,18 @@
                         { required: true, message: '请输入新密码', trigger: 'blur' }
                     ],
                     mobile: [
-                        { required: true, message: '请输入手机号码', trigger: 'blur' }
+                        { required: true, message: '请输入11位手机号码', trigger: 'blur' },
+                        {
+                            validator: function (rule, val, callback) {
+								if (val.length != 11 || !Number.isInteger(val/1)){
+								    callback(new Error());
+								    return;
+								}
+								callback();
+                            },
+							message: '请输入11位手机号码',
+							trigger: 'blur'
+                        }
                     ],
                     reNewPwd: [
                         { required: true, message: '请再次输入新密码', trigger: 'blur' }
@@ -65,13 +76,10 @@
                 var _this = this;
                 this.$refs.settingForm.validate((valid) => {
                     if (valid) {
-
                         if (this.settingForm.newPwd != this.settingForm.reNewPwd){
                             util.Msg.error(_this , "两次密码不一致");
                             return;
 						}
-
-
                         this.logining = true;
                         NProgress.start();
                         var loginParams = { userName: this.settingForm.account,
@@ -106,6 +114,7 @@
             if (user) {
                 user = JSON.parse(user);
                 this.settingForm.account = user.userName || '';
+                this.settingForm.mobile = user.mobile || '';
             }
 
         }

@@ -49,12 +49,12 @@
 		<!--编辑界面-->
 		<el-dialog title="编辑" v-model="editFormVisible" :close-on-click-modal="false">
 			<el-form :model="editForm" label-width="80px" :rules="editFormRules" ref="editForm">
-				<el-form-item label="账户名称">
+				<el-form-item prop="acctName" label="账户名称">
 					<el-input v-model="editForm.acctName" placeholder="账户名称"></el-input>
 				</el-form-item>
 
-				<el-form-item label="手机号码">
-					<el-input v-model="editForm.mobile" placeholder="手机号码"></el-input>
+				<el-form-item prop="mobile" label="手机号码">
+					<el-input v-model="editForm.mobile" placeholder="请输入11位手机号码"></el-input>
 				</el-form-item>
 			
 			</el-form>
@@ -67,11 +67,11 @@
 		<!--新增界面-->
 		<el-dialog title="新增" v-model="addFormVisible" :close-on-click-modal="false">
 			<el-form :model="addForm" label-width="80px" :rules="addFormRules" ref="addForm">
-				<el-form-item label="账户名称">
+				<el-form-item prop="acctName" label="账户名称">
 					<el-input v-model="addForm.acctName" placeholder="账户名称"></el-input>
 				</el-form-item>
-				<el-form-item label="手机号码">
-					<el-input v-model="addForm.mobile" placeholder="手机号码"></el-input>
+				<el-form-item prop="mobile" label="手机号码">
+					<el-input v-model="addForm.mobile" placeholder="请输入11位手机号码"></el-input>
 				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
@@ -109,7 +109,18 @@
                         { required: true, message: '请输入账户名', trigger: 'blur' }
                     ],
                     mobile: [
-                        { required: true, message: '请输入手机号', trigger: 'blur' }
+                        { required: true, message: '请输入11位手机号码', trigger: 'blur' },
+                        {
+                            validator: function (rule, val, callback) {
+                                if (val.length != 11 || !Number.isInteger(val/1)){
+                                    callback(new Error());
+                                    return;
+                                }
+                                callback();
+                            },
+                            message: '请输入11位手机号码',
+                            trigger: 'blur'
+                        }
                     ]
 				},
 				//编辑界面数据
@@ -126,7 +137,18 @@
                         { required: true, message: '请输入账户名', trigger: 'blur' }
                     ],
                     mobile: [
-                        { required: true, message: '请输入手机号', trigger: 'blur' }
+                        { required: true, message: '请输入11位手机号码', trigger: 'blur' },
+                        {
+                            validator: function (rule, val, callback) {
+                                if (val.length != 11 || !Number.isInteger(val/1)){
+                                    callback(new Error());
+                                    return;
+                                }
+                                callback();
+                            },
+                            message: '请输入11位手机号码',
+                            trigger: 'blur'
+                        }
                     ]
 				},
 				//新增界面数据
@@ -184,11 +206,7 @@
 			},
 			//显示新增界面
 			handleAdd: function () {
-
 				this.addFormVisible = true;
-				this.addForm = {
-                    acctName: ''
-				};
 			},
 			//编辑
 			editSubmit: function () {

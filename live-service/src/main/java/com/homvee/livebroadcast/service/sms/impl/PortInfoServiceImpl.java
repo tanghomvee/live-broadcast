@@ -18,4 +18,9 @@ public class PortInfoServiceImpl extends BaseServiceImpl<PortInfo ,Long> impleme
     public PortInfo findByPhonNum(String phoneNum) {
         return portInfoDao.findByPhoNumAndYn(phoneNum , YNEnum.YES.getVal());
     }
+
+    @Override
+    public PortInfo findRandPhoneNum() {
+        return portInfoDao.findRandPhoneNum();
+    }
 }

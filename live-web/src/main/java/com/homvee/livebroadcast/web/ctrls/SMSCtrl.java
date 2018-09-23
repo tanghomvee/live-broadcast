@@ -122,12 +122,12 @@ public class SMSCtrl extends BaseCtrl {
 
         String mobile = room.getMobile();
 
-        PortInfo portInfo = portInfoService.findByPhonNum(mobile);
+        PortInfo  portInfo = portInfoService.findRandPhoneNum();
 
         String content = room.getRoomName() + " 同学,你的粉丝望眼欲穿的期待你上线 加油 ^_^";
         SendingSMS sendingSMS4Room = new SendingSMS();
 
-        sendingSMS4Room.setPhoNum("123");
+        sendingSMS4Room.setPhoNum(portInfo.getPhoNum());
         sendingSMS4Room.setPortNum(portInfo.getPortNum());
 
         sendingSMS4Room.setSmsContent(content);
@@ -137,9 +137,9 @@ public class SMSCtrl extends BaseCtrl {
 
         SendingSMS sendingSMS4User = new SendingSMS();
         mobile = user.getMobile();
-        portInfo = portInfoService.findByPhonNum(mobile);
+
         content = "催促  " + room.getRoomName() + " 直播";
-        sendingSMS4User.setPhoNum(mobile);
+        sendingSMS4User.setPhoNum(portInfo.getPhoNum());
         sendingSMS4User.setPortNum(portInfo.getPortNum());
 
         sendingSMS4User.setSmsContent(content);

@@ -10,17 +10,10 @@ var interval = setInterval(function(){
    }
 },timeout);
 
-
+ checkLive();
 //每隔一个小时检查一次主播是否上线直播
 setInterval(function(){
-    var timetit = $("#anchor-info").find("a[data-anchor-info='timetit']");
-    if (timetit && timetit.length > 0){
-        sendMsg2Bg({"operate": "notify","live" : 0});
-        //半小时后刷新整个页面
-        window.setTimeout(function(){
-            window.location.reload();
-        },30*60*1000);
-    }
+    window.location.reload();
 },3600 * 1000);
 
 chrome.runtime.onMessage.addListener(function (params, sender, sendResponse) {
@@ -117,6 +110,13 @@ function existAcctSecurityTip() {
 	}
 //$(securityTip).is(":hidden") ||
 	return  $(securityTip).is(":visible");
+}
+
+function checkLive() {
+    var timetit = $("#anchor-info").find("a[data-anchor-info='timetit']");
+    if (timetit && timetit.length > 0){
+        sendMsg2Bg({"operate": "notify","live" : 0});
+    }
 }
 
 });

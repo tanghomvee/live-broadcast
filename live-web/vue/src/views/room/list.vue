@@ -219,7 +219,7 @@
                         }
                     ],
                     way: [
-                        { required: true, message: '请选择交流方式', trigger: 'blur' }
+                        { required: true, message: '请选择交流方式', trigger: 'blur',type: 'number' }
                     ]
 				},
 				//新增界面数据

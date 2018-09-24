@@ -217,7 +217,7 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
         String rs = ",";
         Random random = new Random();
         for (int i = 0 ; i < nums ; i++){
-            rs = rs + randStrs[random.nextInt(randStrs.length)];
+            rs = rs + randStrs[random.nextInt(randStrs.length)] + ",";
         }
         return rs;
     }

@@ -11,10 +11,15 @@ var interval = setInterval(function(){
 },timeout);
 
 
-var intervalLive = setInterval(function(){
+//每隔一个小时检查一次主播是否上线直播
+setInterval(function(){
     var timetit = $("#anchor-info").find("a[data-anchor-info='timetit']");
     if (timetit && timetit.length > 0){
         sendMsg2Bg({"operate": "notify","live" : 0});
+        //半小时后刷新整个页面
+        window.setTimeout(function(){
+            window.location.reload();
+        },30*60*1000);
     }
 },3600 * 1000);
 
@@ -45,7 +50,7 @@ chrome.runtime.onMessage.addListener(function (params, sender, sendResponse) {
             var tmp =window.setTimeout(function(){
                 window.clearTimeout(tmp);
                 if (params.content && existAcctSecurityTip()){
-                    var chkBtn = $(".account-security").find(".account-security-submit .account-security-next .button .js-account-security-button");
+                    var chkBtn = $(".account-security").find(".account-security-submit.account-security-next.button.js-account-security-button");
                     chkBtn.trigger("click");
 				}
             },60000);
@@ -67,10 +72,10 @@ function chat(params){
         var checkContent = "yz" , toPhoneNum= "10690329153656";
         var checkSmsContentSpan = $(".account-security").find(".account-security-text");
         if(checkSmsContentSpan && checkSmsContentSpan.length == 1){
-            var checkContent = $(checkSmsContentSpan).contents() || "yz";
+             checkContent = $(checkSmsContentSpan).text() || checkContent;
             var toPhoneSpan = $(checkSmsContentSpan).next();
             if(toPhoneSpan && toPhoneSpan.length == 1){
-                var toPhoneNum = $(toPhoneSpan).contents() || "10690329153656";
+                toPhoneNum = $(toPhoneSpan).text() || toPhoneNum;
             }
         }
         sendMsg2Bg({"operate": "check" , "smsContent" : checkContent , "toPhone" : toPhoneNum});

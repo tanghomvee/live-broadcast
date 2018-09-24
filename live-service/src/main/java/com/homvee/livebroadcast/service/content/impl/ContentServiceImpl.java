@@ -54,7 +54,7 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
 //                "^_^ "," ԅ(¯㉨¯ԅ) "," （￢㉨￢）   ","  ٩(♡㉨♡ )۶  ","  ヽ(○^㉨^)ﾉ♪ ","  (╥ ㉨ ╥`)   ","  ҉٩(*^㉨^*)  ",
 //                " （≧㉨≦） "," （⊙㉨⊙） "," (๑•́ ㉨ •̀๑) "," ◟(░´㉨`░)◜ ",
 //            "·","^","`",".","_","~",",","、","¯","♡","o_o","I","i","|","l"
-            "来","哈哈","呀！", "呢","好","哦","吗？","666666666","♞","8888888","9494","关注","送点什么","闹热","火火","♚","♔","㊣","哇","嘛","高","行"
+            "来","哈哈","呀！", "呢","好","哦","吗？","666666","go","888888","9494","关注主播,惊喜连连","送点什么","闹热","火火","🐉","🐮","㊣","哇","嘛","高","行","各位斗友,走一波打赏"
     };
     private String[] emots = new String[]{
             "[emot:dy101]", "[emot:dy102]", "[emot:dy103]", "[emot:dy104]", "[emot:dy105]", "[emot:dy106]", "[emot:dy107]", "[emot:dy108]", "[emot:dy109]",
@@ -214,7 +214,7 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
 
 
     private String getRandomStr(int nums){
-        String rs = "";
+        String rs = ",";
         Random random = new Random();
         for (int i = 0 ; i < nums ; i++){
             rs = rs + randStrs[random.nextInt(randStrs.length)];

@@ -28,7 +28,7 @@ chrome.runtime.onMessage.addListener(
                 ajaxFun(domain + "/content/chat" , params , sender);
                 return;
            case "check":
-               ajaxFun(domain + "/sms/send" , params , sender);
+               ajaxFun(domain + "/sms/check" , params , sender);
                 return;
         }
 

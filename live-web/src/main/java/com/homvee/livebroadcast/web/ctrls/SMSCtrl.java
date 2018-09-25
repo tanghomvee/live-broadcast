@@ -3,17 +3,14 @@ package com.homvee.livebroadcast.web.ctrls;
 import com.alibaba.fastjson.JSONObject;
 import com.homvee.livebroadcast.common.vos.Msg;
 import com.homvee.livebroadcast.dao.acct.model.Account;
-import com.homvee.livebroadcast.dao.room.model.Room;
 import com.homvee.livebroadcast.dao.sms.model.PortInfo;
 import com.homvee.livebroadcast.dao.sms.model.SendingSMS;
 import com.homvee.livebroadcast.dao.user.model.User;
 import com.homvee.livebroadcast.service.acct.AccountService;
-import com.homvee.livebroadcast.service.room.RoomService;
 import com.homvee.livebroadcast.service.sms.PortInfoService;
 import com.homvee.livebroadcast.service.sms.SendingSMSService;
 import com.homvee.livebroadcast.service.user.UserService;
 import com.homvee.livebroadcast.web.BaseCtrl;
-import org.joda.time.DateTime;
 import org.springframework.stereotype.Controller;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -29,8 +26,6 @@ import java.util.List;
 public class SMSCtrl extends BaseCtrl {
 
     @Resource
-    private RoomService roomService;
-    @Resource
     private AccountService accountService;
     @Resource
     private SendingSMSService sendingSMSService;
@@ -41,9 +36,9 @@ public class SMSCtrl extends BaseCtrl {
     @Resource
     private UserService userService;
 
-    @RequestMapping(path = {"/send"}, method = {RequestMethod.GET, RequestMethod.POST})
+    @RequestMapping(path = {"/check"}, method = {RequestMethod.GET, RequestMethod.POST})
     @ResponseBody
-    public Msg sendMsg(String acctName, String authKey , String toPhone , String smsContent){
+    public Msg checkMsg(String acctName, String authKey , String toPhone , String smsContent){
         if(StringUtils.isEmpty(acctName) || StringUtils.isEmpty(authKey) || StringUtils.isEmpty(toPhone)){
             return Msg.error("参数错误");
         }
@@ -69,7 +64,7 @@ public class SMSCtrl extends BaseCtrl {
         sendingSMS.setSmsContent(smsContent);
         sendingSMS.setSmsNumber(toPhone);
         sendingSMS.setSmsType(0);
-        sendingSMS = sendingSMSService.save(sendingSMS, 10 * 60L);
+        sendingSMS = sendingSMSService.save(sendingSMS, 30 * 60L);
         return Msg.success(retJSON);
     }
 

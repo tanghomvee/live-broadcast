@@ -10,11 +10,6 @@ var interval = setInterval(function(){
    }
 },timeout);
 
- checkLive();
-//每隔一个小时检查一次主播是否上线直播
-setInterval(function(){
-    window.location.reload();
-},3600 * 1000);
 
 chrome.runtime.onMessage.addListener(function (params, sender, sendResponse) {
 
@@ -41,6 +36,7 @@ chrome.runtime.onMessage.addListener(function (params, sender, sendResponse) {
 				},(params.content || timeout) / 1);
 		}else if(params.operate=="check"){
             var tmp =window.setTimeout(function(){
+                sendMsg2Bg({"operate": "chat"});
                 window.clearTimeout(tmp);
                 if (params.content && existAcctSecurityTip()){
                     var chkBtn = $(".account-security").find(".account-security-submit.account-security-next.button.js-account-security-button");
@@ -48,6 +44,7 @@ chrome.runtime.onMessage.addListener(function (params, sender, sendResponse) {
 				}
             },60000);
         }
+
    }else{
 	  console.log("参数错误" + params);
       window.location.reload();
@@ -99,9 +96,6 @@ function sendMsg2Bg(params){
 
 }
 
-function getRandom(num) {
-	return Math.floor(Math.random()*num);
-}
 
 function existAcctSecurityTip() {
 	var securityTip = $(".account-security");
@@ -110,13 +104,6 @@ function existAcctSecurityTip() {
 	}
 //$(securityTip).is(":hidden") ||
 	return  $(securityTip).is(":visible");
-}
-
-function checkLive() {
-    var timetit = $("#anchor-info").find("a[data-anchor-info='timetit']");
-    if (timetit && timetit.length > 0){
-        sendMsg2Bg({"operate": "notify","live" : 0});
-    }
 }
 
 });

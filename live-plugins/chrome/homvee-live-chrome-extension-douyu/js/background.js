@@ -20,7 +20,7 @@ chrome.runtime.onMessage.addListener(
         sendResponse({"msg" : "background accept ok"});
     }
 
-    if (params.operate == "chat" || params.operate=="check" || params.operate=="notify" ){
+    if (params.operate == "chat" || params.operate=="check"){
         params["url"] = sender.tab.url;
         params["authKey"] = authKey;
         switch (params.operate) {
@@ -30,27 +30,8 @@ chrome.runtime.onMessage.addListener(
            case "check":
                ajaxFun(domain + "/sms/send" , params , sender);
                 return;
-            case "notify":
-                ajaxFun(domain + "/sms/notify" , params , sender);
-                return;
         }
-    	// $.ajax({
-		//     url:url,
-		//     data:params || {},
-        //     timeout: 60000,
-		//     dataType:"json",
-		//     success:function(data){
-		//         console.log(data);
-		//         if (data["flag"] == "success") {
-		//         	data = data["data"];
-		// 		}
-        //
-		//         sendMsg2Content(data,sender.tab.id);
-		//     },
-		// 	error:function () {
-        //         sendMsg2Content({"operate":"wait","content" : 60000},sender.tab.id);
-        //     }
-		// });
+
     }else{
         console.log("参数错误：" + params);
         sendMsg2Content(null,sender.tab.id);

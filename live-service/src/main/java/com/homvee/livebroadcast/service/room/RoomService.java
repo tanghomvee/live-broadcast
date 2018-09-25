@@ -76,4 +76,10 @@ public interface RoomService extends BaseService<Room, Long> {
      * @return
      */
     Integer delByIds(Long[] ids);
+
+    /**
+     * find all
+     * @return
+     */
+    List<Room> findAll();
 }

@@ -83,4 +83,9 @@ public class RoomServiceImpl extends BaseServiceImpl<Room ,Long> implements Room
     public Integer delByIds(Long[] ids) {
         return  roomDao.delByIds(Lists.newArrayList(ids));
     }
+
+    @Override
+    public List<Room> findAll() {
+        return roomDao.findByYn(YNEnum.YES.getVal());
+    }
 }

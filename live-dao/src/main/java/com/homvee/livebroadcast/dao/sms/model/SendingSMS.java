@@ -94,4 +94,17 @@ public class SendingSMS extends BaseEntity {
     public void setSmsState(Integer smsState) {
         this.smsState = smsState;
     }
+
+    @Override
+    public String toString() {
+        return "SendingSMS{" +
+                "portNum=" + portNum +
+                ", smsNumber='" + smsNumber + '\'' +
+                ", smsSubject='" + smsSubject + '\'' +
+                ", smsContent='" + smsContent + '\'' +
+                ", smsType=" + smsType +
+                ", phoNum='" + phoNum + '\'' +
+                ", smsState=" + smsState +
+                '}';
+    }
 }

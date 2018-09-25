@@ -62,4 +62,11 @@ public interface RoomDao extends JpaRepository<Room, Long> , RoomDaoExt{
     @Modifying
     @Query(value = "update t_room set yn=0 ,changeTime=now() where id in(?1)" , nativeQuery = true)
     Integer delByIds(List<Long> ids);
+
+    /**
+     * find all
+     * @param yn
+     * @return
+     */
+    List<Room> findByYn(Integer yn);
 }

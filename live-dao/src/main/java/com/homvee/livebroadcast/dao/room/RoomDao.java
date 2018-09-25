@@ -65,8 +65,9 @@ public interface RoomDao extends JpaRepository<Room, Long> , RoomDaoExt{
 
     /**
      * find all
+     * @param ways
      * @param yn
      * @return
      */
-    List<Room> findByYn(Integer yn);
+    List<Room> findByWayInAndYn(List<Integer> ways ,Integer yn);
 }

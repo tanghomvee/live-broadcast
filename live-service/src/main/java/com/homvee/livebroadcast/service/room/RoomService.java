@@ -79,7 +79,8 @@ public interface RoomService extends BaseService<Room, Long> {
 
     /**
      * find all
+     * @param ways
      * @return
      */
-    List<Room> findAll();
+    List<Room> findByWay(Integer ... ways);
 }

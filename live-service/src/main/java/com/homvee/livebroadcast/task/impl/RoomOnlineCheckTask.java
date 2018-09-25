@@ -3,6 +3,7 @@ package com.homvee.livebroadcast.task.impl;
 import com.gargoylesoftware.htmlunit.BrowserVersion;
 import com.gargoylesoftware.htmlunit.WebClient;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
+import com.homvee.livebroadcast.common.enums.WayEnum;
 import com.homvee.livebroadcast.dao.room.model.Room;
 import com.homvee.livebroadcast.dao.sms.model.PortInfo;
 import com.homvee.livebroadcast.dao.sms.model.SendingSMS;
@@ -65,7 +66,7 @@ public class RoomOnlineCheckTask implements LiveBroadcastTask {
     public void execute() {
 
 
-        List<Room> rooms = roomService.findAll();
+        List<Room> rooms = roomService.findByWay(WayEnum.NORMAL.getVal() , WayEnum.AUTO.getVal() , WayEnum.LOOP.getVal());
         if (CollectionUtils.isEmpty(rooms)){
             return;
         }
@@ -145,7 +146,7 @@ public class RoomOnlineCheckTask implements LiveBroadcastTask {
             }
             return  !timetitElt.get(0).hasText();
         } catch (IOException e) {
-            e.printStackTrace();
+            LOGGER.error("获取网页异常:url={}" , url , e);
         }finally {
             webClient.close();
         }

@@ -85,7 +85,7 @@ public class RoomServiceImpl extends BaseServiceImpl<Room ,Long> implements Room
     }
 
     @Override
-    public List<Room> findAll() {
-        return roomDao.findByYn(YNEnum.YES.getVal());
+    public List<Room> findByWay(Integer ... ways) {
+        return roomDao.findByWayInAndYn(Lists.newArrayList(ways) ,YNEnum.YES.getVal());
     }
 }

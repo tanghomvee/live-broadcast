@@ -33,6 +33,8 @@
 
 			<el-table-column prop="way" label="交流方式" :formatter="getWayDesc"  width="auto">
 			</el-table-column>
+			<el-table-column prop="defaultContent" label="默认话术"   width="auto">
+			</el-table-column>
 
 			<el-table-column prop="roomName" label="房间名称" width="auto">
 			</el-table-column>
@@ -88,6 +90,9 @@
 				<el-form-item prop="url" label="房间直播地址">
 					<el-input type="textarea" v-model="editForm.url" placeholder="房间直播地址链接"></el-input>
 				</el-form-item>
+				<el-form-item prop="defaultContent" label="默认话术">
+					<el-input type="textarea" v-model="editForm.defaultContent" placeholder="默认话术多个话术之间用英文逗号隔开"></el-input>
+				</el-form-item>
 
 
 			</el-form>
@@ -127,6 +132,10 @@
 				<el-form-item prop="url" label="房间直播地址">
 					<el-input type="textarea" v-model="addForm.url" placeholder="房间直播地址链接"></el-input>
 				</el-form-item>
+				<el-form-item prop="defaultContent" label="默认话术">
+					<el-input type="textarea" v-model="addForm.defaultContent" placeholder="默认话术多个话术之间用英文逗号隔开"></el-input>
+				</el-form-item>
+
 			</el-form>
 			<div slot="footer" class="dialog-footer">
 				<el-button @click.native="addFormVisible = false">取消</el-button>
@@ -192,7 +201,8 @@
                     startHour:0,
                     endHour:23,
                     intervalTime:null,
-					url:null
+					url:null,
+                    defaultContent:null
 				},
 
 				addFormVisible: false,//新增界面是否显示
@@ -230,7 +240,8 @@
                     mobile:null,
                     startHour:0,
                     endHour:23,
-                    url:null
+                    url:null,
+                    defaultContent:null
 				},
 				ways:[
 					{key:"NORMAL",id:1,desc:"正常"} , {key:"AUTO",id:2,desc:"自动"},{key:"STOP",id:3,desc:"停止"},{key:"STOP",id:4,desc:"循环"}

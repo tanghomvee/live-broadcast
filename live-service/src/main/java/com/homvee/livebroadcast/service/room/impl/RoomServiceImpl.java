@@ -88,4 +88,9 @@ public class RoomServiceImpl extends BaseServiceImpl<Room ,Long> implements Room
     public List<Room> findByWay(Integer ... ways) {
         return roomDao.findByWayInAndYn(Lists.newArrayList(ways) ,YNEnum.YES.getVal());
     }
+
+    @Override
+    public List<Room> findByAcctIdAndUserId(Long acctId, Long userId) {
+        return roomDao.findByAcctIdAndUserId(acctId , userId);
+    }
 }

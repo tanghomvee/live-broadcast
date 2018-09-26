@@ -4,12 +4,14 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.homvee.livebroadcast.common.components.RedisComponent;
+import com.homvee.livebroadcast.common.enums.SeparatorEnum;
 import com.homvee.livebroadcast.common.vos.ContentVO;
 import com.homvee.livebroadcast.common.vos.Pager;
 import com.homvee.livebroadcast.dao.acct.model.Account;
 import com.homvee.livebroadcast.dao.catg.model.Category;
 import com.homvee.livebroadcast.dao.content.ContentDao;
 import com.homvee.livebroadcast.dao.content.model.Content;
+import com.homvee.livebroadcast.dao.room.model.Room;
 import com.homvee.livebroadcast.service.BaseServiceImpl;
 import com.homvee.livebroadcast.service.acct.AccountService;
 import com.homvee.livebroadcast.service.catg.CategoryService;
@@ -156,7 +158,8 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
         String retEmot = StringUtils.isEmpty(content.getContent()) ? content.getContent() : "";
         retEmot = retEmot + getRandomEmotion(nums) ;
         if(count != null && count % 10 == 0){
-            retEmot = retEmot + getRandomStr(nums);
+            Room room = roomService.findOne(roomId);
+            retEmot = retEmot + getRandomStr(nums , room.getDefaultContent());
         }
         content.setContent(retEmot);
         return content;
@@ -202,7 +205,7 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
         Content content = nextContent(roomId,  userId, acctId);
         if (content != null){
             retContent = new Content();
-            retContent.setContent(content.getContent() + getRandomStr(2) + getRandomEmotion(2));
+            retContent.setContent(content.getContent() + getRandomStr(2 , null) + getRandomEmotion(2));
         }
         return retContent;
     }
@@ -213,11 +216,15 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
     }
 
 
-    private String getRandomStr(int nums){
-        String rs = ",";
+    private String getRandomStr(int nums , String defaultContent){
+        String[] data = randStrs;
+        if (!StringUtils.isEmpty(defaultContent)){
+            data = defaultContent.split(SeparatorEnum.COMMA.getVal());
+        }
+        String rs = SeparatorEnum.COMMA.getVal();
         Random random = new Random();
         for (int i = 0 ; i < nums ; i++){
-            rs = rs + randStrs[random.nextInt(randStrs.length)] + ",";
+            rs = rs + data[random.nextInt(data.length)] + SeparatorEnum.COMMA.getVal();
         }
         return rs;
     }

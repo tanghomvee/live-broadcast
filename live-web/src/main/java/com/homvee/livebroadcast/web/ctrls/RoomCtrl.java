@@ -38,7 +38,7 @@ public class RoomCtrl extends BaseCtrl {
 
    @RequestMapping(path = {"/add"}, method = {RequestMethod.GET, RequestMethod.POST})
    @ResponseBody
-   public Msg save(String roomName ,String mobile ,Integer way , String url,Long intervalTime ,Integer startHour ,Integer endHour){
+   public Msg save(String roomName ,String mobile ,Integer way , String url,Long intervalTime ,Integer startHour ,Integer endHour , String defaultContent){
        if(StringUtils.isEmpty(roomName) || StringUtils.isEmpty(url)|| StringUtils.isEmpty(mobile)){
            return Msg.error("参数错误");
        }
@@ -56,6 +56,7 @@ public class RoomCtrl extends BaseCtrl {
        room.setEndHour(endHour == null || endHour < 0 ? 0 : endHour);
        room.setStartHour(startHour == null || startHour < 0 ? 0 : startHour);
        room.setMobile(mobile);
+       room.setDefaultContent(defaultContent);
        roomService.save(Lists.newArrayList(room));
        return Msg.success();
    }

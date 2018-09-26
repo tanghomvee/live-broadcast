@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 
@@ -175,15 +176,31 @@ public class ContentCtrl extends BaseCtrl {
            return Msg.error("非法账户");
        }
 
+       List<Account> accounts = accountService.findByAcctNameAndUserId(acctName , user.getId());
+       if(CollectionUtils.isEmpty(accounts) || accounts.size() != 1){
+           return Msg.error("账户不存在");
+       }
+       Account account = accounts.get(0);
+       JSONObject retJSON = new JSONObject();
+       String operate = "wait" ;
+       Object txt = 5000;
+
        List<Room> rooms = roomService.findByUrlAndUserId(url , user.getId());
        if(CollectionUtils.isEmpty(rooms) || rooms.size() != 1){
+           rooms = roomService.findByAcctIdAndUserId(account.getId() , user.getId());
+           if (!CollectionUtils.isEmpty(rooms)){
+               Random random = new Random();
+               Room tmpRoom = rooms.get(random.nextInt(rooms.size()));
+               retJSON.put("operate" , "go");
+               retJSON.put("content" , tmpRoom.getUrl());
+               return Msg.success(retJSON);
+           }
+
+
            return Msg.error("直播间未配置");
        }
 
        Room room = rooms.get(0);
-       String operate = "wait" ;
-       Object txt = 5000;
-       JSONObject retJSON = new JSONObject();
        if (WayEnum.STOP.getVal().equals(room.getWay())){
            retJSON.put("operate" , operate);
            retJSON.put("content" , txt);
@@ -207,14 +224,10 @@ public class ContentCtrl extends BaseCtrl {
        }
 
 
-       List<Account> accounts = accountService.findByAcctNameAndUserId(acctName , user.getId());
-       if(CollectionUtils.isEmpty(accounts) || accounts.size() != 1){
-           return Msg.error("账户不存在");
-       }
+
 
        Content content = null;
        if (WayEnum.AUTO.getVal().equals(room.getWay())){
-           Account account = accounts.get(0);
            content = contentService.autoContent(room.getId() , user.getId(), account);
            if (content == null){
                retJSON.put("operate" , operate);
@@ -222,7 +235,6 @@ public class ContentCtrl extends BaseCtrl {
                return Msg.success(retJSON);
            }
        }else {
-           Account account = accounts.get(0);
            if(WayEnum.NORMAL.getVal().equals(room.getWay())){
                content = contentService.nextContent(room.getId() , user.getId() , account.getId());
            }else{

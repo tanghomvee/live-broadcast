@@ -48,6 +48,11 @@ public class Room extends BaseEntity {
      */
     private Long intervalTime;
 
+    /**
+     * 房间默认内容
+     */
+    private String defaultContent;
+
 
     public Long getIntervalTime() {
         return intervalTime;
@@ -111,5 +116,14 @@ public class Room extends BaseEntity {
 
     public void setEndHour(Integer endHour) {
         this.endHour = endHour;
+    }
+
+
+    public String getDefaultContent() {
+        return defaultContent;
+    }
+
+    public void setDefaultContent(String defaultContent) {
+        this.defaultContent = defaultContent;
     }
 }

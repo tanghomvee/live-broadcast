@@ -8,6 +8,7 @@ package com.homvee.livebroadcast.common.enums;
 public enum SeparatorEnum {
 	UNDERLINE("_","下划线"),
 	COMMA(",","逗号"),
+	MIDDLE_LINE("-","中划线"),
 	;
 
 	private String val;

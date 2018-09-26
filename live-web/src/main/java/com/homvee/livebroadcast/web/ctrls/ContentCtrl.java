@@ -200,12 +200,10 @@ public class ContentCtrl extends BaseCtrl {
            }
        }
 
-
-
-
        Content content = null;
        if (WayEnum.AUTO.getVal().equals(room.getWay())){
            content = contentService.autoContent(room.getId() , user.getId(), account);
+           content.setContent(content.getContent());
            if (content == null){
                retJSON.put("operate" , operate);
                retJSON.put("content" , 2000);

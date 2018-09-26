@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
 import com.homvee.livebroadcast.common.components.RedisComponent;
+import com.homvee.livebroadcast.common.constants.RedisKey;
 import com.homvee.livebroadcast.common.enums.SeparatorEnum;
 import com.homvee.livebroadcast.common.vos.ContentVO;
 import com.homvee.livebroadcast.common.vos.Pager;
@@ -56,6 +57,7 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
 //                "^_^ "," ԅ(¯㉨¯ԅ) "," （￢㉨￢）   ","  ٩(♡㉨♡ )۶  ","  ヽ(○^㉨^)ﾉ♪ ","  (╥ ㉨ ╥`)   ","  ҉٩(*^㉨^*)  ",
 //                " （≧㉨≦） "," （⊙㉨⊙） "," (๑•́ ㉨ •̀๑) "," ◟(░´㉨`░)◜ ",
 //            "·","^","`",".","_","~",",","、","¯","♡","o_o","I","i","|","l"
+//            "来","哈哈","呀！", "呢","好","哦","吗？","666666","go","888888","9494","关注主播,惊喜连连","送点什么","闹热","火火","🐉","🐮","㊣","哇","嘛","高","行","各位斗友,走一波打赏"
             "来","哈哈","呀！", "呢","好","哦","吗？","666666","go","888888","9494","关注主播,惊喜连连","送点什么","闹热","火火","🐉","🐮","㊣","哇","嘛","高","行","各位斗友,走一波打赏"
     };
     private String[] emots = new String[]{
@@ -129,9 +131,16 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
             return null;
         }
 
+        /**
+         * 每个账号发言间隔5秒
+         */
+        if(!redisComponent.setStrNx(RedisKey.ACCOUNT + SeparatorEnum.UNDERLINE.getVal() + account.getId() , 5L)){
+            return null;
+        }
+
         Content content = contents.get(0);
 
-        String roomKey = "room-" + roomId;
+        String roomKey = "room" + SeparatorEnum.MIDDLE_LINE.getVal() + roomId;
         String val = account.getId().toString();
 
         Long minutes5 = 300L;
@@ -157,10 +166,13 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
         }
         String retEmot = StringUtils.isEmpty(content.getContent()) ? content.getContent() : "";
         retEmot = retEmot + getRandomEmotion(nums) ;
-        if(count != null && count % 10 == 0){
-            Room room = roomService.findOne(roomId);
-            retEmot = retEmot + getRandomStr(nums , room.getDefaultContent());
-        }
+//        if(count != null && count % 10 == 0){
+//            Room room = roomService.findOne(roomId);
+//            retEmot = retEmot + getRandomStr(nums , room.getDefaultContent());
+//        }
+        Room room = roomService.findOne(roomId);
+        retEmot = retEmot + getRandomStr(nums , room.getDefaultContent());
+
         content.setContent(retEmot);
         return content;
     }
@@ -220,13 +232,16 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
         String[] data = randStrs;
         if (!StringUtils.isEmpty(defaultContent)){
             data = defaultContent.split(SeparatorEnum.COMMA.getVal());
+            nums = data.length > nums ? nums : data.length;
         }
         String rs = SeparatorEnum.COMMA.getVal();
+        String[] seperators =  new String[]{"🐉","💗","🐮","❀","👑","🌹","👍","👌","✏","🦐","🧜‍","🐱"};
+        String[] ends =  new String[]{".","..","...","!","!!","^_^","",".。"};
         Random random = new Random();
         for (int i = 0 ; i < nums ; i++){
-            rs = rs + data[random.nextInt(data.length)] + SeparatorEnum.COMMA.getVal();
+            rs = rs + data[random.nextInt(data.length)] + seperators[random.nextInt(seperators.length)];
         }
-        return rs;
+        return rs + ends[random.nextInt(ends.length)];
     }
     private String getRandomEmotion(int nums){
         String rs = "";

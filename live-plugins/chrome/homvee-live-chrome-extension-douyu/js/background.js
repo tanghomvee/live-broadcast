@@ -52,7 +52,7 @@ function ajaxFun(url , params , sender) {
     $.ajax({
         url:url,
         data:params || {},
-        timeout: 60000,
+        timeout: 300000,
         dataType:"json",
         success:function(data){
             console.log(data);

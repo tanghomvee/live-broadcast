@@ -1,10 +1,8 @@
 package com.homvee.livebroadcast.web.ctrls;
 
 import com.alibaba.fastjson.JSONObject;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
+import com.homvee.livebroadcast.common.components.RedisComponent;
 import com.homvee.livebroadcast.common.enums.WayEnum;
 import com.homvee.livebroadcast.common.enums.YNEnum;
 import com.homvee.livebroadcast.common.vos.BaseVO;
@@ -33,8 +31,6 @@ import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 import java.util.Random;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
 /**
  * Copyright (c) 2018$. ddyunf.com all rights reserved
@@ -60,23 +56,9 @@ public class ContentCtrl extends BaseCtrl {
     @Resource
     private UserService userService;
 
-    private LoadingCache<String, Long> cache = CacheBuilder.newBuilder()
-            //最多存放1000个数据
-            .maximumSize(1000)
-            //缓存1H，1H之后进行回收
-            .expireAfterWrite(8, TimeUnit.HOURS)
-            //开启，记录状态数据功能
-            .recordStats()
-            //设置并发级别为8，并发级别是指可以同时写缓存的线程数
-            .concurrencyLevel(10)
-            .build(new CacheLoader<String, Long>() {
-                //数据加载，默认返回-1，也可以是查询操作，如从DB查询
-                @Override
-                public Long load(String key) throws Exception {
-                    // TODO Auto-generated method stub
-                    return -1L;
-                }
-            });
+    @Resource
+    private RedisComponent redisComponent;
+
 
 
    @RequestMapping(path = {"/add"}, method = {RequestMethod.GET, RequestMethod.POST})
@@ -162,7 +144,7 @@ public class ContentCtrl extends BaseCtrl {
 
    @RequestMapping(path = {"/chat"}, method = {RequestMethod.GET, RequestMethod.POST})
    @ResponseBody
-   public synchronized Msg chat(String url , String acctName , String authKey){
+   public  Msg chat(String url , String acctName , String authKey){
 
 
        if(StringUtils.isEmpty(url) || StringUtils.isEmpty(acctName) || StringUtils.isEmpty(authKey)){
@@ -211,15 +193,10 @@ public class ContentCtrl extends BaseCtrl {
        Long interval = room.getIntervalTime();
 
        if(interval != null ){
-           Long lastTime = getRoomChatInterval(room.getId());
-           if (lastTime != null){
-               interval = interval * 1000;
-               Long deltaSeconds = System.currentTimeMillis() - lastTime;
-               if(deltaSeconds < interval){
-                   retJSON.put("operate" , operate);
-                   retJSON.put("content" , interval - deltaSeconds);
-                   return Msg.success(retJSON);
-               }
+           if (!redisComponent.setStrNx(room.getId().toString(), interval) ){
+               retJSON.put("operate" , operate);
+               retJSON.put("content" , interval * 1000);
+               return Msg.success(retJSON);
            }
        }
 
@@ -245,9 +222,6 @@ public class ContentCtrl extends BaseCtrl {
        if (content != null){
            operate = "chat";
            txt = content.getContent();
-           if(interval != null ){
-               setRoomChatInterval(room.getId() , System.currentTimeMillis());
-           }
        }
 
        retJSON.put("operate" , operate);
@@ -256,16 +230,4 @@ public class ContentCtrl extends BaseCtrl {
    }
 
 
-    private void setRoomChatInterval(Long roomId ,Long time) {
-        cache.put(roomId.toString() , time);
-    }
-    private Long getRoomChatInterval(Long roomId) {
-        try {
-            return cache.get(roomId.toString());
-        } catch (ExecutionException e) {
-            LOGGER.error("" , e);
-        }
-
-        return -1L;
-    }
 }

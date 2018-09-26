@@ -123,7 +123,7 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
      * @return
      */
     @Override
-    public synchronized Content autoContent(Long roomId, Long userId, Account account) {
+    public Content autoContent(Long roomId, Long userId, Account account) {
         List<Content> contents = contentDao.findByRoomIdAndAcctIdAndUserId(roomId,account.getId() , userId);
         if(CollectionUtils.isEmpty(contents)){
             return null;
@@ -167,7 +167,7 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
 
 
     @Override
-    public synchronized Content nextContent(Long roomId, Long userId, Long accountId) {
+    public  Content nextContent(Long roomId, Long userId, Long accountId) {
         Content content = contentDao.findByRoomIdAndUserIdAndAndNotUsed(roomId,userId,accountId);
         if(content == null){
             return null;

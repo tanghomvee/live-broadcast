@@ -40,7 +40,7 @@ public class AccountCtrl extends BaseCtrl {
            return Msg.error("参数错误");
        }
        Account account = new Account();
-       BeanUtils.copyProperties(accountVO ,account);
+       BeanUtils.copyProperties(accountVO ,account ,BaseVO.getIgnoreProperties());
        account.setUserId(getUser().getId());
        account.setCreator(getUser().getUserName());
        account.setAcctName(accountVO.getAcctName().trim());

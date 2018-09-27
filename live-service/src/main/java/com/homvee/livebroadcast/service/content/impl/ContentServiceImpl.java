@@ -164,7 +164,7 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
             return null;
         }
         redisComponent.addZSet(roomKey , val , System.currentTimeMillis());
-        Long count = redisComponent.incr(roomKey + "-" + val , minutes5);
+        Long count = redisComponent.incr(roomKey + SeparatorEnum.MIDDLE_LINE.getVal() + val , minutes5);
         Random random = new Random();
         int nums = random.nextInt(6);
         if (nums < 3){

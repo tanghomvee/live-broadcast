@@ -170,7 +170,7 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
         if (nums < 3){
             nums = 3;
         }
-        String txt = count != null && count % 10 == 0 ? content.getContent() : "";
+        String txt = count != null && count % 50 == 0 ? content.getContent() : "";
 
         if(StringUtils.isEmpty(txt)){
             Room room = roomService.findOne(roomId);

@@ -28,6 +28,9 @@
 			<el-table-column prop="acctName" label="账户名称" width="auto">
 			</el-table-column>
 
+			<el-table-column prop="period" label="间隔时间" width="auto">
+			</el-table-column>
+
 			<el-table-column prop="mobile" label="手机号" width="auto">
 			</el-table-column>
 			
@@ -56,7 +59,11 @@
 				<el-form-item prop="mobile" label="手机号码">
 					<el-input v-model="editForm.mobile" placeholder="请输入11位手机号码"></el-input>
 				</el-form-item>
-			
+
+				<el-form-item prop="period" label="间隔时间">
+					<el-input v-model="editForm.period" placeholder="发言间隔时间(单位秒)"></el-input>
+				</el-form-item>
+
 			</el-form>
 			<div slot="footer" class="dialog-footer">
 				<el-button @click.native="editFormVisible = false">取消</el-button>
@@ -72,6 +79,9 @@
 				</el-form-item>
 				<el-form-item prop="mobile" label="手机号码">
 					<el-input v-model="addForm.mobile" placeholder="请输入11位手机号码"></el-input>
+				</el-form-item>
+				<el-form-item prop="period" label="间隔时间">
+					<el-input v-model="addForm.period" placeholder="发言间隔时间(单位秒)"></el-input>
 				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
@@ -127,6 +137,7 @@
 				editForm: {
 					id: null,
                     acctName: '',
+                    period:null,
                     mobile: ''
 				},
 
@@ -154,6 +165,7 @@
 				//新增界面数据
 				addForm: {
                     acctName: '',
+                    period:null,
                     mobile: ''
 				}
 

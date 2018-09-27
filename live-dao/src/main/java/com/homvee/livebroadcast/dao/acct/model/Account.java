@@ -23,6 +23,8 @@ public class Account extends BaseEntity {
 
     private Long userId;
 
+    private Integer period;
+
     public String getAcctName() {
         return acctName;
     }
@@ -45,5 +47,13 @@ public class Account extends BaseEntity {
 
     public void setMobile(String mobile) {
         this.mobile = mobile;
+    }
+
+    public Integer getPeriod() {
+        return period;
+    }
+
+    public void setPeriod(Integer period) {
+        this.period = period;
     }
 }

@@ -35,14 +35,15 @@ public class AccountCtrl extends BaseCtrl {
 
     @RequestMapping(path = {"/add"}, method = {RequestMethod.GET, RequestMethod.POST})
     @ResponseBody
-   public Msg save(String acctName){
-       if(StringUtils.isEmpty(acctName)){
+   public Msg save(AccountVO accountVO){
+       if(StringUtils.isEmpty(accountVO.getAcctName()) || StringUtils.isEmpty(accountVO.getMobile())){
            return Msg.error("参数错误");
        }
        Account account = new Account();
+       BeanUtils.copyProperties(accountVO ,account);
        account.setUserId(getUser().getId());
        account.setCreator(getUser().getUserName());
-       account.setAcctName(acctName.trim());
+       account.setAcctName(accountVO.getAcctName().trim());
        accountService.save(Lists.newArrayList(account));
        return Msg.success();
    }

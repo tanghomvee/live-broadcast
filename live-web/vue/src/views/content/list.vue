@@ -88,7 +88,7 @@
 					</el-select>
 				</el-form-item>
 				<el-form-item label="输入内容">
-					<el-input type="textarea" v-model="editForm.content"></el-input>
+					<el-input type="textarea" v-model="editForm.content" :maxlength="50"></el-input>
 				</el-form-item>
 			</el-form>
 			<div slot="footer" class="dialog-footer">
@@ -124,7 +124,7 @@
 					</el-select>
 				</el-form-item>
 				<el-form-item label="输入内容">
-					<el-input type="textarea" v-model="addForm.content"></el-input>
+					<el-input type="textarea" v-model="addForm.content" :maxlength="50"></el-input>
 				</el-form-item>
 
 

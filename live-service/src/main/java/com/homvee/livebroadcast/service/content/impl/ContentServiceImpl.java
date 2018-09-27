@@ -3,6 +3,7 @@ package com.homvee.livebroadcast.service.content.impl;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.homvee.livebroadcast.common.components.RedisComponent;
 import com.homvee.livebroadcast.common.constants.RedisKey;
 import com.homvee.livebroadcast.common.enums.SeparatorEnum;
@@ -69,6 +70,9 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
             "[emot:dy009]", "[emot:dy010]", "[emot:dy011]", "[emot:dy012]", "[emot:dy013]", "[emot:dy014]", "[emot:dy015]", "[emot:dy016]", "[emot:dy017]"
     };
 
+    private String[] separators =  new String[]{"🐉","💗","🐮","❀","👑","🌹","👍","👌","✏","🦐","🧜‍","🐱","🚩","🎸","🖖","👄","🐰","🎈","🎉","🎁","🔥","☀"};
+    private String[] punctuations =  new String[]{".","..","...","!","!!","^_^","♡",".。","o_o","*","㉨","⊙","≦","҉","……"};
+
     @Override
     public List<Content> save(List<Content> contents) {
         return contentDao.saveAll(contents);
@@ -134,8 +138,10 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
         /**
          * 每个账号发言间隔5秒
          */
-        if(!redisComponent.setStrNx(RedisKey.ACCOUNT + SeparatorEnum.UNDERLINE.getVal() + account.getId() , 5L)){
-            return null;
+        if (account.getPeriod() == null && account.getPeriod() > 0){
+            if(!redisComponent.setStrNx(RedisKey.ACCOUNT + SeparatorEnum.UNDERLINE.getVal() + account.getId() , account.getPeriod().longValue())){
+                return null;
+            }
         }
 
         Content content = contents.get(0);
@@ -164,16 +170,24 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
         if (nums < 3){
             nums = 3;
         }
-        String retEmot = StringUtils.isEmpty(content.getContent()) ? content.getContent() : "";
-        retEmot = retEmot + getRandomEmotion(nums) ;
-//        if(count != null && count % 10 == 0){
-//            Room room = roomService.findOne(roomId);
-//            retEmot = retEmot + getRandomStr(nums , room.getDefaultContent());
-//        }
-        Room room = roomService.findOne(roomId);
-        retEmot = retEmot + getRandomStr(nums , room.getDefaultContent());
+        String txt = count != null && count % 10 == 0 ? content.getContent() : "";
 
-        content.setContent(retEmot);
+        if(StringUtils.isEmpty(content.getContent())){
+            Room room = roomService.findOne(roomId);
+            txt = getRandomStr(nums , room.getDefaultContent());
+            Integer maxCnt = 50;
+            if (txt.length() < maxCnt){
+                if (count != null && count % 20 ==0){
+                    int cnt = (maxCnt - txt.length()) / emots[0].length();
+                    if (cnt > 0){
+                        txt = txt + getRandomEmotion(cnt);
+                    }
+                }
+            }
+
+        }
+
+        content.setContent(txt);
         return content;
     }
 
@@ -207,7 +221,7 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public synchronized Content loopContent(Long roomId, Long userId, Long acctId) {
+    public  Content loopContent(Long roomId, Long userId, Long acctId) {
         Integer cntUsed = contentDao.countUsedByRoomId(roomId);
         Integer cnt = contentDao.countByRoomId(roomId);
         if (cnt.equals(cntUsed)){
@@ -228,27 +242,46 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
     }
 
 
-    private String getRandomStr(int nums , String defaultContent){
+    private String getRandomStr(int num , String defaultContent){
         String[] data = randStrs;
         if (!StringUtils.isEmpty(defaultContent)){
             data = defaultContent.split(SeparatorEnum.COMMA.getVal());
-            nums = data.length > nums ? nums : data.length;
+            num = data.length > num ? num : data.length;
         }
         String rs = SeparatorEnum.COMMA.getVal();
-        String[] seperators =  new String[]{"🐉","💗","🐮","❀","👑","🌹","👍","👌","✏","🦐","🧜‍","🐱"};
-        String[] ends =  new String[]{".","..","...","!","!!","^_^","",".。"};
+        Set<String> contents = Sets.newHashSet();
         Random random = new Random();
-        for (int i = 0 ; i < nums ; i++){
-            rs = rs + data[random.nextInt(data.length)] + seperators[random.nextInt(seperators.length)];
+        while (num > 0){
+
+            String content = data[random.nextInt(data.length)];
+            if (contents.contains(content)){
+                continue;
+            }
+            num--;
+            contents.add(content);
+            String tmpResult = rs + content + separators[random.nextInt(separators.length)];
+            if (tmpResult.length() >= 50){
+                return  tmpResult;
+            }
+            rs = tmpResult;
         }
-        return rs + ends[random.nextInt(ends.length)];
+
+        return rs + punctuations[random.nextInt(punctuations.length)];
     }
-    private String getRandomEmotion(int nums){
+    private String getRandomEmotion(int num){
         String rs = "";
         Random random = new Random();
-        for (int i = 0 ; i < nums ; i++){
-            rs = rs + emots[random.nextInt(emots.length)];
+        Set<String> emotsTmp = Sets.newHashSet();
+        while (num > 0){
+            String emot = emots[random.nextInt(emots.length)];
+            if (emotsTmp.contains(emot)){
+                continue;
+            }
+            emotsTmp.add(emot);
+            rs = rs + emot;
+            num--;
         }
+
         return rs;
     }
 

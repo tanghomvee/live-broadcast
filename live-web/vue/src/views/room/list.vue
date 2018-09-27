@@ -33,7 +33,7 @@
 
 			<el-table-column prop="way" label="交流方式" :formatter="getWayDesc"  width="auto">
 			</el-table-column>
-			<el-table-column prop="defaultContent" label="默认话术"   width="auto">
+			<el-table-column prop="defaultContent" label="默认话术"  :show-overflow-tooltip="true" width="auto">
 			</el-table-column>
 
 			<el-table-column prop="roomName" label="房间名称" width="auto">

@@ -14,7 +14,7 @@ public class AccountVO extends BaseVO {
     private String mobile;
 
     private Long userId;
-
+    private Integer period;
     public String getAcctName() {
         return acctName;
     }
@@ -45,5 +45,13 @@ public class AccountVO extends BaseVO {
 
     public void setMobile(String mobile) {
         this.mobile = mobile;
+    }
+
+    public Integer getPeriod() {
+        return period;
+    }
+
+    public void setPeriod(Integer period) {
+        this.period = period;
     }
 }

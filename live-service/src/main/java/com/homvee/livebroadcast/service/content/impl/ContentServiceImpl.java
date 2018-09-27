@@ -138,7 +138,7 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
         /**
          * 每个账号发言间隔5秒
          */
-        if (account.getPeriod() == null && account.getPeriod() > 0){
+        if (account.getPeriod() != null && account.getPeriod() > 0){
             if(!redisComponent.setStrNx(RedisKey.ACCOUNT + SeparatorEnum.UNDERLINE.getVal() + account.getId() , account.getPeriod().longValue())){
                 return null;
             }

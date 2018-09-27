@@ -70,7 +70,7 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
             "[emot:dy009]", "[emot:dy010]", "[emot:dy011]", "[emot:dy012]", "[emot:dy013]", "[emot:dy014]", "[emot:dy015]", "[emot:dy016]", "[emot:dy017]"
     };
 
-    private String[] separators =  new String[]{"🐉","💗","🐮","❀","👑","🌹","👍","👌","✏","🦐","🧜‍","🐱","🚩","🎸","🖖","👄","🐰","🎈","🎉","🎁","🔥","☀"};
+    private String[] separators =  new String[]{"🐉","💗","🐮","❀","👑","🌹","👍","👌","✏","🦐","🧜‍","🐱","🚩","🎸","🖖","👄","🐰","🎈","🎉","🎁","🔥","☀","🎵","🎶","🎼","🔫"};
     private String[] punctuations =  new String[]{".","..","...","!","!!","^_^","♡",".。","o_o","*","㉨","⊙","≦","҉","……"};
 
     @Override
@@ -172,7 +172,7 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
         }
         String txt = count != null && count % 10 == 0 ? content.getContent() : "";
 
-        if(StringUtils.isEmpty(content.getContent())){
+        if(StringUtils.isEmpty(txt)){
             Room room = roomService.findOne(roomId);
             txt = getRandomStr(nums , room.getDefaultContent());
             Integer maxCnt = 50;

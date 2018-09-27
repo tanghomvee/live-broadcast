@@ -20,6 +20,7 @@ import com.homvee.livebroadcast.service.catg.CategoryService;
 import com.homvee.livebroadcast.service.content.ContentService;
 import com.homvee.livebroadcast.service.room.RoomService;
 import com.homvee.livebroadcast.service.user.UserService;
+import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -59,7 +60,7 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
 //                " （≧㉨≦） "," （⊙㉨⊙） "," (๑•́ ㉨ •̀๑) "," ◟(░´㉨`░)◜ ",
 //            "·","^","`",".","_","~",",","、","¯","♡","o_o","I","i","|","l"
 //            "来","哈哈","呀！", "呢","好","哦","吗？","666666","go","888888","9494","关注主播,惊喜连连","送点什么","闹热","火火","🐉","🐮","㊣","哇","嘛","高","行","各位斗友,走一波打赏"
-            "来","哈哈","呀！", "呢","好","哦","吗？","666666","go","888888","9494","关注主播,惊喜连连","送点什么","闹热","火火","🐉","🐮","㊣","哇","嘛","高","行","各位斗友,走一波打赏"
+            "强","厉害","来","哈哈","呀！", "呢","好","哦","吗？","666666","go","888888","9494","关注主播,惊喜连连","送点什么","闹热","火火","哇","嘛","高","行","各位斗友,走一波打赏"
     };
     private String[] emots = new String[]{
             "[emot:dy101]", "[emot:dy102]", "[emot:dy103]", "[emot:dy104]", "[emot:dy105]", "[emot:dy106]", "[emot:dy107]", "[emot:dy108]", "[emot:dy109]",
@@ -70,8 +71,8 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
             "[emot:dy009]", "[emot:dy010]", "[emot:dy011]", "[emot:dy012]", "[emot:dy013]", "[emot:dy014]", "[emot:dy015]", "[emot:dy016]", "[emot:dy017]"
     };
 
-    private String[] separators =  new String[]{"🐉","💗","🐮","❀","👑","🌹","👍","👌","✏","🦐","🧜‍","🐱","🚩","🎸","🖖","👄","🐰","🎈","🎉","🎁","🔥","☀","🎵","🎶","🎼","🔫"};
-    private String[] punctuations =  new String[]{".","..","...","!","!!","^_^","♡",".。","o_o","*","㉨","⊙","≦","҉","……"};
+    private String[] separators =  new String[]{"㊣","🐉","💗","🐮","❀","👑","🌹","👍","👌","✏","🦐","🧜‍","🐱","🚩","🎸","🖖","👄","🐰","🎈","🎉","🎁","🔥","☀","🎵","🎶","🎼","🔫"};
+    private String[] punctuations =  new String[]{".","..","...","!","!!","^_^","♡",".。","o_o","*","㉨","⊙","🎤","🎙","҉","……"};
 
     @Override
     public List<Content> save(List<Content> contents) {
@@ -165,16 +166,21 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
         }
         redisComponent.addZSet(roomKey , val , System.currentTimeMillis());
         Long count = redisComponent.incr(roomKey + SeparatorEnum.MIDDLE_LINE.getVal() + val , minutes5);
-        Random random = new Random();
-        int nums = random.nextInt(6);
-        if (nums < 3){
-            nums = 3;
-        }
-        String txt = count != null && count % 50 == 0 ? content.getContent() : "";
 
-        if(StringUtils.isEmpty(txt)){
-            Room room = roomService.findOne(roomId);
-            txt = getRandomStr(nums , room.getDefaultContent());
+        String txt = count != null && count % 50 == 0 ? content.getContent() : "";
+        if (!StringUtils.isEmpty(txt) && !redisComponent.setStrNx(account.getId() + SeparatorEnum.MIDDLE_LINE.getVal() + txt , minutes5 * 6)){
+            txt = null;
+        }
+
+        Room room = roomService.findOne(roomId);
+        while (StringUtils.isEmpty(txt)){
+            Random random = new Random();
+            int num = random.nextInt(6);
+            if (num < 3){
+                num = 3;
+            }
+
+            txt = getRandomStr(num , room.getDefaultContent());
             Integer maxCnt = 50;
             if (txt.length() < maxCnt){
                 if (count != null && count % 20 ==0){
@@ -184,8 +190,13 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
                     }
                 }
             }
-
+            if (!redisComponent.setStrNx(account.getId() + SeparatorEnum.MIDDLE_LINE.getVal() + txt , minutes5 * 6)){
+                txt = null;
+            }
         }
+
+
+
 
         content.setContent(txt);
         return content;
@@ -245,9 +256,12 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
     private String getRandomStr(int num , String defaultContent){
         String[] data = randStrs;
         if (!StringUtils.isEmpty(defaultContent)){
-            data = defaultContent.split(SeparatorEnum.COMMA.getVal());
-            num = data.length > num ? num : data.length;
+            String[] customerData = defaultContent.split(SeparatorEnum.COMMA.getVal());
+            if (!ArrayUtils.isEmpty(customerData)){
+                data = ArrayUtils.addAll(data , customerData);
+            }
         }
+        num = data.length > num ? num : data.length;
         String rs = SeparatorEnum.COMMA.getVal();
         Set<String> contents = Sets.newHashSet();
         Random random = new Random();

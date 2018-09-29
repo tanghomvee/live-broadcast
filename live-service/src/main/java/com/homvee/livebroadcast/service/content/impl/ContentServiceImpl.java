@@ -136,50 +136,66 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
             return null;
         }
 
+        Content content = contents.get(0);
+
+        String acctKey = RedisKey.ACCOUNT + SeparatorEnum.MIDDLE_LINE.getVal() + account.getId();
+        Long fiveMinutes = 300L;
+        Long preFiveMinutes = System.currentTimeMillis() - fiveMinutes*1000;
+        //移除5分钟未发言的房间
+        redisComponent.removeZSetValByScore(acctKey , 0L , preFiveMinutes );
+
+        //当前账号所在的房间列表
+        LinkedHashSet<String> vals = redisComponent.getZSetVal(acctKey , 0L ,Long.valueOf(Integer.MAX_VALUE));
+        //如果房间列表为空,将此当前房间ID放入有序队列,返回空，让前端等待,以防同时在多个房间发言
+        if(CollectionUtils.isEmpty(vals)){
+            redisComponent.addZSet(acctKey , roomId.toString() , System.currentTimeMillis());
+            LOGGER.info("账号发言房间队列为空:acct={}", account.getAcctName());
+            return null;
+        }
+        Room room = roomService.findOne(roomId);
+        //判断当前是否该此房间发言
+        if (Lists.newArrayList(vals).indexOf(roomId.toString()) == -1){
+            redisComponent.addZSet(acctKey , roomId.toString() , System.currentTimeMillis());
+            LOGGER.info("账号发言房间不存在有序队列之中:acct={},room={}", account.getAcctName() , room.getRoomName());
+            return null;
+        }
+        if (Lists.newArrayList(vals).indexOf(roomId.toString()) > 0){
+            LOGGER.info("此刻账号不应该在此房间发言:acct={},room={}", account.getAcctName() , room.getRoomName() );
+            return null;
+        }
         /**
          * 每个账号发言间隔5秒
          */
+        Long period = 5L;
         if (account.getPeriod() != null && account.getPeriod() > 0){
-            if(!redisComponent.setStrNx(RedisKey.ACCOUNT + SeparatorEnum.UNDERLINE.getVal() + account.getId() , account.getPeriod().longValue())){
-                return null;
-            }
+            period = account.getPeriod().longValue();
         }
-
-        Content content = contents.get(0);
-
-        String roomKey = "room" + SeparatorEnum.MIDDLE_LINE.getVal() + roomId;
-        String val = account.getId().toString();
-
-        Long minutes5 = 300L;
-        Long max5 = System.currentTimeMillis() - minutes5*1000;
-        redisComponent.removeZSetValByScore(roomKey , 0L , max5 );
-
-        LinkedHashSet<String> vals = redisComponent.getZSetVal(roomKey , 0L ,Long.valueOf(Integer.MAX_VALUE));
-        int len = vals.size();
-        int maxIndex = len > 3 ? len / 3 : 0;
-        if(maxIndex >=3 ){
-            maxIndex = 3;
-        }
-        redisComponent.expire(roomKey , 3600L);
-        if(Lists.newArrayList(vals).indexOf(val) > maxIndex){
+        if(!redisComponent.setStrNx(RedisKey.ACCOUNT + SeparatorEnum.UNDERLINE.getVal() + account.getId() , period)){
+            LOGGER.info("账号发言时间未到:acct={}", account.getAcctName());
             return null;
         }
-        redisComponent.addZSet(roomKey , val , System.currentTimeMillis());
-        Long count = redisComponent.incr(roomKey + SeparatorEnum.MIDDLE_LINE.getVal() + val , minutes5);
 
+        //用当前时间作为当前房间的权重
+        redisComponent.addZSet(acctKey , roomId.toString() , System.currentTimeMillis());
+        //计数当前账号在此房间发言的次数
+        Long count = redisComponent.incr(acctKey + SeparatorEnum.MIDDLE_LINE.getVal() + roomId , fiveMinutes);
+        LOGGER.info("账号已在房间发言次数:acct={},count={}", account.getAcctName(),  count);
         String txt = count != null && count % 50 == 0 ? content.getContent() : "";
-        if (!StringUtils.isEmpty(txt) && !redisComponent.setStrNx(account.getId() + SeparatorEnum.MIDDLE_LINE.getVal() + txt , minutes5 * 6)){
-            txt = null;
+        //判断账号在此房间30分钟之内不能发送相同的弹幕
+        String contentKey = "";
+        if (!StringUtils.isEmpty(txt)){
+            contentKey = acctKey + SeparatorEnum.MIDDLE_LINE.getVal() + roomId + SeparatorEnum.UNDERLINE.getVal() + txt;
+            if (!redisComponent.setStrNx(contentKey , fiveMinutes * 6)){
+                txt = null;
+            }
         }
-
-        Room room = roomService.findOne(roomId);
+        //循环获取账号在当前房间的弹幕
         while (StringUtils.isEmpty(txt)){
             Random random = new Random();
             int num = random.nextInt(6);
             if (num < 3){
                 num = 3;
             }
-
             txt = getRandomStr(num , room.getDefaultContent());
             Integer maxCnt = 50;
             if (txt.length() < maxCnt){
@@ -190,13 +206,11 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
                     }
                 }
             }
-            if (!redisComponent.setStrNx(account.getId() + SeparatorEnum.MIDDLE_LINE.getVal() + txt , minutes5 * 6)){
+            contentKey = acctKey + SeparatorEnum.MIDDLE_LINE.getVal() + roomId + SeparatorEnum.UNDERLINE.getVal() + txt;
+            if (!redisComponent.setStrNx(contentKey , fiveMinutes * 6)){
                 txt = null;
             }
         }
-
-
-
 
         content.setContent(txt);
         return content;

@@ -7,6 +7,7 @@ import com.google.common.collect.Sets;
 import com.homvee.livebroadcast.common.components.RedisComponent;
 import com.homvee.livebroadcast.common.constants.RedisKey;
 import com.homvee.livebroadcast.common.enums.SeparatorEnum;
+import com.homvee.livebroadcast.common.enums.YNEnum;
 import com.homvee.livebroadcast.common.vos.ContentVO;
 import com.homvee.livebroadcast.common.vos.Pager;
 import com.homvee.livebroadcast.dao.acct.model.Account;
@@ -266,6 +267,15 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
         return contentDao.findAcctByRoomId(roomId);
     }
 
+    @Override
+    public List<Content> findAll() {
+        return contentDao.findByYnOrderByRoomId(YNEnum.YES.getVal());
+    }
+
+    @Override
+    public List<Content> findByRoomId(Long roomId) {
+        return contentDao.findByRoomIdAndYn(roomId ,YNEnum.YES.getVal());
+    }
 
     private String getRandomStr(int num , String defaultContent){
         String[] data = randStrs;

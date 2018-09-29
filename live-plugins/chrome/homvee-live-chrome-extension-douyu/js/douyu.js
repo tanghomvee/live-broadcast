@@ -1,55 +1,21 @@
 $(function(){
+var domain = "localhost";
 
-var  timeout = 10000;
 var  securityStartTime = null;
+var authKey = "d423e8dd0bbf44caad5a31ddc15055e0";
+var  roomUrl = window.location.protocol + "//" + window.location.hostname + window.location.pathname;
+var websocket= null;
 var interval = setInterval(function(){
-   var sendBtn = $("#js-send-msg").find("div[data-type='send']");
-   if (sendBtn && sendBtn.length > 0){
-       sendMsg2Bg({"operate": "chat"});
-       clearInterval(interval);
-   }
-},timeout);
+    var sendBtn = $("#js-send-msg").find("div[data-type='send']");
+    if (sendBtn && sendBtn.length > 0){
+        var nameSpan = $("#header").find("span[class='l-txt']");
+        var acctName = nameSpan.html();
+        websocket = initWebSocket(acctName , roomUrl);
+        clearInterval(interval);
+    }
+},5000);
 
 
-chrome.runtime.onMessage.addListener(function (params, sender, sendResponse) {
-
-	if (sendResponse){
-        sendResponse({"msg" : "Content accept ok"});
-	}
-
-	if (params && params.hasOwnProperty("operate")) {
-		if(params.operate=="go" && params.content){
-			window.location.href = params.content;
-			return;
-		}else if(params.operate=="chat"){
-			chat(params);
-            sendResponse({state:'发送成功！'});
-            var tmp =window.setTimeout(function(){
-                sendMsg2Bg({"operate": "chat"});
-                window.clearTimeout(tmp);
-            },timeout);
-
-		}else if(params.operate=="wait"){
-			var tmp =window.setTimeout(function(){
-					sendMsg2Bg({"operate": "chat"});
-					window.clearTimeout(tmp);
-				},(params.content || timeout) / 1);
-		}else if(params.operate=="check"){
-            var tmp =window.setTimeout(function(){
-                sendMsg2Bg({"operate": "chat"});
-                window.clearTimeout(tmp);
-                if (params.content && existAcctSecurityTip()){
-                    var chkBtn = $(".account-security").find(".account-security-submit.account-security-next.button.js-account-security-button");
-                    chkBtn.trigger("click");
-				}
-            },60000);
-        }
-
-   }else{
-	  console.log("参数错误" + params);
-      window.location.reload();
-	}
-});
 
 function chat(params){
 	if (existAcctSecurityTip()){
@@ -68,7 +34,8 @@ function chat(params){
                 toPhoneNum = $(toPhoneSpan).text() || toPhoneNum;
             }
         }
-        sendMsg2Bg({"operate": "check" , "smsContent" : checkContent , "toPhone" : toPhoneNum});
+        sendMsg2Bg({"operate": "SMS_CHECK" , "checkSMS" : {"toPhone" : toPhoneNum , "content" : checkContent}});
+
         return;
 	}
     var sendBtn = $("#js-send-msg").find("div[data-type='send']");
@@ -83,12 +50,14 @@ function chat(params){
 function sendMsg2Bg(params){
 	try{
 
-        var nameSpan = $("#header").find("span[class='l-txt']");
-        var usrName = nameSpan.html();
-        params["acctName"] = usrName;
-        chrome.runtime.sendMessage(params, function(response) {
-            console.log("bg resp " + response);
-        });
+        if (websocket.readyState == websocket.OPEN) {
+            var nameSpan = $("#header").find("span[class='l-txt']");
+            var usrName = nameSpan.html();
+            params["acctName"] = usrName;
+            params["roomUrl"] = roomUrl;
+            //调用后台handleTextMessage方法
+            websocket.send(params);
+        }
 
 	}catch (e) {
         window.location.reload();
@@ -102,8 +71,56 @@ function existAcctSecurityTip() {
 	if(!securityTip || securityTip.length < 1){
 		return false;
 	}
-//$(securityTip).is(":hidden") ||
 	return  $(securityTip).is(":visible");
+}
+
+function initWebSocket(acctName , roomUrl) {
+    var ws = null;
+    var  urlParams =  "acctName="+acctName+"&roomUrl="+roomUrl+"&authKey="+authKey;
+    if ("WebSocket" in  window){
+        ws=new WebSocket("ws://" + domain +"/msg/socketServer?" + urlParams);
+    }else {
+        ws=new SockJS("ws://" + domain +"/msg/socketClient?" + urlParams)
+    }
+
+    ws.onopen=function(event){
+        console.info("连接已建立..\n");
+        console.info("发送测试数据..等待验证\n");
+        ws.send("666");
+    };
+    ws.onmessage=function(event){
+        var msg = event.data;
+        if (!msg){
+            return;
+        }
+        if (msg["flag"] == "success"){
+            var data = msg["data"];
+            if (data["operate"] == "check"){
+                var tmp =window.setTimeout(function(){
+                    window.clearTimeout(tmp);
+                    if (data.content && existAcctSecurityTip()){
+                        var chkBtn = $(".account-security").find(".account-security-submit.account-security-next.button.js-account-security-button");
+                        chkBtn.trigger("click");
+                    }
+                    },60000);
+            }else if(data["operate"] == "chat"){
+                chat(data);
+            }
+        }
+        console.info(msg+"\n");
+    };
+
+    ws.onclose=function(){
+        console.info("连接已关闭..\n");
+    };
+
+    ws.onerror = function(){
+        console.info("发生了错误..\n");   
+    };
+
+    window.close=function(){
+        ws.onclose();
+    }
 }
 
 });

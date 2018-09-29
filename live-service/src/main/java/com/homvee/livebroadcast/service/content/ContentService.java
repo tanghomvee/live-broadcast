@@ -82,4 +82,17 @@ public interface ContentService extends BaseService<Content, Long> {
      * @return
      */
     List<BigInteger> findAcctByRoomId(Long roomId);
+
+    /**
+     * find all
+     * @return
+     */
+    List<Content> findAll();
+
+    /**
+     * find
+     * @param roomId
+     * @return
+     */
+    List<Content> findByRoomId(Long roomId);
 }

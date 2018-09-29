@@ -52,6 +52,7 @@
 			<mvc:exclude-mapping path="/user/login" /><!--账号登录 -->
 			<mvc:exclude-mapping path="/content/chat/**" />
 			<mvc:exclude-mapping path="/sms/**" />
+			<mvc:exclude-mapping path="/msg/**" />
 			<mvc:exclude-mapping path="/index.html" />
 			<mvc:exclude-mapping path="/static/**" />
 			<mvc:exclude-mapping path="/favicon.ico" />
@@ -69,4 +70,5 @@
 
 	<import resource="spring-cfg-converters.xml"/>
 	<import resource="spring-cfg-view.xml"/>
+	<import resource="spring-cfg-websocket.xml"/>
 </beans>

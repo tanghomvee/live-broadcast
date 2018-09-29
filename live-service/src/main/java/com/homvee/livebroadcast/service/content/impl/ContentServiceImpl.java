@@ -185,7 +185,7 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
         String contentKey = "";
         if (!StringUtils.isEmpty(txt)){
             contentKey = acctKey + SeparatorEnum.MIDDLE_LINE.getVal() + roomId + SeparatorEnum.UNDERLINE.getVal() + txt;
-            if (!redisComponent.setStrNx(contentKey , fiveMinutes * 6)){
+            if (!redisComponent.setStrNx(contentKey , fiveMinutes * 12)){
                 txt = null;
             }
         }
@@ -207,7 +207,7 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
                 }
             }
             contentKey = acctKey + SeparatorEnum.MIDDLE_LINE.getVal() + roomId + SeparatorEnum.UNDERLINE.getVal() + txt;
-            if (!redisComponent.setStrNx(contentKey , fiveMinutes * 6)){
+            if (!redisComponent.setStrNx(contentKey , fiveMinutes * 12)){
                 txt = null;
             }
         }

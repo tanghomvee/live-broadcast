@@ -62,7 +62,17 @@ public class WebSocketMsgHandler extends TextWebSocketHandler {
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         LOGGER.info("连接建立后处理方法");
-        users.put(session.getAttributes().get(SessionKey.USER).toString() , session);
+        Map<String , Object> attrs = session.getAttributes();
+        if(CollectionUtils.isEmpty(attrs)){
+            LOGGER.error("连接成功获取账号信息失败");
+            return;
+        }
+        Account account = (Account) attrs.get(SessionKey.USER);
+        if(account == null){
+            LOGGER.error("连接成功获取账号信息不存在");
+            return;
+        }
+        users.put(account.getId().toString() , session);
         super.afterConnectionEstablished(session);
     }
 

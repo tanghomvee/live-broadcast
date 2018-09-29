@@ -94,10 +94,10 @@ public class AutoPushContentImpl  implements AutoPushContent,InitializingBean {
                 }
 
                 for (Long acctId : acctContent.keySet()){
-                   String key = roomKey + SeparatorEnum.MIDDLE_LINE.getVal() + RedisKey.ACCOUNT + SeparatorEnum.UNDERLINE.getVal() +  acctId;
-                   Object content =  "";
-                    TextMessage respMsg = new TextMessage(JSONObject.toJSONString(Msg.success(content)));
-                    webSocketMsgHandler.sendMsg2User(key ,respMsg);
+                    Content content = acctContent.get(acctId);
+                   Object contentStr =  getContent(content.getContent(),acctId ,room);
+                    TextMessage respMsg = new TextMessage(JSONObject.toJSONString(Msg.success(contentStr)));
+                    webSocketMsgHandler.sendMsg2User(acctId.toString() ,respMsg);
                 }
             }
 
@@ -112,6 +112,39 @@ public class AutoPushContentImpl  implements AutoPushContent,InitializingBean {
     }
 
 
+    private String getContent(String txt, Long acctId , Room room){
+        String contentKey = "" , acctKey =  RedisKey.ACCOUNT + SeparatorEnum.MIDDLE_LINE.getVal() + acctId ;
+        Long fiveMinutes = 300L;
+        Integer maxCnt = 50;
+        Long roomId = room.getId();
+        if (!StringUtils.isEmpty(txt)){
+            contentKey = acctKey + SeparatorEnum.MIDDLE_LINE.getVal() + roomId + SeparatorEnum.UNDERLINE.getVal() + txt;
+            if (!redisComponent.setStrNx(contentKey , fiveMinutes * 6)){
+                txt = null;
+            }
+        }
+        //循环获取账号在当前房间的弹幕
+        while (StringUtils.isEmpty(txt)){
+            Random random = new Random();
+            int num = random.nextInt(6);
+            if (num < 3){
+                num = 3;
+            }
+            txt = getRandomStr(num , room.getDefaultContent());
+            if (txt.length() < maxCnt){
+                int cnt = (maxCnt - txt.length()) / emots[0].length();
+                if (cnt > 0){
+                    txt = txt + getRandomEmotion(cnt);
+                }
+            }
+            contentKey = acctKey + SeparatorEnum.MIDDLE_LINE.getVal() + roomId + SeparatorEnum.UNDERLINE.getVal() + txt;
+            if (!redisComponent.setStrNx(contentKey , fiveMinutes * 6)){
+                txt = null;
+            }
+        }
+
+        return txt;
+    }
 
     private String getRandomStr(int num , String defaultContent){
         String[] data = randStrs;

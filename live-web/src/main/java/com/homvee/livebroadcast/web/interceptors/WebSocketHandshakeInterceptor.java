@@ -21,6 +21,7 @@ import org.springframework.web.socket.WebSocketHandler;
 import org.springframework.web.socket.server.support.HttpSessionHandshakeInterceptor;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpSession;
 import java.util.List;
 import java.util.Map;
 
@@ -49,29 +50,36 @@ public class WebSocketHandshakeInterceptor extends HttpSessionHandshakeIntercept
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
 
 
+        if ((request instanceof  ServletServerHttpRequest)){
+            return super.beforeHandshake(request, response, wsHandler, attributes);
+        }
         ServletServerHttpRequest req = (ServletServerHttpRequest) request;
+        HttpSession session = req.getServletRequest().getSession(false);
+        if (session == null) {
+            return super.beforeHandshake(request, response, wsHandler, attributes);
+        }
+
+        Account account = (Account) session.getAttribute(SessionKey.USER);
+        if (account != null){
+            return super.beforeHandshake(request, response, wsHandler, attributes);
+        }
+
         String acctName = req.getServletRequest().getParameter("acctName");
         if (Strings.isNullOrEmpty(acctName)) {
             LOGGER.error("账户名错误");
             return false;
         }
-        String roomUrl = req.getServletRequest().getParameter("roomUrl");
-        if (Strings.isNullOrEmpty(roomUrl)) {
-            LOGGER.error("房间地址错误");
-            return false;
-        }
+
         String authKey = req.getServletRequest().getParameter("authKey");
         if (Strings.isNullOrEmpty(authKey)) {
             LOGGER.error("授权错误");
             return false;
         }
 
-        LOGGER.info("握手完成前:acctName={},roomUrl={},authKey={}" , acctName ,roomUrl,authKey);
+        LOGGER.info("握手完成前:acctName={},authKey={}" , acctName ,authKey);
 
         acctName = acctName.trim();
-
         User user = userService.findByAuthKey(authKey);
-
         if(user == null){
             LOGGER.error("未授权的用户:authKey={}" ,authKey);
             return false;
@@ -82,20 +90,8 @@ public class WebSocketHandshakeInterceptor extends HttpSessionHandshakeIntercept
             LOGGER.error("账户不存在:acctName={}" , acctName);
             return false;
         }
-
-        List<Room> rooms = roomService.findByUrlAndUserId(roomUrl , user.getId());
-        if(CollectionUtils.isEmpty(rooms) || rooms.size() != 1){
-            LOGGER.error("用户不存在此房间:roomUrl={},userId={}" , roomUrl , user.getId());
-            return false;
-        }
-
-        attributes.put("userId", user.getId());
-        attributes.put(SessionKey.USER , RedisKey.ROOM + SeparatorEnum.UNDERLINE.getVal() +
-                rooms.get(0).getId() + SeparatorEnum.MIDDLE_LINE.getVal() + RedisKey.ACCOUNT + SeparatorEnum.UNDERLINE.getVal() +  accounts.get(0).getId());
-
-
-        String roomKey = RedisKey.ROOM + SeparatorEnum.UNDERLINE.getVal() + rooms.get(0).getId();
-        redisComponent.set(roomKey , rooms.get(0).getId().toString() , 3600L);
+        account = accounts.get(0);
+        attributes.put(SessionKey.USER , account);
         return super.beforeHandshake(request, response, wsHandler, attributes);
     }
 

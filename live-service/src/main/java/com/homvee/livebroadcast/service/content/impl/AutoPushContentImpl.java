@@ -71,44 +71,54 @@ public class AutoPushContentImpl  implements AutoPushContent,InitializingBean {
     @Override
     public void afterPropertiesSet() throws Exception {
 
-        while (true){
-            List<Room> rooms =  roomService.findByWay(WayEnum.AUTO.getVal());
-            if (CollectionUtils.isEmpty(rooms)){
-                continue;
+        Thread thread = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while (true){
+                    List<Room> rooms =  roomService.findByWay(WayEnum.AUTO.getVal());
+                    if (CollectionUtils.isEmpty(rooms)){
+                        continue;
+                    }
+
+                    int roomNum = rooms.size();
+                    for (Room room : rooms){
+
+                        List<Content> contents = contentService.findByRoomId(room.getId());
+                        if (CollectionUtils.isEmpty(contents)){
+                            continue;
+                        }
+                        Map<Long , Content> acctContent = Maps.newHashMap();
+                        for (Content content : contents){
+                            acctContent.put(content.getAcctId() , content);
+                        }
+
+                        for (Long acctId : acctContent.keySet()){
+                            Content content = acctContent.get(acctId);
+                            Object contentStr =  getContent(content.getContent(),acctId ,room);
+                            JSONObject json = new JSONObject();
+                            json.put("operate" , "chat");
+                            json.put("content" , contentStr);
+                            TextMessage respMsg = new TextMessage(JSONObject.toJSONString(Msg.success(json)));
+                            webSocketMsgHandler.sendMsg2User(acctId.toString() ,respMsg);
+                        }
+                    }
+
+                    Long waitTime = 10*1000L;
+                    if (roomNum > 5){
+                        waitTime = 5000L;
+                    }
+
+                    try {
+                        Thread.sleep(waitTime);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                }
             }
+        });
+        thread.start();
 
-            int roomNum = rooms.size();
-            for (Room room : rooms){
-                String roomKey = RedisKey.ROOM + SeparatorEnum.UNDERLINE.getVal() + room.getId();
-                if (!room.getId().toString().equals(redisComponent.get(roomKey))){
-                    continue;
-                }
-
-                List<Content> contents = contentService.findByRoomId(room.getId());
-                if (CollectionUtils.isEmpty(contents)){
-                    continue;
-                }
-                Map<Long , Content> acctContent = Maps.newHashMap();
-                for (Content content : contents){
-                    acctContent.put(content.getAcctId() , content);
-                }
-
-                for (Long acctId : acctContent.keySet()){
-                    Content content = acctContent.get(acctId);
-                   Object contentStr =  getContent(content.getContent(),acctId ,room);
-                    TextMessage respMsg = new TextMessage(JSONObject.toJSONString(Msg.success(contentStr)));
-                    webSocketMsgHandler.sendMsg2User(acctId.toString() ,respMsg);
-                }
-            }
-
-            Long waitTime = 10*1000L;
-            if (roomNum > 5){
-                waitTime = 5000L;
-            }
-
-            Thread.sleep(waitTime);
-
-        }
     }
 
 

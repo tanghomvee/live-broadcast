@@ -61,6 +61,7 @@ public class WebSocketMsgHandler extends TextWebSocketHandler {
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+        super.afterConnectionEstablished(session);
         LOGGER.info("连接建立后处理方法");
         Map<String , Object> attrs = session.getAttributes();
         if(CollectionUtils.isEmpty(attrs)){
@@ -72,8 +73,14 @@ public class WebSocketMsgHandler extends TextWebSocketHandler {
             LOGGER.error("连接成功获取账号信息不存在");
             return;
         }
+        Room room = (Room) attrs.get(SessionKey.ROOM);
+        if(room == null){
+            LOGGER.error("连接成功直播间信息不存在");
+            session.sendMessage();
+            return;
+        }
+
         users.put(account.getId().toString() , session);
-        super.afterConnectionEstablished(session);
     }
 
 

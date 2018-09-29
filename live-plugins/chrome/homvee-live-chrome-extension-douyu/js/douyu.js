@@ -104,7 +104,7 @@ function initWebSocket(acctName , roomUrl) {
                     }
                     },60000);
             }else if(data["operate"] == "chat"){
-                chat(data);
+                chat(data.data);
             }
         }
         console.info(msg+"\n");

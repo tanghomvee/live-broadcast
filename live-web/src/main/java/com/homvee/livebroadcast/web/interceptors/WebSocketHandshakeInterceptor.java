@@ -50,11 +50,11 @@ public class WebSocketHandshakeInterceptor extends HttpSessionHandshakeIntercept
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
 
 
-        if ((request instanceof  ServletServerHttpRequest)){
+        if (!(request instanceof  ServletServerHttpRequest)){
             return super.beforeHandshake(request, response, wsHandler, attributes);
         }
         ServletServerHttpRequest req = (ServletServerHttpRequest) request;
-        HttpSession session = req.getServletRequest().getSession(false);
+        HttpSession session = req.getServletRequest().getSession(true);
         if (session == null) {
             return super.beforeHandshake(request, response, wsHandler, attributes);
         }
@@ -70,13 +70,20 @@ public class WebSocketHandshakeInterceptor extends HttpSessionHandshakeIntercept
             return false;
         }
 
+        String roomUrl = req.getServletRequest().getParameter("roomUrl");
+        if (Strings.isNullOrEmpty(roomUrl)) {
+            LOGGER.error("房间地址错误");
+            return false;
+        }
+
         String authKey = req.getServletRequest().getParameter("authKey");
         if (Strings.isNullOrEmpty(authKey)) {
             LOGGER.error("授权错误");
             return false;
         }
 
-        LOGGER.info("握手完成前:acctName={},authKey={}" , acctName ,authKey);
+        LOGGER.info("握手完成前:acctName={},roomUrl={},authKey={}" , acctName ,roomUrl,authKey);
+
 
         acctName = acctName.trim();
         User user = userService.findByAuthKey(authKey);
@@ -90,8 +97,16 @@ public class WebSocketHandshakeInterceptor extends HttpSessionHandshakeIntercept
             LOGGER.error("账户不存在:acctName={}" , acctName);
             return false;
         }
+
+        List<Room> rooms = roomService.findByUrlAndUserId(roomUrl , user.getId());
+        if(CollectionUtils.isEmpty(rooms) || rooms.size() != 1){
+            LOGGER.error("用户不存在此房间:roomUrl={},userId={}" , roomUrl , user.getId());
+            return false;
+        }
+
         account = accounts.get(0);
         attributes.put(SessionKey.USER , account);
+        attributes.put(SessionKey.ROOM , rooms.get(0));
         return super.beforeHandshake(request, response, wsHandler, attributes);
     }
 

@@ -133,7 +133,7 @@ public class RoomOnlineCheckTask implements LiveBroadcastTask {
     }
 
     private boolean isOnline(String url){
-
+        System.out.println();
         WebClient webClient = buildWebClient();
         //获取网页
         HtmlPage htmlPage = null;

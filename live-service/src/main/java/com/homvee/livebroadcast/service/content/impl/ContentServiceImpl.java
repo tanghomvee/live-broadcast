@@ -184,7 +184,8 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
         //判断账号在此房间30分钟之内不能发送相同的弹幕
         String contentKey = "";
         if (!StringUtils.isEmpty(txt)){
-            contentKey = acctKey + SeparatorEnum.MIDDLE_LINE.getVal() + roomId + SeparatorEnum.UNDERLINE.getVal() + txt;
+            //contentKey = acctKey + SeparatorEnum.MIDDLE_LINE.getVal() + roomId + SeparatorEnum.UNDERLINE.getVal() + txt;
+            contentKey = acctKey  + SeparatorEnum.UNDERLINE.getVal() + txt;
             if (!redisComponent.setStrNx(contentKey , fiveMinutes * 12)){
                 txt = null;
             }
@@ -206,7 +207,8 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
                     }
                 }
             }
-            contentKey = acctKey + SeparatorEnum.MIDDLE_LINE.getVal() + roomId + SeparatorEnum.UNDERLINE.getVal() + txt;
+            //contentKey = acctKey + SeparatorEnum.MIDDLE_LINE.getVal() + roomId + SeparatorEnum.UNDERLINE.getVal() + txt;
+            contentKey = acctKey + SeparatorEnum.UNDERLINE.getVal() + txt;
             if (!redisComponent.setStrNx(contentKey , fiveMinutes * 12)){
                 txt = null;
             }

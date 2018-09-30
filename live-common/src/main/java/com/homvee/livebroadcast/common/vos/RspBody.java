@@ -28,6 +28,9 @@ public class RspBody implements Serializable {
     public static  RspBody initRoomCheckBody(String content){
         return  new RspBody(OperatorEnum.ROOM_CHECK.getVal() , content);
     }
+    public static  RspBody initHeartbeatCheckBody(){
+        return  new RspBody(OperatorEnum.HEART_CHECK.getVal() , null);
+    }
 
     private RspBody(String operate, Object content) {
         this.operate = operate;
@@ -48,5 +51,13 @@ public class RspBody implements Serializable {
 
     public void setContent(Object content) {
         this.content = content;
+    }
+
+    @Override
+    public String toString() {
+        return "RspBody{" +
+                "operate='" + operate + '\'' +
+                ", content=" + content +
+                '}';
     }
 }

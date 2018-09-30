@@ -57,4 +57,14 @@ public class User  extends BaseEntity {
     public void setMobile(String mobile) {
         this.mobile = mobile;
     }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "userName='" + userName + '\'' +
+                ", pwd='" + pwd + '\'' +
+                ", authKey='" + authKey + '\'' +
+                ", mobile='" + mobile + '\'' +
+                '}';
+    }
 }

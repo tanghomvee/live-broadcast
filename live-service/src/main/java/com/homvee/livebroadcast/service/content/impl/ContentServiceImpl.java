@@ -16,11 +16,9 @@ import com.homvee.livebroadcast.dao.content.ContentDao;
 import com.homvee.livebroadcast.dao.content.model.Content;
 import com.homvee.livebroadcast.dao.room.model.Room;
 import com.homvee.livebroadcast.service.BaseServiceImpl;
-import com.homvee.livebroadcast.service.acct.AccountService;
 import com.homvee.livebroadcast.service.catg.CategoryService;
 import com.homvee.livebroadcast.service.content.ContentService;
 import com.homvee.livebroadcast.service.room.RoomService;
-import com.homvee.livebroadcast.service.user.UserService;
 import org.apache.commons.lang3.ArrayUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -45,14 +43,9 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
     @Resource
     private ContentDao contentDao;
     @Resource
-    private AccountService accountService;
-    @Resource
     private CategoryService categoryService;
     @Resource
     private RoomService roomService;
-    @Resource
-    private UserService userService;
-
     @Resource
     private RedisComponent redisComponent;
 

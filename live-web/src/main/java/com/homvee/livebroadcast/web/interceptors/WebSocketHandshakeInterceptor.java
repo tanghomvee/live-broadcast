@@ -1,10 +1,7 @@
 package com.homvee.livebroadcast.web.interceptors;
 
 import com.google.common.base.Strings;
-import com.homvee.livebroadcast.common.components.RedisComponent;
-import com.homvee.livebroadcast.common.constants.RedisKey;
 import com.homvee.livebroadcast.common.constants.SessionKey;
-import com.homvee.livebroadcast.common.enums.SeparatorEnum;
 import com.homvee.livebroadcast.dao.acct.model.Account;
 import com.homvee.livebroadcast.dao.room.model.Room;
 import com.homvee.livebroadcast.dao.user.model.User;
@@ -38,8 +35,6 @@ public class WebSocketHandshakeInterceptor extends HttpSessionHandshakeIntercept
     protected Logger LOGGER  = LoggerFactory.getLogger(this.getClass());
 
     @Resource
-    private RedisComponent redisComponent;
-    @Resource
     private RoomService roomService;
     @Resource
     private AccountService accountService;
@@ -49,19 +44,19 @@ public class WebSocketHandshakeInterceptor extends HttpSessionHandshakeIntercept
     @Override
     public boolean beforeHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Map<String, Object> attributes) throws Exception {
 
-
-        if (!(request instanceof  ServletServerHttpRequest)){
-            return super.beforeHandshake(request, response, wsHandler, attributes);
+        if (!super.beforeHandshake(request, response, wsHandler, attributes)){
+            return false;
         }
         ServletServerHttpRequest req = (ServletServerHttpRequest) request;
-        HttpSession session = req.getServletRequest().getSession(true);
+        HttpSession session = req.getServletRequest().getSession();
         if (session == null) {
-            return super.beforeHandshake(request, response, wsHandler, attributes);
+            LOGGER.error("请求对应的会话不存在:uri={},params={}" , req.getURI() , req.getServletRequest().getQueryString());
+            return false;
         }
 
-        Account account = (Account) session.getAttribute(SessionKey.USER);
+        Account account = (Account) session.getAttribute(SessionKey.ACCOUNT);
         if (account != null){
-            return super.beforeHandshake(request, response, wsHandler, attributes);
+            return true;
         }
 
         String acctName = req.getServletRequest().getParameter("acctName");
@@ -100,20 +95,20 @@ public class WebSocketHandshakeInterceptor extends HttpSessionHandshakeIntercept
 
         List<Room> rooms = roomService.findByUrlAndUserId(roomUrl , user.getId());
         if(CollectionUtils.isEmpty(rooms) || rooms.size() != 1){
-            LOGGER.error("用户不存在此房间:roomUrl={},userId={}" , roomUrl , user.getId());
-            return false;
+            LOGGER.warn("用户不存在此房间:roomUrl={},userId={}" , roomUrl , user.getId());
+        }else{
+            attributes.put(SessionKey.ROOM , rooms.get(0));
         }
-
         account = accounts.get(0);
         attributes.put(SessionKey.USER , user);
         attributes.put(SessionKey.ACCOUNT , account);
-        attributes.put(SessionKey.ROOM , rooms.get(0));
-        return super.beforeHandshake(request, response, wsHandler, attributes);
+        return true;
     }
 
     @Override
     public void afterHandshake(ServerHttpRequest request, ServerHttpResponse response, WebSocketHandler wsHandler, Exception ex) {
-        LOGGER.info("创建握手后...");
+        ServletServerHttpRequest serverRequest = (ServletServerHttpRequest) request;
+        LOGGER.info("与账号房间握手:acctName={},roomUrl={}" , serverRequest.getServletRequest().getParameter("acctName") , serverRequest.getServletRequest().getParameter("roomUrl"));
         super.afterHandshake(request, response, wsHandler, ex);
     }
 }

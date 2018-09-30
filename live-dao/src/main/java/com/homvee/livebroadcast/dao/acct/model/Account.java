@@ -56,4 +56,14 @@ public class Account extends BaseEntity {
     public void setPeriod(Integer period) {
         this.period = period;
     }
+
+    @Override
+    public String toString() {
+        return "Account{" +
+                "acctName='" + acctName + '\'' +
+                ", mobile='" + mobile + '\'' +
+                ", userId=" + userId +
+                ", period=" + period +
+                '}';
+    }
 }

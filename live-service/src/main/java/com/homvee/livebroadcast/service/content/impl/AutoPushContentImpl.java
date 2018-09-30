@@ -16,6 +16,8 @@ import com.homvee.livebroadcast.service.content.ContentService;
 import com.homvee.livebroadcast.service.room.RoomService;
 import com.homvee.livebroadcast.service.websocket.WebSocketMsgHandler;
 import org.apache.commons.lang3.ArrayUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -38,7 +40,7 @@ import java.util.Set;
  */
 @Component
 public class AutoPushContentImpl  implements AutoPushContent,InitializingBean {
-
+    protected Logger LOGGER = LoggerFactory.getLogger(this.getClass());
     @Resource
     private ContentService contentService;
     @Resource
@@ -66,7 +68,7 @@ public class AutoPushContentImpl  implements AutoPushContent,InitializingBean {
     };
 
     private String[] separators =  new String[]{"㊣","🐉","💗","🐮","❀","👑","🌹","👍","👌","✏","🦐","🧜‍","🐱","🚩","🎸","🖖","👄","🐰","🎈","🎉","🎁","🔥","☀","🎵","🎶","🎼","🔫"};
-    private String[] punctuations =  new String[]{".","..","...","!","!!","^_^","♡",".。","o_o","*","㉨","⊙","🎤","🎙","҉","……"};
+    private String[] punctuations =  new String[]{".","。","!","!!","^_^","♡",".。","o_o","*","㉨","⊙","🎤","🎙","҉","……"};
 
 
     @Override
@@ -78,47 +80,44 @@ public class AutoPushContentImpl  implements AutoPushContent,InitializingBean {
                 while (true){
                     List<Room> rooms =  roomService.findByWay(WayEnum.AUTO.getVal());
                     if (CollectionUtils.isEmpty(rooms)){
+                        LOGGER.warn("未配置自动聊天房间" );
                         continue;
                     }
 
                     int roomNum = rooms.size();
+                    Long waitTime = 10*1000L;
+                    if (roomNum > 5){
+                        waitTime = 5000L;
+                    }
                     for (Room room : rooms){
 
                         List<Content> contents = contentService.findByRoomId(room.getId());
                         if (CollectionUtils.isEmpty(contents)){
+                            LOGGER.warn("房间未配置聊天机器人账号:room={}" , room.getRoomName());
                             continue;
                         }
                         Map<Long , Content> acctContent = Maps.newHashMap();
                         for (Content content : contents){
                             acctContent.put(content.getAcctId() , content);
                         }
-
-                        for (Long acctId : acctContent.keySet()){
-                            Content content = acctContent.get(acctId);
-                            String contentStr =  getContent(content.getContent(),acctId ,room);
-                            RspBody rspBody = RspBody.initChatBody(contentStr);
-                            TextMessage respMsg = new TextMessage(JSONObject.toJSONString(Msg.success(rspBody)));
-                            String acctRoomKey = acctId.toString() + SeparatorEnum.UNDERLINE.getVal() + room.getId();
-                            webSocketMsgHandler.sendMsg2User(acctRoomKey ,respMsg);
+                        try {
+                            for (Long acctId : acctContent.keySet()){
+                                Content content = acctContent.get(acctId);
+                                String contentStr =  getContent(content.getContent(),acctId ,room);
+                                RspBody rspBody = RspBody.initChatBody(contentStr);
+                                TextMessage respMsg = new TextMessage(JSONObject.toJSONString(Msg.success(rspBody)));
+                                String acctRoomKey = acctId.toString() + SeparatorEnum.UNDERLINE.getVal() + room.getId();
+                                webSocketMsgHandler.sendMsg2User(acctRoomKey ,respMsg);
+                            }
+                            Thread.sleep(waitTime);
+                        } catch (Exception e) {
+                            LOGGER.error("向房间推送聊天内容异常:room={}" , room.getRoomName(), e);
                         }
                     }
-
-                    Long waitTime = 10*1000L;
-                    if (roomNum > 5){
-                        waitTime = 5000L;
-                    }
-
-                    try {
-                        Thread.sleep(waitTime);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                    }
-
                 }
             }
         });
         thread.start();
-
     }
 
 
@@ -147,7 +146,7 @@ public class AutoPushContentImpl  implements AutoPushContent,InitializingBean {
                 }
             }
             contentKey = acctKey +  SeparatorEnum.UNDERLINE.getVal() + txt;
-            if (!redisComponent.setStrNx(contentKey , fiveMinutes * 12)){
+            if (!redisComponent.setStrNx(contentKey , fiveMinutes * 6)){
                 txt = null;
             }
         }

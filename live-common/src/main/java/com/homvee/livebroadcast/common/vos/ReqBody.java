@@ -18,11 +18,14 @@ public class ReqBody implements Serializable {
     private CheckRoom checkRoom;
 
 
-   public class CheckSMS implements Serializable{
+   public static class CheckSMS implements Serializable{
         private String content;
         private String toPhone;
 
-        public String getContent() {
+       public CheckSMS() {
+       }
+
+       public String getContent() {
             return content;
         }
 
@@ -37,10 +40,21 @@ public class ReqBody implements Serializable {
         public void setToPhone(String toPhone) {
             this.toPhone = toPhone;
         }
-    }
 
-    public class CheckRoom implements Serializable{
+       @Override
+       public String toString() {
+           return "CheckSMS{" +
+                   "content='" + content + '\'' +
+                   ", toPhone='" + toPhone + '\'' +
+                   '}';
+       }
+   }
+
+    public static class CheckRoom implements Serializable{
         private String roomUrl;
+
+        public CheckRoom() {
+        }
 
         public String getRoomUrl() {
             return roomUrl;
@@ -48,6 +62,13 @@ public class ReqBody implements Serializable {
 
         public void setRoomUrl(String roomUrl) {
             this.roomUrl = roomUrl;
+        }
+
+        @Override
+        public String toString() {
+            return "CheckRoom{" +
+                    "roomUrl='" + roomUrl + '\'' +
+                    '}';
         }
     }
 
@@ -82,5 +103,15 @@ public class ReqBody implements Serializable {
 
     public void setCheckRoom(CheckRoom checkRoom) {
         this.checkRoom = checkRoom;
+    }
+
+    @Override
+    public String toString() {
+        return "ReqBody{" +
+                "operate='" + operate + '\'' +
+                ", acctName='" + acctName + '\'' +
+                ", checkSMS=" + checkSMS +
+                ", checkRoom=" + checkRoom +
+                '}';
     }
 }

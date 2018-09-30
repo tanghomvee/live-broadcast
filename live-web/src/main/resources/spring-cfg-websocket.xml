@@ -7,17 +7,22 @@
 	   default-autowire="byName">
 
 	<!-- websocket处理类 -->
+	<bean id="socketHandshakeInterceptor" class="com.homvee.livebroadcast.web.interceptors.WebSocketHandshakeInterceptor">
+		<property name="createSession" value="true"/>
+		<property name="copyAllAttributes" value="true"/>
+	</bean>
+
 	<websocket:handlers allowed-origins="*">
 		<websocket:mapping handler="socketMsgHandler" path="/msg/socketServer/**"/>
 		<websocket:handshake-interceptors>
-			<bean class="com.homvee.livebroadcast.web.interceptors.WebSocketHandshakeInterceptor"/>
+			<ref bean="socketHandshakeInterceptor"/>
 		</websocket:handshake-interceptors>
 	</websocket:handlers>
 	<!--  注册 sockJS -->
 	<websocket:handlers  allowed-origins="*">
 		<websocket:mapping path="/msg/socketClient/**" handler="socketMsgHandler"/>
 		<websocket:handshake-interceptors>
-			<bean class="com.homvee.livebroadcast.web.interceptors.WebSocketHandshakeInterceptor"/>
+			<ref bean="socketHandshakeInterceptor"/>
 		</websocket:handshake-interceptors>
 		<websocket:sockjs/>
 	</websocket:handlers>

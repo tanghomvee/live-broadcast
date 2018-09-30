@@ -126,4 +126,19 @@ public class Room extends BaseEntity {
     public void setDefaultContent(String defaultContent) {
         this.defaultContent = defaultContent;
     }
+
+    @Override
+    public String toString() {
+        return "Room{" +
+                "roomName='" + roomName + '\'' +
+                ", url='" + url + '\'' +
+                ", userId=" + userId +
+                ", way=" + way +
+                ", mobile='" + mobile + '\'' +
+                ", startHour=" + startHour +
+                ", endHour=" + endHour +
+                ", intervalTime=" + intervalTime +
+                ", defaultContent='" + defaultContent + '\'' +
+                '}';
+    }
 }

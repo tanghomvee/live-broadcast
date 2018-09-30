@@ -105,7 +105,8 @@ public class WebSocketHandshakeInterceptor extends HttpSessionHandshakeIntercept
         }
 
         account = accounts.get(0);
-        attributes.put(SessionKey.USER , account);
+        attributes.put(SessionKey.USER , user);
+        attributes.put(SessionKey.ACCOUNT , account);
         attributes.put(SessionKey.ROOM , rooms.get(0));
         return super.beforeHandshake(request, response, wsHandler, attributes);
     }

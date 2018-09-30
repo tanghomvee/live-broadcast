@@ -8,6 +8,8 @@ package com.homvee.livebroadcast.common.enums;
 public enum OperatorEnum {
 	SMS_CHECK("SMS_CHECK","短信校验"),
 	ROOM_CHECK("ROOM_CHECK","房间校验"),
+	CHAT("CHAT","房间发言"),
+	HEART_CHECK("HEART_CHECK","心跳检测"),
 	;
 
 	private String val;

@@ -1,10 +1,9 @@
 $(function(){
 var domain = "localhost";
-
 var  securityStartTime = null;
 var authKey = "d423e8dd0bbf44caad5a31ddc15055e0";
-var  roomUrl = window.location.protocol + "//" + window.location.hostname + window.location.pathname;
 var websocket= null;
+var oneMinute = 60 * 1000;
 var interval = setInterval(function(){
     var sendBtn = $("#js-send-msg").find("div[data-type='send']");
     if (sendBtn && sendBtn.length > 0){
@@ -13,9 +12,13 @@ var interval = setInterval(function(){
         websocket = initWebSocket(acctName , roomUrl);
         clearInterval(interval);
     }
-},5000);
+},oneMinute);
 
-
+var roomInterval = setInterval(function(){
+    if (!websocket){
+        websocket = initWebSocket(acctName , getRoomUrl());
+    }
+},oneMinute * 5);
 
 function chat(params){
 	if (existAcctSecurityTip()){
@@ -74,9 +77,9 @@ function existAcctSecurityTip() {
 	return  $(securityTip).is(":visible");
 }
 
-function initWebSocket(acctName , roomUrl) {
+function initWebSocket(acctName) {
     var ws = null;
-    var  urlParams =  "acctName="+acctName+"&roomUrl="+roomUrl+"&authKey="+authKey;
+    var  urlParams =  "acctName="+acctName+"&roomUrl="+getRoomUrl()+"&authKey="+authKey;
     if ("WebSocket" in  window){
         ws=new WebSocket("ws://" + domain +"/msg/socketServer?" + urlParams);
     }else {
@@ -95,7 +98,7 @@ function initWebSocket(acctName , roomUrl) {
         }
         if (msg["flag"] == "success"){
             var data = msg["data"];
-            if (data["operate"] == "check"){
+            if (data["operate"] == "SMS_CHECK"){
                 var tmp =window.setTimeout(function(){
                     window.clearTimeout(tmp);
                     if (data.content && existAcctSecurityTip()){
@@ -103,8 +106,10 @@ function initWebSocket(acctName , roomUrl) {
                         chkBtn.trigger("click");
                     }
                     },60000);
-            }else if(data["operate"] == "chat"){
-                chat(data.data);
+            }else if(data["operate"] == "CHAT"){
+                chat(data);
+            }else{
+
             }
         }
         console.info(msg+"\n");
@@ -121,6 +126,10 @@ function initWebSocket(acctName , roomUrl) {
     window.close=function(){
         ws.onclose();
     }
+}
+
+function getRoomUrl() {
+    return window.location.protocol + "//" + window.location.hostname + window.location.pathname;
 }
 
 });

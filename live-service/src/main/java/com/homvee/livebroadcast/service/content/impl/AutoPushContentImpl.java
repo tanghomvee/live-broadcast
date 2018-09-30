@@ -8,6 +8,7 @@ import com.homvee.livebroadcast.common.constants.RedisKey;
 import com.homvee.livebroadcast.common.enums.SeparatorEnum;
 import com.homvee.livebroadcast.common.enums.WayEnum;
 import com.homvee.livebroadcast.common.vos.Msg;
+import com.homvee.livebroadcast.common.vos.RspBody;
 import com.homvee.livebroadcast.dao.content.model.Content;
 import com.homvee.livebroadcast.dao.room.model.Room;
 import com.homvee.livebroadcast.service.content.AutoPushContent;
@@ -94,12 +95,11 @@ public class AutoPushContentImpl  implements AutoPushContent,InitializingBean {
 
                         for (Long acctId : acctContent.keySet()){
                             Content content = acctContent.get(acctId);
-                            Object contentStr =  getContent(content.getContent(),acctId ,room);
-                            JSONObject json = new JSONObject();
-                            json.put("operate" , "chat");
-                            json.put("content" , contentStr);
-                            TextMessage respMsg = new TextMessage(JSONObject.toJSONString(Msg.success(json)));
-                            webSocketMsgHandler.sendMsg2User(acctId.toString() ,respMsg);
+                            String contentStr =  getContent(content.getContent(),acctId ,room);
+                            RspBody rspBody = RspBody.initChatBody(contentStr);
+                            TextMessage respMsg = new TextMessage(JSONObject.toJSONString(Msg.success(rspBody)));
+                            String acctRoomKey = acctId.toString() + SeparatorEnum.UNDERLINE.getVal() + room.getId();
+                            webSocketMsgHandler.sendMsg2User(acctRoomKey ,respMsg);
                         }
                     }
 
@@ -126,10 +126,9 @@ public class AutoPushContentImpl  implements AutoPushContent,InitializingBean {
         String contentKey = "" , acctKey =  RedisKey.ACCOUNT + SeparatorEnum.MIDDLE_LINE.getVal() + acctId ;
         Long fiveMinutes = 300L;
         Integer maxCnt = 50;
-        Long roomId = room.getId();
         if (!StringUtils.isEmpty(txt)){
-            contentKey = acctKey + SeparatorEnum.MIDDLE_LINE.getVal() + roomId + SeparatorEnum.UNDERLINE.getVal() + txt;
-            if (!redisComponent.setStrNx(contentKey , fiveMinutes * 6)){
+            contentKey = acctKey  + SeparatorEnum.UNDERLINE.getVal() + txt;
+            if (!redisComponent.setStrNx(contentKey , fiveMinutes * 12)){
                 txt = null;
             }
         }
@@ -147,8 +146,8 @@ public class AutoPushContentImpl  implements AutoPushContent,InitializingBean {
                     txt = txt + getRandomEmotion(cnt);
                 }
             }
-            contentKey = acctKey + SeparatorEnum.MIDDLE_LINE.getVal() + roomId + SeparatorEnum.UNDERLINE.getVal() + txt;
-            if (!redisComponent.setStrNx(contentKey , fiveMinutes * 6)){
+            contentKey = acctKey +  SeparatorEnum.UNDERLINE.getVal() + txt;
+            if (!redisComponent.setStrNx(contentKey , fiveMinutes * 12)){
                 txt = null;
             }
         }

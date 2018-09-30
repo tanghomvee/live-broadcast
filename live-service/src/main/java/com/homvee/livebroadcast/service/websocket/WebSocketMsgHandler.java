@@ -9,11 +9,13 @@ import com.homvee.livebroadcast.common.enums.OperatorEnum;
 import com.homvee.livebroadcast.common.enums.SeparatorEnum;
 import com.homvee.livebroadcast.common.vos.Msg;
 import com.homvee.livebroadcast.common.vos.ReqBody;
+import com.homvee.livebroadcast.common.vos.RspBody;
 import com.homvee.livebroadcast.dao.acct.model.Account;
 import com.homvee.livebroadcast.dao.room.model.Room;
 import com.homvee.livebroadcast.dao.sms.model.PortInfo;
 import com.homvee.livebroadcast.dao.sms.model.SendingSMS;
 import com.homvee.livebroadcast.service.acct.AccountService;
+import com.homvee.livebroadcast.service.content.ContentService;
 import com.homvee.livebroadcast.service.room.RoomService;
 import com.homvee.livebroadcast.service.sms.PortInfoService;
 import com.homvee.livebroadcast.service.sms.SendingSMSService;
@@ -28,6 +30,7 @@ import org.springframework.web.socket.WebSocketSession;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
 import javax.annotation.Resource;
+import java.math.BigInteger;
 import java.util.List;
 import java.util.Map;
 
@@ -44,7 +47,7 @@ public class WebSocketMsgHandler extends TextWebSocketHandler {
 
     protected Logger LOGGER  = LoggerFactory.getLogger(this.getClass());
 
-    private Map<String , WebSocketSession> users = Maps.newConcurrentMap();
+    private Map<String , WebSocketSession> sessions = Maps.newConcurrentMap();
 
     @Resource
     private AccountService accountService;
@@ -57,30 +60,24 @@ public class WebSocketMsgHandler extends TextWebSocketHandler {
     private RoomService roomService;
     @Resource
     private RedisComponent redisComponent;
-
+    @Resource
+    private ContentService contentService;
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
         super.afterConnectionEstablished(session);
         LOGGER.info("连接建立后处理方法");
-        Map<String , Object> attrs = session.getAttributes();
-        if(CollectionUtils.isEmpty(attrs)){
-            LOGGER.error("连接成功获取账号信息失败");
+        Msg msg = getAcctRoomKey(session);
+        if (!msg.isSuccess()){
             return;
         }
-        Account account = (Account) attrs.get(SessionKey.USER);
-        if(account == null){
-            LOGGER.error("连接成功获取账号信息不存在");
+        String acctRoomKey = (String) msg.getData();
+        if (StringUtils.isEmpty(acctRoomKey)){
+            //TODO 暂时考虑 通知会话切换房间
             return;
         }
-        Room room = (Room) attrs.get(SessionKey.ROOM);
-        if(room == null){
-            LOGGER.error("连接成功直播间信息不存在");
-            session.sendMessage();
-            return;
-        }
-
-        users.put(account.getId().toString() , session);
+        sessions.put(acctRoomKey , session);
+        LOGGER.info("添加账户房间会话:{}" ,acctRoomKey);
     }
 
 
@@ -144,6 +141,16 @@ public class WebSocketMsgHandler extends TextWebSocketHandler {
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         LOGGER.info("连接关闭后处理方法");
         super.afterConnectionClosed(session, status);
+        Msg msg = getAcctRoomKey(session);
+        if (!msg.isSuccess()){
+            return;
+        }
+        String acctRoomKey = (String) msg.getData();
+        if (StringUtils.isEmpty(acctRoomKey)){
+            return;
+        }
+        sessions.remove(acctRoomKey);
+        LOGGER.info("移除账户房间会话:{}" ,acctRoomKey);
     }
 
 
@@ -154,10 +161,11 @@ public class WebSocketMsgHandler extends TextWebSocketHandler {
      * @param message
      */
     public void sendMsg2User(String acctRoomKey, TextMessage message) {
-        WebSocketSession user = users.get(acctRoomKey);
+        WebSocketSession user = sessions.get(acctRoomKey);
         try {
             if (user == null || !user.isOpen()) {
                 LOGGER.info("房间已经断开:{}" , acctRoomKey);
+                sessions.remove(acctRoomKey);
                 return;
             }
             user.sendMessage(message);
@@ -186,10 +194,8 @@ public class WebSocketMsgHandler extends TextWebSocketHandler {
         sendingSMS.setSmsNumber(toPhone);
         sendingSMS.setSmsType(0);
         sendingSMS = sendingSMSService.save(sendingSMS, 30 * 60L);
-
-        JSONObject retData = new JSONObject();
-        retData.put(OperatorEnum.SMS_CHECK.getVal() , true);
-        return Msg.success(retData);
+        RspBody rspBody = RspBody.initSMSCheckBody(true);
+        return Msg.success(rspBody);
     }
     private Msg checkRoom(String acctName,  String roomUrl , Long userId){
 
@@ -222,14 +228,36 @@ public class WebSocketMsgHandler extends TextWebSocketHandler {
                 break;
             }
         }
-
         if (StringUtils.isEmpty(retUrl)){
             return Msg.error();
         }
-
-        JSONObject retData = new JSONObject();
-        retData.put(OperatorEnum.ROOM_CHECK.getVal() , retUrl);
-        return Msg.success(retData);
+        RspBody rspBody = RspBody.initRoomCheckBody(roomUrl);
+        return Msg.success(rspBody);
     }
 
+    private Msg getAcctRoomKey(WebSocketSession session){
+        Map<String , Object> attrs = session.getAttributes();
+        if(CollectionUtils.isEmpty(attrs)){
+            LOGGER.error("连接成功获取账号信息失败");
+            return Msg.error();
+        }
+        Account account = (Account) attrs.get(SessionKey.USER);
+        if(account == null){
+            LOGGER.error("连接成功获取账号信息不存在");
+            return Msg.error();
+        }
+        Room room = (Room) attrs.get(SessionKey.ROOM);
+        if(room == null){
+            LOGGER.error("连接成功直播间信息不存在");
+            return Msg.error();
+        }
+        //判断房间和账户是否对应
+        List<BigInteger> accts = contentService.findAcctByRoomId(room.getId());
+        Object acctRoomKey = null;
+        if(!CollectionUtils.isEmpty(accts) && accts.contains(BigInteger.valueOf(account.getId()))){
+            acctRoomKey = account.getId().toString() + SeparatorEnum.UNDERLINE.getVal() + room.getId();
+        }
+
+        return Msg.success(acctRoomKey);
+    }
 }

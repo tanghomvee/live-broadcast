@@ -1,12 +1,12 @@
-// /**
-// *On the receiving end, you need to set up an runtime.
-// *onMessage event listener to handle the message.
-// *This looks the same from a content script or extension page.
-// *Note:
-// *If multiple pages are listening for onMessage events,
-// *only the first to call sendResponse() for a particular event will succeed in sending the response.
-// *All other responses to that event will be ignored.
-// */
+/**
+*On the receiving end, you need to set up an runtime.
+*onMessage event listener to handle the message.
+*This looks the same from a content script or extension page.
+*Note:
+*If multiple pages are listening for onMessage events,
+*only the first to call sendResponse() for a particular event will succeed in sending the response.
+*All other responses to that event will be ignored.
+*/
 chrome.runtime.onMessage.addListener(
   function(params, sender, sendResponse) {
 

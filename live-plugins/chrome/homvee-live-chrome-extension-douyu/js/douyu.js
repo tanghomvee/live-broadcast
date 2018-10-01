@@ -9,11 +9,6 @@ var roomCheckInterval = null;
 //心跳定时器
 var heartbeatInterval = null;
 var oneMinute = 60 * 1000;
-var link = $("#" + authKey);
-if (link.length == 0){
-    link = $("<a href='' id='" + authKey +"' style='display: none'></a>");
-    $("body").append(link);
-}
 
 var interval = setInterval(function(){
     var acctName = getAcctName();
@@ -201,11 +196,6 @@ function getRoomUrl() {
     return window.location.protocol + "//" + window.location.hostname + window.location.pathname;
 }
 function getAcctName() {
-    // var sendBtn = $("#js-send-msg").find("div[data-type='send']");
-    // if (sendBtn && sendBtn.length > 0){
-    //     var nameSpan = $("#header").find("span[class='l-txt']");
-    //     return nameSpan.html();
-    // }
     var nameSpan = $("#header").find("span[class='l-txt']");
     var acctName = nameSpan.is(":visible") ? nameSpan.html() : "";
     if (!acctName){
@@ -215,8 +205,9 @@ function getAcctName() {
 }
 
 function refresh(url) {
-    link.attr("href", url+ "?r=" + new Date().getTime());
-    document.getElementById(authKey).click();
+    chrome.runtime.sendMessage({"url":url}, function(response) {
+        console.log("bg resp " + response);
+    });
 }
 
 });

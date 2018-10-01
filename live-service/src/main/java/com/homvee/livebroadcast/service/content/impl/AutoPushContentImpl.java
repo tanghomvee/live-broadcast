@@ -100,6 +100,7 @@ public class AutoPushContentImpl  implements AutoPushContent,InitializingBean {
                         for (Content content : contents){
                             acctContent.put(content.getAcctId() , content);
                         }
+                        Long startTime = System.currentTimeMillis();
                         try {
                             for (Long acctId : acctContent.keySet()){
                                 Content content = acctContent.get(acctId);
@@ -109,7 +110,13 @@ public class AutoPushContentImpl  implements AutoPushContent,InitializingBean {
                                 String acctRoomKey = acctId.toString() + SeparatorEnum.UNDERLINE.getVal() + room.getId();
                                 webSocketMsgHandler.sendMsg2User(acctRoomKey ,respMsg);
                             }
-                            Thread.sleep(waitTime);
+                            Long usedTime = System.currentTimeMillis() - startTime;
+                            LOGGER.info("直播间发言耗时:room={},time={}" , room.getRoomName() , usedTime);
+                            if (waitTime - usedTime > 0){
+                                LOGGER.info("直播间发言结束进入休眠开始:room={},time={}" , room.getRoomName() ,waitTime - usedTime);
+                                Thread.sleep(waitTime - usedTime);
+                                LOGGER.info("直播间发言结束进入休眠结束:room={},time={}" , room.getRoomName() ,waitTime - usedTime);
+                            }
                         } catch (Exception e) {
                             LOGGER.error("向房间推送聊天内容异常:room={}" , room.getRoomName(), e);
                         }

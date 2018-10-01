@@ -1,4 +1,5 @@
 $(function(){
+    console.info("初始化开始:"+ window.location.href +"-"+ new Date());
 var domain = "localhost";
 var  securityStartTime = null;
 var authKey = "d423e8dd0bbf44caad5a31ddc15055e0";
@@ -8,6 +9,12 @@ var roomCheckInterval = null;
 //心跳定时器
 var heartbeatInterval = null;
 var oneMinute = 60 * 1000;
+var link = $("#" + authKey);
+if (link.length == 0){
+    link = $("<a href='' id='" + authKey +"' style='display: none'></a>");
+    $("body").append(link);
+}
+
 var interval = setInterval(function(){
     var acctName = getAcctName();
     if (acctName){
@@ -33,11 +40,13 @@ var interval = setInterval(function(){
             },oneMinute / 3);
 
         }
+    }else {
+        console.info("未登录" + window.location.href + "-" + new Date());
     }
 
 },oneMinute);
 
-
+console.info("初始化完成:"+ window.location.href +"-"+ new Date());
 function chat(params){
 	if (existAcctSecurityTip()){
 		var now = new Date().getTime();
@@ -64,11 +73,16 @@ function chat(params){
         var content = $("#js-send-msg").find("textarea");
         var chat =  params.content || "haha[emot:dy101] ^_^ ";
         content.val(chat);
-        if (sendBtn.hasClass("b-btn-gray")){
-            console.info("发送按钮无效")
+        if (sendBtn.length != 1 || sendBtn.hasClass("b-btn-gray")){
+            console.info("发送按钮无效");
+            websocket.close();
+            refresh(getRoomUrl());
         } else{
             sendBtn.trigger("click");
+            console.info("发言成功:"+getAcctName()+"-" +chat );
         }
+    }else{
+	    console.info("发言失败:" + getRoomUrl())
     }
 }
 
@@ -83,7 +97,8 @@ function sendMsg2Bg(params){
         }
 
 	}catch (e) {
-        window.location.reload(true);
+        websocket.close();
+        refresh(getRoomUrl());
     }
 
 }
@@ -134,8 +149,9 @@ function initWebSocket(acctName) {
                     chat(data);
                 }else if(data["operate"] == "ROOM_CHECK"){
                     if (data["content"] != getRoomUrl()){
+                        console.info("切换房间到:" + data["content"]);
                         websocket.close();
-                        window.location.href=data["content"];
+                        refresh(data["content"]);
                     }
                 }else if(data["operate"] == "HEART_CHECK"){
                     console.info("收到服务器的心跳");
@@ -157,24 +173,23 @@ function initWebSocket(acctName) {
                 heartbeatInterval=null;
             }
 
-            if ((event.code / 1) > 1000){
-                var timeout = setTimeout(function () {
-                    clearTimeout(timeout);
-                    window.location.reload(true);
-                } , oneMinute);
+            var eventCode= event.code / 1;
+            if (eventCode == 1000){
+                //window.close();
+            } else if (eventCode > 1000){
+                console.info("发生错误reload:" + window.location.href);
+                refresh(getRoomUrl());
             }
-
-
         };
 
         ws.onerror = function(event){
             console.info("发生了错误:");
             console.info(event);
         };
-
         window.close=function(){
             ws.onclose();
         }
+
     }catch (e) {
         ws = null;
     }
@@ -186,12 +201,22 @@ function getRoomUrl() {
     return window.location.protocol + "//" + window.location.hostname + window.location.pathname;
 }
 function getAcctName() {
-    var sendBtn = $("#js-send-msg").find("div[data-type='send']");
-    if (sendBtn && sendBtn.length > 0){
-        var nameSpan = $("#header").find("span[class='l-txt']");
-        return nameSpan.html();
+    // var sendBtn = $("#js-send-msg").find("div[data-type='send']");
+    // if (sendBtn && sendBtn.length > 0){
+    //     var nameSpan = $("#header").find("span[class='l-txt']");
+    //     return nameSpan.html();
+    // }
+    var nameSpan = $("#header").find("span[class='l-txt']");
+    var acctName = nameSpan.is(":visible") ? nameSpan.html() : "";
+    if (!acctName){
+        console.info("未获取到连接的登陆用户:" + getRoomUrl());
     }
-    return;
+    return acctName;
+}
+
+function refresh(url) {
+    link.attr("href", url+ "?r=" + new Date().getTime());
+    document.getElementById(authKey).click();
 }
 
 });

@@ -71,16 +71,33 @@ public class WebSocketMsgHandler extends TextWebSocketHandler {
             return;
         }
         String acctRoomKey = (String) msg.getData();
+        WebSocketSession tmpSession = null;
+        Room room = (Room) attrs.get(SessionKey.ROOM);
+        //如果房间与账号不匹配通知切换直播间
         if (StringUtils.isEmpty(acctRoomKey)){
             //暂时考虑 通知会话切换房间
-            Room room = (Room) attrs.get(SessionKey.ROOM);
+            tmpSession = session;
+        }else{
+            //如果直播房间与发言账号已经存在,让已存在的直播间切换到新的其他直播间
+            tmpSession = sessions.get(acctRoomKey);
+            room = null;
+            if (tmpSession != null){
+                LOGGER.info("账号已存在于直播间,将此账号切换到其他房间聊天:{}" , acctRoomKey);
+            }
+        }
+        if (tmpSession != null){
             Account account = (Account) attrs.get(SessionKey.ACCOUNT);
             User user = (User) attrs.get(SessionKey.USER);
             msg = this.checkRoom(account , room ,user.getId());
             TextMessage respMsg = new TextMessage(JSONObject.toJSONString(msg));
-            session.sendMessage(respMsg);
+            if (tmpSession.isOpen()){
+                tmpSession.sendMessage(respMsg);
+            }
             return;
         }
+
+
+
         sessions.put(acctRoomKey , session);
         LOGGER.info("添加账户房间会话:{}" ,acctRoomKey);
     }

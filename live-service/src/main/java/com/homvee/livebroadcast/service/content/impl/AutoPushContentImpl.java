@@ -153,7 +153,7 @@ public class AutoPushContentImpl  implements AutoPushContent,InitializingBean {
                 }
             }
             contentKey = acctKey +  SeparatorEnum.UNDERLINE.getVal() + txt;
-            if (!redisComponent.setStrNx(contentKey , fiveMinutes * 6)){
+            if (!redisComponent.setStrNx(contentKey , fiveMinutes * 12)){
                 txt = null;
             }
         }

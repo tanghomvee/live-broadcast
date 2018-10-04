@@ -135,6 +135,7 @@ public class AutoPushContentImpl  implements AutoPushContent,InitializingBean {
         if (!StringUtils.isEmpty(txt)){
             contentKey = acctKey  + SeparatorEnum.UNDERLINE.getVal() + txt;
             if (!redisComponent.setStrNx(contentKey , fiveMinutes * 12)){
+                LOGGER.warn("房间账号发言内容重复:room={},acctId={},content={}" , room.getRoomName() , acctId , txt);
                 txt = null;
             }
         }
@@ -154,6 +155,7 @@ public class AutoPushContentImpl  implements AutoPushContent,InitializingBean {
             }
             contentKey = acctKey +  SeparatorEnum.UNDERLINE.getVal() + txt;
             if (!redisComponent.setStrNx(contentKey , fiveMinutes * 12)){
+                LOGGER.warn("房间账号发言内容重复:room={},acctId={},content={}" , room.getRoomName() , acctId , txt);
                 txt = null;
             }
         }

@@ -78,49 +78,55 @@ public class AutoPushContentImpl  implements AutoPushContent,InitializingBean {
             @Override
             public void run() {
                 while (true){
-                    List<Room> rooms =  roomService.findByWay(WayEnum.AUTO.getVal());
-                    if (CollectionUtils.isEmpty(rooms)){
-                        LOGGER.warn("未配置自动聊天房间" );
-                        continue;
-                    }
+                    try{
 
-                    int roomNum = rooms.size();
-                    Long waitTime = 10*1000L;
-                    if (roomNum > 5){
-                        waitTime = 5000L;
-                    }
-                    for (Room room : rooms){
-
-                        List<Content> contents = contentService.findByRoomId(room.getId());
-                        if (CollectionUtils.isEmpty(contents)){
-                            LOGGER.warn("房间未配置聊天机器人账号:room={}" , room.getRoomName());
+                        List<Room> rooms =  roomService.findByWay(WayEnum.AUTO.getVal());
+                        if (CollectionUtils.isEmpty(rooms)){
+                            LOGGER.warn("未配置自动聊天房间" );
                             continue;
                         }
-                        Map<Long , Content> acctContent = Maps.newHashMap();
-                        for (Content content : contents){
-                            acctContent.put(content.getAcctId() , content);
+
+                        int roomNum = rooms.size();
+                        Long waitTime = 10*1000L;
+                        if (roomNum > 5){
+                            waitTime = 5000L;
                         }
-                        Long startTime = System.currentTimeMillis();
-                        try {
-                            for (Long acctId : acctContent.keySet()){
-                                Content content = acctContent.get(acctId);
-                                String contentStr =  getContent(content.getContent(),acctId ,room);
-                                RspBody rspBody = RspBody.initChatBody(contentStr);
-                                TextMessage respMsg = new TextMessage(JSONObject.toJSONString(Msg.success(rspBody)));
-                                String acctRoomKey = acctId.toString() + SeparatorEnum.UNDERLINE.getVal() + room.getId();
-                                webSocketMsgHandler.sendMsg2User(acctRoomKey ,respMsg);
+                        for (Room room : rooms){
+
+                            List<Content> contents = contentService.findByRoomId(room.getId());
+                            if (CollectionUtils.isEmpty(contents)){
+                                LOGGER.warn("房间未配置聊天机器人账号:room={}" , room.getRoomName());
+                                continue;
                             }
-                            Long usedTime = System.currentTimeMillis() - startTime;
-                            LOGGER.info("直播间发言耗时:room={},time={}" , room.getRoomName() , usedTime);
-                            if (waitTime - usedTime > 0){
-                                LOGGER.info("直播间发言结束进入休眠开始:room={},time={}" , room.getRoomName() ,waitTime - usedTime);
-                                Thread.sleep(waitTime - usedTime);
-                                LOGGER.info("直播间发言结束进入休眠结束:room={},time={}" , room.getRoomName() ,waitTime - usedTime);
+                            Map<Long , Content> acctContent = Maps.newHashMap();
+                            for (Content content : contents){
+                                acctContent.put(content.getAcctId() , content);
                             }
-                        } catch (Exception e) {
-                            LOGGER.error("向房间推送聊天内容异常:room={}" , room.getRoomName(), e);
+                            Long startTime = System.currentTimeMillis();
+                            try {
+                                for (Long acctId : acctContent.keySet()){
+                                    Content content = acctContent.get(acctId);
+                                    String contentStr =  getContent(content.getContent(),acctId ,room);
+                                    RspBody rspBody = RspBody.initChatBody(contentStr);
+                                    TextMessage respMsg = new TextMessage(JSONObject.toJSONString(Msg.success(rspBody)));
+                                    String acctRoomKey = acctId.toString() + SeparatorEnum.UNDERLINE.getVal() + room.getId();
+                                    webSocketMsgHandler.sendMsg2User(acctRoomKey ,respMsg);
+                                }
+                                Long usedTime = System.currentTimeMillis() - startTime;
+                                LOGGER.info("直播间发言耗时:room={},time={}" , room.getRoomName() , usedTime);
+                                if (waitTime - usedTime > 0){
+                                    LOGGER.info("直播间发言结束进入休眠开始:room={},time={}" , room.getRoomName() ,waitTime - usedTime);
+                                    Thread.sleep(waitTime - usedTime);
+                                    LOGGER.info("直播间发言结束进入休眠结束:room={},time={}" , room.getRoomName() ,waitTime - usedTime);
+                                }
+                            } catch (Exception e) {
+                                LOGGER.error("向房间推送聊天内容异常:room={}" , room.getRoomName(), e);
+                            }
                         }
+                    }catch (Exception ex){
+                        LOGGER.error("推送数据异常" , ex);
                     }
+
                 }
             }
         });
@@ -173,7 +179,7 @@ public class AutoPushContentImpl  implements AutoPushContent,InitializingBean {
         }
         num = data.length > num ? num : data.length;
         Set<String> contents = Sets.newHashSet();
-        String rs = SeparatorEnum.COMMA.getVal();
+        String rs = "";
         Random random = new Random();
         while (num > 0){
 

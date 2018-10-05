@@ -15,26 +15,6 @@ var interval = setInterval(function(){
     if (acctName){
         clearInterval(interval);
         websocket = initWebSocket(acctName);
-        if (websocket && websocket.readyState == websocket.OPEN) {
-            roomCheckInterval= setInterval(function(){
-                var acctName = getAcctName();
-                if (acctName){
-                    sendMsg2Bg({"operate": "ROOM_CHECK","acctName":acctName , "checkRoom" : {"roomUrl" : getRoomUrl()}})
-                }
-
-            },oneMinute * 30);
-
-
-            heartbeatInterval= setInterval(function(){
-                var acctName = getAcctName();
-                if (acctName){
-                    console.info("向服务器发送心跳");
-                    sendMsg2Bg({"operate": "HEART_CHECK","acctName":acctName})
-                }
-
-            },oneMinute / 3);
-
-        }
     }else {
         console.info("未登录" + window.location.href + "-" + new Date());
     }
@@ -48,7 +28,8 @@ function chat(params){
         if(!securityStartTime){
             securityStartTime = now;
         }else if((now - securityStartTime) / 1000 > 24*3600){
-            window.location.reload();
+            refresh(getRoomUrl());
+            return;
 		}
         var checkContent = "yz" , toPhoneNum= "10690329153656";
         var checkSmsContentSpan = $(".account-security").find(".account-security-text");
@@ -122,6 +103,24 @@ function initWebSocket(acctName) {
             console.info(event);
             console.info("发送测试数据..等待验证");
             ws.send(JSON.stringify({"operate": "ROOM_CHECK","acctName":acctName , "checkRoom" : {"roomUrl" : getRoomUrl()}}));
+
+            roomCheckInterval= setInterval(function(){
+                var acctName = getAcctName();
+                if (acctName){
+                    sendMsg2Bg({"operate": "ROOM_CHECK","acctName":acctName , "checkRoom" : {"roomUrl" : getRoomUrl()}})
+                }
+
+            },oneMinute * 30);
+
+
+            heartbeatInterval= setInterval(function(){
+                var acctName = getAcctName();
+                if (acctName){
+                    console.info("向服务器发送心跳");
+                    sendMsg2Bg({"operate": "HEART_CHECK","acctName":acctName})
+                }
+
+            },oneMinute / 3);
         };
         ws.onmessage=function(event){
             var msg = event.data;

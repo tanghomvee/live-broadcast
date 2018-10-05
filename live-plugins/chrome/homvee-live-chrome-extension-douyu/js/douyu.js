@@ -6,9 +6,25 @@ var authKey = "d423e8dd0bbf44caad5a31ddc15055e0";
 var websocket= null;
 //检查此房间是否在当前账号定时器
 var roomCheckInterval = null;
-//心跳定时器
-var heartbeatInterval = null;
 var oneMinute = 60 * 1000;
+//日期格式化
+Date.prototype.format = function(fmt) {
+    var o = {
+        "M+" : this.getMonth() + 1,
+        "d+" : this.getDate(),
+        "h+" : this.getHours(),
+        "m+" : this.getMinutes(),
+        "s+" : this.getSeconds(),
+        "q+" : Math.floor((this.getMonth() + 3) / 3),
+        "S" : this.getMilliseconds()
+    };
+    if (/(y+)/.test(fmt))
+        fmt = fmt.replace(RegExp.$1, (this.getFullYear() + "").substr(4 - RegExp.$1.length));
+    for (var k in o)
+        if (new RegExp("(" + k + ")").test(fmt))
+            fmt = fmt.replace(RegExp.$1, (RegExp.$1.length == 1) ? (o[k]) : (("00" + o[k]).substr(("" + o[k]).length)));
+    return fmt;
+};
 
 var interval = setInterval(function(){
     var acctName = getAcctName();
@@ -20,6 +36,41 @@ var interval = setInterval(function(){
     }
 
 },oneMinute);
+
+//心跳检测,每20s心跳一次
+var heartCheck = {
+    timeout: oneMinute / 3,
+    timeoutObj: null,
+    serverTimeoutObj: null,
+    reset: function(){
+        if (this.timeoutObj){
+            clearTimeout(this.timeoutObj);
+        }
+
+        if (this.serverTimeoutObj){
+            clearTimeout(this.serverTimeoutObj);
+        }
+        return this;
+    },
+    start: function(){
+        var self = this;
+        this.timeoutObj = setTimeout(function(){
+            //这里发送一个心跳，后端收到后，返回一个心跳消息，
+            //onmessage拿到返回的心跳就说明连接正常
+            var acctName = getAcctName();
+            if (acctName){
+                console.info("向服务器发送心跳:" + new Date().format("yyyy-MM-dd hh:mm:ss"));
+                sendMsg2Bg({"operate": "HEART_CHECK","acctName":acctName});
+                //如果超过一定时间还没重置，说明后端主动断开了
+                self.serverTimeoutObj = setTimeout(function(){
+                    //如果onclose会执行reconnect，我们执行ws.close()就行了.如果直接执行reconnect 会触发onclose导致重连两次
+                    websocket.close();
+                    refresh(getRoomUrl());
+                }, oneMinute);
+            }
+        }, self.timeout)
+    }
+};
 
 console.info("初始化完成:"+ window.location.href +"-"+ new Date());
 function chat(params){
@@ -95,7 +146,7 @@ function initWebSocket(acctName) {
         if ("WebSocket" in  window){
             ws=new WebSocket("ws://" + domain +"/msg/socketServer?" + urlParams);
         }else {
-            ws=new SockJS("ws://" + domain +"/msg/socketClient?" + urlParams)
+            ws=new SockJS("ws://" + domain +"/msg/socketClient?" + urlParams);
         }
 
         ws.onopen=function(event){
@@ -107,22 +158,17 @@ function initWebSocket(acctName) {
             roomCheckInterval= setInterval(function(){
                 var acctName = getAcctName();
                 if (acctName){
-                    sendMsg2Bg({"operate": "ROOM_CHECK","acctName":acctName , "checkRoom" : {"roomUrl" : getRoomUrl()}})
+                    sendMsg2Bg({"operate": "ROOM_CHECK","acctName":acctName , "checkRoom" : {"roomUrl" : getRoomUrl()}});
                 }
 
             },oneMinute * 30);
 
-
-            heartbeatInterval= setInterval(function(){
-                var acctName = getAcctName();
-                if (acctName){
-                    console.info("向服务器发送心跳");
-                    sendMsg2Bg({"operate": "HEART_CHECK","acctName":acctName})
-                }
-
-            },oneMinute / 3);
+            //如果获取到消息，心跳检测重置
+            heartCheck.reset().start();
         };
         ws.onmessage=function(event){
+            //如果获取到消息，心跳检测重置
+            heartCheck.reset().start();
             var msg = event.data;
             if (!msg){
                 return;
@@ -148,7 +194,7 @@ function initWebSocket(acctName) {
                         refresh(data["content"]);
                     }
                 }else if(data["operate"] == "HEART_CHECK"){
-                    console.info("收到服务器的心跳");
+                    console.info("收到服务器的心跳:" + new Date().format("yyyy-MM-dd hh:mm:ss"));
                 }
             }
         };
@@ -162,10 +208,8 @@ function initWebSocket(acctName) {
                 roomCheckInterval=null;
             }
 
-            if (heartbeatInterval){
-                clearInterval(heartbeatInterval);
-                heartbeatInterval=null;
-            }
+            //心跳检测重置
+            heartCheck.reset();
 
             var eventCode= event.code / 1;
             if (eventCode == 1000){

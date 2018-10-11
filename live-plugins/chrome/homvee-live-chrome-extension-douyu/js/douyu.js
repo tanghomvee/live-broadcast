@@ -98,6 +98,10 @@ function chat(params){
 	if (getAcctName()){
         var sendBtn = $("#js-send-msg").find("div[data-type='send']");
         var content = $("#js-send-msg").find("textarea");
+        if(!params.content){
+            console.info("聊天内容不存在!!!");
+            return;
+        }
         var chat =  params.content || "haha[emot:dy101] ^_^ ";
         content.val(chat);
         if (sendBtn.length != 1 || sendBtn.hasClass("b-btn-gray")){

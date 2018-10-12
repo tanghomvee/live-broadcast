@@ -79,4 +79,13 @@ public interface RoomDao extends JpaRepository<Room, Long> , RoomDaoExt{
      */
     @Query(value = "select * from t_room where yn=1 and userId=?2 and way !=3 and id in(select roomId from t_content where yn=1 and userId=?2 and acctId=?1)" , nativeQuery = true)
     List<Room> findByAcctIdAndUserId(Long acctId, Long userId);
+
+    /**
+     * find
+     * @param way
+     * @param hourOfDay
+     * @return
+     */
+    @Query(value = "select * from t_room where yn=1 and  way=?1 and startHour <=?2 and ?2 <= endHour" , nativeQuery = true)
+    List<Room> findByWayAndHour(Integer way, int hourOfDay);
 }

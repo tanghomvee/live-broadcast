@@ -91,4 +91,12 @@ public interface RoomService extends BaseService<Room, Long> {
      * @return
      */
     List<Room> findByAcctIdAndUserId(Long acctId, Long userId);
+
+    /**
+     * find room
+     * @param way
+     * @param hourOfDay
+     * @return
+     */
+    List<Room> findByWayAndHour(Integer way, int hourOfDay);
 }

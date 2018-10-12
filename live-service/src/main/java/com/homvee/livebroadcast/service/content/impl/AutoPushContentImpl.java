@@ -7,15 +7,19 @@ import com.homvee.livebroadcast.common.components.RedisComponent;
 import com.homvee.livebroadcast.common.constants.RedisKey;
 import com.homvee.livebroadcast.common.enums.SeparatorEnum;
 import com.homvee.livebroadcast.common.enums.WayEnum;
+import com.homvee.livebroadcast.common.enums.YNEnum;
 import com.homvee.livebroadcast.common.vos.Msg;
 import com.homvee.livebroadcast.common.vos.RspBody;
+import com.homvee.livebroadcast.dao.acct.model.Account;
 import com.homvee.livebroadcast.dao.content.model.Content;
 import com.homvee.livebroadcast.dao.room.model.Room;
+import com.homvee.livebroadcast.service.acct.AccountService;
 import com.homvee.livebroadcast.service.content.AutoPushContent;
 import com.homvee.livebroadcast.service.content.ContentService;
 import com.homvee.livebroadcast.service.room.RoomService;
 import com.homvee.livebroadcast.service.websocket.WebSocketMsgHandler;
 import org.apache.commons.lang3.ArrayUtils;
+import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.InitializingBean;
@@ -49,6 +53,8 @@ public class AutoPushContentImpl  implements AutoPushContent,InitializingBean {
     private RedisComponent redisComponent;
     @Resource
     private WebSocketMsgHandler webSocketMsgHandler;
+    @Resource
+    private AccountService accountService;
 
 
     private String[] randStrs = new String[]{
@@ -71,63 +77,139 @@ public class AutoPushContentImpl  implements AutoPushContent,InitializingBean {
     private String[] punctuations =  new String[]{".","。","!","!!","^_^","♡",".。","o_o","*","㉨","⊙","🎤","🎙","҉","……"};
 
 
+//    @Override
+//    public void afterPropertiesSet() throws Exception {
+//
+//        Thread thread = new Thread(new Runnable() {
+//            @Override
+//            public void run() {
+//                while (true){
+//                    try{
+//
+//                        List<Room> rooms =  roomService.findByWay(WayEnum.AUTO.getVal());
+//                        if (CollectionUtils.isEmpty(rooms)){
+//                            LOGGER.warn("未配置自动聊天房间" );
+//                            continue;
+//                        }
+//
+//                        int roomNum = rooms.size();
+//                        Long waitTime = 10*1000L;
+//                        if (roomNum > 5){
+//                            waitTime = 5000L;
+//                        }
+//                        for (Room room : rooms){
+//
+//                            List<Content> contents = contentService.findByRoomId(room.getId());
+//                            if (CollectionUtils.isEmpty(contents)){
+//                                LOGGER.warn("房间未配置聊天机器人账号:room={}" , room.getRoomName());
+//                                continue;
+//                            }
+//                            Map<Long , Content> acctContent = Maps.newHashMap();
+//                            for (Content content : contents){
+//                                acctContent.put(content.getAcctId() , content);
+//                            }
+//                            Long startTime = System.currentTimeMillis();
+//                            try {
+//                                for (Long acctId : acctContent.keySet()){
+//                                    Content content = acctContent.get(acctId);
+//                                    String contentStr =  getContent(content.getContent(),acctId ,room);
+//                                    RspBody rspBody = RspBody.initChatBody(contentStr);
+//                                    TextMessage respMsg = new TextMessage(JSONObject.toJSONString(Msg.success(rspBody)));
+//                                    String acctRoomKey = acctId.toString() + SeparatorEnum.UNDERLINE.getVal() + room.getId();
+//                                    webSocketMsgHandler.sendMsg2User(acctRoomKey ,respMsg);
+//                                }
+//                                Long usedTime = System.currentTimeMillis() - startTime;
+//                                LOGGER.info("直播间发言耗时:room={},time={}" , room.getRoomName() , usedTime);
+//                                if (waitTime - usedTime > 0){
+//                                    LOGGER.info("直播间发言结束进入休眠开始:room={},time={}" , room.getRoomName() ,waitTime - usedTime);
+//                                    Thread.sleep(waitTime - usedTime);
+//                                    LOGGER.info("直播间发言结束进入休眠结束:room={},time={}" , room.getRoomName() ,waitTime - usedTime);
+//                                }
+//                            } catch (Exception e) {
+//                                LOGGER.error("向房间推送聊天内容异常:room={}" , room.getRoomName(), e);
+//                            }
+//                        }
+//                    }catch (Exception ex){
+//                        LOGGER.error("推送数据异常" , ex);
+//                    }
+//
+//                }
+//            }
+//        });
+//        thread.start();
+//    }
     @Override
     public void afterPropertiesSet() throws Exception {
 
-        Thread thread = new Thread(new Runnable() {
-            @Override
-            public void run() {
-                while (true){
-                    try{
+        Thread thread = new Thread(() -> {
+            while (true){
+                try{
 
-                        List<Room> rooms =  roomService.findByWay(WayEnum.AUTO.getVal());
-                        if (CollectionUtils.isEmpty(rooms)){
-                            LOGGER.warn("未配置自动聊天房间" );
-                            continue;
-                        }
-
-                        int roomNum = rooms.size();
-                        Long waitTime = 10*1000L;
-                        if (roomNum > 5){
-                            waitTime = 5000L;
-                        }
-                        for (Room room : rooms){
-
-                            List<Content> contents = contentService.findByRoomId(room.getId());
-                            if (CollectionUtils.isEmpty(contents)){
-                                LOGGER.warn("房间未配置聊天机器人账号:room={}" , room.getRoomName());
-                                continue;
-                            }
-                            Map<Long , Content> acctContent = Maps.newHashMap();
-                            for (Content content : contents){
-                                acctContent.put(content.getAcctId() , content);
-                            }
-                            Long startTime = System.currentTimeMillis();
-                            try {
-                                for (Long acctId : acctContent.keySet()){
-                                    Content content = acctContent.get(acctId);
-                                    String contentStr =  getContent(content.getContent(),acctId ,room);
-                                    RspBody rspBody = RspBody.initChatBody(contentStr);
-                                    TextMessage respMsg = new TextMessage(JSONObject.toJSONString(Msg.success(rspBody)));
-                                    String acctRoomKey = acctId.toString() + SeparatorEnum.UNDERLINE.getVal() + room.getId();
-                                    webSocketMsgHandler.sendMsg2User(acctRoomKey ,respMsg);
-                                }
-                                Long usedTime = System.currentTimeMillis() - startTime;
-                                LOGGER.info("直播间发言耗时:room={},time={}" , room.getRoomName() , usedTime);
-                                if (waitTime - usedTime > 0){
-                                    LOGGER.info("直播间发言结束进入休眠开始:room={},time={}" , room.getRoomName() ,waitTime - usedTime);
-                                    Thread.sleep(waitTime - usedTime);
-                                    LOGGER.info("直播间发言结束进入休眠结束:room={},time={}" , room.getRoomName() ,waitTime - usedTime);
-                                }
-                            } catch (Exception e) {
-                                LOGGER.error("向房间推送聊天内容异常:room={}" , room.getRoomName(), e);
-                            }
-                        }
-                    }catch (Exception ex){
-                        LOGGER.error("推送数据异常" , ex);
+                    List<Room> rooms =  roomService.findByWayAndHour(WayEnum.AUTO.getVal(),DateTime.now().getHourOfDay());
+                    if (CollectionUtils.isEmpty(rooms)){
+                        LOGGER.warn("未配置自动聊天房间" );
+                        continue;
                     }
 
+                    Long speakRoomTime = 90L;
+                    String roomAcctPrefix = RedisKey.ROOM + SeparatorEnum.UNDERLINE.getVal() + RedisKey.ACCOUNT + SeparatorEnum.MIDDLE_LINE.getVal();
+                    for (Room room : rooms){
+
+                        List<Content> contents = contentService.findByRoomId(room.getId());
+                        if (CollectionUtils.isEmpty(contents)){
+                            LOGGER.warn("房间未配置聊天机器人账号:room={}" , room.getRoomName());
+                            continue;
+                        }
+                        Map<Long , Content> acctContent = Maps.newHashMap();
+                        for (Content content : contents){
+                            acctContent.put(content.getAcctId() , content);
+                        }
+                        Long startTime = System.currentTimeMillis();
+                        try {
+                            for (Long acctId : acctContent.keySet()){
+
+                                Account account = accountService.findOne(acctId);
+                                if (account == null || !YNEnum.YES.getVal().equals(account.getYn())){
+                                    LOGGER.warn("账号无效:{}" , account);
+                                    continue;
+                                }
+
+                                String key = roomAcctPrefix + acctId;
+                                if (StringUtils.isEmpty(redisComponent.get(key))){
+                                    if (!redisComponent.setStrNx(key, speakRoomTime)){
+                                        continue;
+                                    }
+                                }
+                                /**
+                                 * 每个账号发言间隔10秒
+                                 */
+                                Long period = 10L;
+                                if (account.getPeriod() != null && account.getPeriod() > 0){
+                                    period = account.getPeriod().longValue();
+                                }
+                                if(!redisComponent.setStrNx(RedisKey.ACCOUNT + SeparatorEnum.UNDERLINE.getVal() + account.getId() , period)){
+                                    LOGGER.info("账号发言时间未到:acct={}", account.getAcctName());
+                                    continue;
+                                }
+
+                                Content content = acctContent.get(acctId);
+                                String contentStr =  getContent(content.getContent(),acctId ,room);
+                                RspBody rspBody = RspBody.initChatBody(contentStr);
+                                TextMessage respMsg = new TextMessage(JSONObject.toJSONString(Msg.success(rspBody)));
+                                String acctRoomKey = acctId.toString() + SeparatorEnum.UNDERLINE.getVal() + room.getId();
+                                webSocketMsgHandler.sendMsg2User(acctRoomKey ,respMsg);
+                            }
+                            Long usedTime = System.currentTimeMillis() - startTime;
+                            LOGGER.info("直播间发言耗时:room={},time={}" , room.getRoomName() , usedTime);
+
+                        } catch (Exception e) {
+                            LOGGER.error("向房间推送聊天内容异常:room={}" , room.getRoomName(), e);
+                        }
+                    }
+                }catch (Exception ex){
+                    LOGGER.error("推送数据异常" , ex);
                 }
+
             }
         });
         thread.start();

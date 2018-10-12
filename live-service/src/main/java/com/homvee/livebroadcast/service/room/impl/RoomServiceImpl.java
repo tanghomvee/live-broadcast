@@ -93,4 +93,9 @@ public class RoomServiceImpl extends BaseServiceImpl<Room ,Long> implements Room
     public List<Room> findByAcctIdAndUserId(Long acctId, Long userId) {
         return roomDao.findByAcctIdAndUserId(acctId , userId);
     }
+
+    @Override
+    public List<Room> findByWayAndHour(Integer way, int hourOfDay) {
+        return roomDao.findByWayAndHour(way , hourOfDay);
+    }
 }

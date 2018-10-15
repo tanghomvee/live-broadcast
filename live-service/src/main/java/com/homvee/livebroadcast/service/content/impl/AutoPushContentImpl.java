@@ -1,24 +1,25 @@
 package com.homvee.livebroadcast.service.content.impl;
 
 import com.alibaba.fastjson.JSONObject;
-import com.google.common.collect.Maps;
+import com.google.common.base.Strings;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.homvee.livebroadcast.common.components.RedisComponent;
 import com.homvee.livebroadcast.common.constants.RedisKey;
 import com.homvee.livebroadcast.common.enums.SeparatorEnum;
 import com.homvee.livebroadcast.common.enums.WayEnum;
-import com.homvee.livebroadcast.common.enums.YNEnum;
 import com.homvee.livebroadcast.common.vos.Msg;
 import com.homvee.livebroadcast.common.vos.RspBody;
 import com.homvee.livebroadcast.dao.acct.model.Account;
 import com.homvee.livebroadcast.dao.content.model.Content;
+import com.homvee.livebroadcast.dao.dictionary.model.Dictionary;
 import com.homvee.livebroadcast.dao.room.model.Room;
 import com.homvee.livebroadcast.service.acct.AccountService;
 import com.homvee.livebroadcast.service.content.AutoPushContent;
 import com.homvee.livebroadcast.service.content.ContentService;
+import com.homvee.livebroadcast.service.dictionary.DictionaryService;
 import com.homvee.livebroadcast.service.room.RoomService;
 import com.homvee.livebroadcast.service.websocket.WebSocketMsgHandler;
-import org.apache.commons.lang3.ArrayUtils;
 import org.joda.time.DateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,7 +31,6 @@ import org.springframework.web.socket.TextMessage;
 
 import javax.annotation.Resource;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
@@ -55,6 +55,8 @@ public class AutoPushContentImpl  implements AutoPushContent,InitializingBean {
     private WebSocketMsgHandler webSocketMsgHandler;
     @Resource
     private AccountService accountService;
+    @Resource
+    private DictionaryService dictionaryService;
 
 
     private String[] randStrs = new String[]{
@@ -77,135 +79,102 @@ public class AutoPushContentImpl  implements AutoPushContent,InitializingBean {
     private String[] punctuations =  new String[]{".","。","!","!!","^_^","♡",".。","o_o","*","㉨","⊙","🎤","🎙","҉","……"};
 
 
-//    @Override
-//    public void afterPropertiesSet() throws Exception {
-//
-//        Thread thread = new Thread(new Runnable() {
-//            @Override
-//            public void run() {
-//                while (true){
-//                    try{
-//
-//                        List<Room> rooms =  roomService.findByWay(WayEnum.AUTO.getVal());
-//                        if (CollectionUtils.isEmpty(rooms)){
-//                            LOGGER.warn("未配置自动聊天房间" );
-//                            continue;
-//                        }
-//
-//                        int roomNum = rooms.size();
-//                        Long waitTime = 10*1000L;
-//                        if (roomNum > 5){
-//                            waitTime = 5000L;
-//                        }
-//                        for (Room room : rooms){
-//
-//                            List<Content> contents = contentService.findByRoomId(room.getId());
-//                            if (CollectionUtils.isEmpty(contents)){
-//                                LOGGER.warn("房间未配置聊天机器人账号:room={}" , room.getRoomName());
-//                                continue;
-//                            }
-//                            Map<Long , Content> acctContent = Maps.newHashMap();
-//                            for (Content content : contents){
-//                                acctContent.put(content.getAcctId() , content);
-//                            }
-//                            Long startTime = System.currentTimeMillis();
-//                            try {
-//                                for (Long acctId : acctContent.keySet()){
-//                                    Content content = acctContent.get(acctId);
-//                                    String contentStr =  getContent(content.getContent(),acctId ,room);
-//                                    RspBody rspBody = RspBody.initChatBody(contentStr);
-//                                    TextMessage respMsg = new TextMessage(JSONObject.toJSONString(Msg.success(rspBody)));
-//                                    String acctRoomKey = acctId.toString() + SeparatorEnum.UNDERLINE.getVal() + room.getId();
-//                                    webSocketMsgHandler.sendMsg2User(acctRoomKey ,respMsg);
-//                                }
-//                                Long usedTime = System.currentTimeMillis() - startTime;
-//                                LOGGER.info("直播间发言耗时:room={},time={}" , room.getRoomName() , usedTime);
-//                                if (waitTime - usedTime > 0){
-//                                    LOGGER.info("直播间发言结束进入休眠开始:room={},time={}" , room.getRoomName() ,waitTime - usedTime);
-//                                    Thread.sleep(waitTime - usedTime);
-//                                    LOGGER.info("直播间发言结束进入休眠结束:room={},time={}" , room.getRoomName() ,waitTime - usedTime);
-//                                }
-//                            } catch (Exception e) {
-//                                LOGGER.error("向房间推送聊天内容异常:room={}" , room.getRoomName(), e);
-//                            }
-//                        }
-//                    }catch (Exception ex){
-//                        LOGGER.error("推送数据异常" , ex);
-//                    }
-//
-//                }
-//            }
-//        });
-//        thread.start();
-//    }
     @Override
     public void afterPropertiesSet() throws Exception {
 
         Thread thread = new Thread(() -> {
             while (true){
                 try{
-
-                    List<Room> rooms =  roomService.findByWayAndHour(WayEnum.AUTO.getVal(),DateTime.now().getHourOfDay());
-                    if (CollectionUtils.isEmpty(rooms)){
-                        LOGGER.warn("未配置自动聊天房间" );
+                    List<Account> accounts = accountService.findAll();
+                    if (CollectionUtils.isEmpty(accounts)){
+                        LOGGER.info("无有效的账号");
                         continue;
                     }
-
                     Long speakRoomTime = 90L;
-                    String roomAcctPrefix = RedisKey.ROOM + SeparatorEnum.UNDERLINE.getVal() + RedisKey.ACCOUNT + SeparatorEnum.MIDDLE_LINE.getVal();
-                    for (Room room : rooms){
+                    for (Account account : accounts){
 
-                        List<Content> contents = contentService.findByRoomId(room.getId());
-                        if (CollectionUtils.isEmpty(contents)){
-                            LOGGER.warn("房间未配置聊天机器人账号:room={}" , room.getRoomName());
+                        /**
+                         * 每个账号发言间隔30秒
+                         */
+                        Long period = 30L;
+                        if (account.getPeriod() != null && account.getPeriod() > period){
+                            period = account.getPeriod().longValue();
+                        }
+                        Random random = new Random();
+                        period = Long.valueOf(random.nextInt(speakRoomTime.intValue() - 30 )) + period;
+                        if(!redisComponent.setStrNx(RedisKey.ACCOUNT + SeparatorEnum.UNDERLINE.getVal() + account.getId() , period)){
+                            LOGGER.info("账号发言时间未到:acct={}", account.getAcctName());
                             continue;
                         }
-                        Map<Long , Content> acctContent = Maps.newHashMap();
-                        for (Content content : contents){
-                            acctContent.put(content.getAcctId() , content);
+
+                        List<Room>  rooms = roomService.findByAcctIdAndUserId(account.getId() ,account.getUserId());
+                        if (CollectionUtils.isEmpty(rooms)){
+                            LOGGER.warn("当前账号未配置聊天房间:{}" , account.getAcctName() );
+                            continue;
                         }
-                        Long startTime = System.currentTimeMillis();
-                        try {
-                            for (Long acctId : acctContent.keySet()){
+                        Integer currentHour = DateTime.now().getHourOfDay();
 
-                                Account account = accountService.findOne(acctId);
-                                if (account == null || !YNEnum.YES.getVal().equals(account.getYn())){
-                                    LOGGER.warn("账号无效:{}" , account);
-                                    continue;
-                                }
-
-                                String key = roomAcctPrefix + acctId;
-                                if (StringUtils.isEmpty(redisComponent.get(key))){
-                                    if (!redisComponent.setStrNx(key, speakRoomTime)){
+                        Set<String> vals = redisComponent.getZSetValByScore(account.getId().toString() , 1D ,1D);
+                        String acctRoomKey = "";
+                        Room speakRoom = null;
+                        if (CollectionUtils.isEmpty(vals)){
+                            vals = redisComponent.getZSetValByScore(account.getId().toString() , 0D ,0D);
+                            if (CollectionUtils.isEmpty(vals)){
+                                for (Room room : rooms){
+                                    if (!WayEnum.AUTO.getVal().equals(room.getWay()) || room.getStartHour() > currentHour || room.getEndHour() < currentHour){
+                                        LOGGER.info("房间未到直播时间或者非自动聊天房间:{}",room.getRoomName());
                                         continue;
                                     }
+                                    acctRoomKey = account.getId().toString() + SeparatorEnum.UNDERLINE.getVal() + room.getId();
+                                    if(!webSocketMsgHandler.liveAcctRoom(acctRoomKey)){
+                                        LOGGER.warn("房间账号未上线:room={},acct={}" , room.getRoomName() , account.getAcctName());
+                                        continue;
+                                    }
+                                    redisComponent.addZSet(account.getId().toString() , room.getId().toString() , 0);
                                 }
-                                /**
-                                 * 每个账号发言间隔10秒
-                                 */
-                                Long period = 10L;
-                                if (account.getPeriod() != null && account.getPeriod() > 0){
-                                    period = account.getPeriod().longValue();
-                                }
-                                if(!redisComponent.setStrNx(RedisKey.ACCOUNT + SeparatorEnum.UNDERLINE.getVal() + account.getId() , period)){
-                                    LOGGER.info("账号发言时间未到:acct={}", account.getAcctName());
-                                    continue;
-                                }
-
-                                Content content = acctContent.get(acctId);
-                                String contentStr =  getContent(content.getContent(),acctId ,room);
-                                RspBody rspBody = RspBody.initChatBody(contentStr);
-                                TextMessage respMsg = new TextMessage(JSONObject.toJSONString(Msg.success(rspBody)));
-                                String acctRoomKey = acctId.toString() + SeparatorEnum.UNDERLINE.getVal() + room.getId();
-                                webSocketMsgHandler.sendMsg2User(acctRoomKey ,respMsg);
                             }
-                            Long usedTime = System.currentTimeMillis() - startTime;
-                            LOGGER.info("直播间发言耗时:room={},time={}" , room.getRoomName() , usedTime);
-
-                        } catch (Exception e) {
-                            LOGGER.error("向房间推送聊天内容异常:room={}" , room.getRoomName(), e);
+                        } else {
+                            for (String roomIdStr : vals){
+                                acctRoomKey = account.getId().toString() + SeparatorEnum.UNDERLINE.getVal() + roomIdStr;
+                                if(!StringUtils.isEmpty(redisComponent.getStrNx(acctRoomKey))){
+                                    speakRoom = roomService.findOne(Long.valueOf(roomIdStr));
+                                    break;
+                                }
+                            }
                         }
+
+                        if (speakRoom == null){
+                            vals = redisComponent.getZSetValByScore(account.getId().toString() , 0D ,0D);
+                            if (!CollectionUtils.isEmpty(vals)){
+                                String roomIdStr = Lists.newArrayList(vals).get(0);
+                                acctRoomKey = account.getId().toString() + SeparatorEnum.UNDERLINE.getVal() + roomIdStr;
+                                if (redisComponent.setStrNx(acctRoomKey , speakRoomTime)){
+                                    redisComponent.addZSet(account.getId().toString() , roomIdStr , 1);
+                                    speakRoom = roomService.findOne(Long.valueOf(roomIdStr));
+                                }
+                            }
+                        }
+
+
+                        if (speakRoom == null){
+                            redisComponent.del(account.getId().toString());
+                            LOGGER.info("账号无可聊天的房间:{}" , account.getAcctName());
+                            continue;
+                        }
+                        List<Content> contents = contentService.findByAcctIdAndRoomId(account.getId(),speakRoom.getId());
+                        if (CollectionUtils.isEmpty(contents)){
+                            LOGGER.info("账号未配置在该房间发言:acct={},room={}" , account.getAcctName(),speakRoom.getRoomName());
+                            continue;
+                        }
+
+                        String contentStr =  getContent(Strings.nullToEmpty(contents.get(0).getContent()),account.getId() ,speakRoom);
+                        RspBody rspBody = RspBody.initChatBody(contentStr);
+
+                        TextMessage respMsg = new TextMessage(JSONObject.toJSONString(Msg.success(rspBody)));
+                        webSocketMsgHandler.sendMsg2User(acctRoomKey ,respMsg);
+
                     }
+
                 }catch (Exception ex){
                     LOGGER.error("推送数据异常" , ex);
                 }
@@ -216,6 +185,8 @@ public class AutoPushContentImpl  implements AutoPushContent,InitializingBean {
     }
 
 
+
+
     private String getContent(String txt, Long acctId , Room room){
         String contentKey = "" , acctKey =  RedisKey.ACCOUNT + SeparatorEnum.MIDDLE_LINE.getVal() + acctId ;
         Long fiveMinutes = 300L;
@@ -224,62 +195,63 @@ public class AutoPushContentImpl  implements AutoPushContent,InitializingBean {
             contentKey = acctKey  + SeparatorEnum.UNDERLINE.getVal() + txt;
             if (!redisComponent.setStrNx(contentKey , fiveMinutes * 12 * 2)){
                 LOGGER.warn("房间账号发言内容重复:room={},acctId={},content={}" , room.getRoomName() , acctId , txt);
-                txt = null;
+                txt = "";
             }
         }
         //循环获取账号在当前房间的弹幕
-        while (StringUtils.isEmpty(txt)){
-            Random random = new Random();
-            int num = random.nextInt(6);
-            if (num < 3){
-                num = 3;
-            }
-            txt = getRandomStr(num , room.getDefaultContent());
-            if (txt.length() < maxCnt){
-                int cnt = (maxCnt - txt.length()) / emots[0].length();
-                if (cnt > 0){
-                    txt = txt + getRandomEmotion(cnt);
-                }
-            }
-            contentKey = acctKey +  SeparatorEnum.UNDERLINE.getVal() + txt;
-            if (!redisComponent.setStrNx(contentKey , fiveMinutes * 12 *2)){
-                LOGGER.warn("房间账号发言内容重复:room={},acctId={},content={}" , room.getRoomName() , acctId , txt);
-                txt = null;
-            }
+        Random random = new Random();
+        int num = random.nextInt(3);
+        if (num < 1){
+            num = 1;
+        }
+        List<String> contents = redisComponent.popSet(RedisKey.DICTIONARY , Long.valueOf(num));
+        if (CollectionUtils.isEmpty(contents)){
+            initDictionary2Redis();
+            contents = redisComponent.popSet(RedisKey.DICTIONARY , Long.valueOf(num));
         }
 
+        for (String dic : contents){
+             String tmpContent = txt + separators[random.nextInt(separators.length)] + dic;
+             if(tmpContent.length() > maxCnt){
+                 return  txt;
+             }
+             txt = tmpContent;
+        }
+        if (num == 1 || StringUtils.isEmpty(txt)){
+            txt = txt + getRandomEmotion(3);
+        }
         return txt;
     }
 
-    private String getRandomStr(int num , String defaultContent){
-        String[] data = randStrs;
-        if (!StringUtils.isEmpty(defaultContent)){
-            String[] customerData = defaultContent.split(SeparatorEnum.COMMA.getVal());
-            if (!ArrayUtils.isEmpty(customerData)){
-                data = ArrayUtils.addAll(data , customerData);
-            }
-        }
-        num = data.length > num ? num : data.length;
-        Set<String> contents = Sets.newHashSet();
-        String rs = "";
-        Random random = new Random();
-        while (num > 0){
-
-            String content = data[random.nextInt(data.length)];
-            if (contents.contains(content)){
-                continue;
-            }
-            num--;
-            contents.add(content);
-            String tmpResult = rs + content + separators[random.nextInt(separators.length)];
-            if (tmpResult.length() >= 50){
-                return  tmpResult;
-            }
-            rs = tmpResult;
-        }
-
-        return rs + punctuations[random.nextInt(punctuations.length)];
-    }
+//    private String getRandomStr(int num , String defaultContent){
+//        String[] data = randStrs;
+//        if (!StringUtils.isEmpty(defaultContent)){
+//            String[] customerData = defaultContent.split(SeparatorEnum.COMMA.getVal());
+//            if (!ArrayUtils.isEmpty(customerData)){
+//                data = ArrayUtils.addAll(data , customerData);
+//            }
+//        }
+//        num = data.length > num ? num : data.length;
+//        Set<String> contents = Sets.newHashSet();
+//        String rs = "";
+//        Random random = new Random();
+//        while (num > 0){
+//
+//            String content = data[random.nextInt(data.length)];
+//            if (contents.contains(content)){
+//                continue;
+//            }
+//            num--;
+//            contents.add(content);
+//            String tmpResult = rs + content + separators[random.nextInt(separators.length)];
+//            if (tmpResult.length() >= 50){
+//                return  tmpResult;
+//            }
+//            rs = tmpResult;
+//        }
+//
+//        return rs + punctuations[random.nextInt(punctuations.length)];
+//    }
     private String getRandomEmotion(int num){
         String rs = "";
         Set<String> emotsTmp = Sets.newHashSet();
@@ -295,5 +267,23 @@ public class AutoPushContentImpl  implements AutoPushContent,InitializingBean {
         }
 
         return rs;
+    }
+
+    /**
+     * 将所有字典数据初始化到redis中
+     * @return
+     */
+    private synchronized boolean initDictionary2Redis(){
+
+        List<Dictionary> dictionaries = dictionaryService.findAll();
+        if (CollectionUtils.isEmpty(dictionaries)){
+            return false;
+        }
+
+        for (Dictionary dictionary : dictionaries){
+            redisComponent.addSet(RedisKey.DICTIONARY , dictionary.getContent());
+        }
+
+        return  true;
     }
 }

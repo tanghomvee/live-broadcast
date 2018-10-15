@@ -23,12 +23,14 @@ public class RedisComponentTest extends BaseTest {
 
     @Test
     public void addZSet() {
-        redisComponent.addZSet("test" , "A" , System.currentTimeMillis());
-        redisComponent.addZSet("test" , "B" , System.currentTimeMillis());
-        redisComponent.addZSet("test" , "C" , System.currentTimeMillis());
-        redisComponent.addZSet("test" , "D" , System.currentTimeMillis());
-        getZSetRank();
-        System.out.println(redisComponent.getZSetVal("test" , 0L , Long.valueOf(Integer.MAX_VALUE)));
+//        redisComponent.addZSet("test" , "A" , System.currentTimeMillis());
+//        redisComponent.addZSet("test" , "B" , System.currentTimeMillis());
+//        redisComponent.addZSet("test" , "C" , System.currentTimeMillis());
+//        redisComponent.addZSet("test" , "D" , System.currentTimeMillis());
+//        getZSetRank();
+//        System.out.println(redisComponent.getZSetVal("test" , 0L , Long.valueOf(Integer.MAX_VALUE)));
+        redisComponent.setStrNx("test" , 90L);
+        System.out.println(redisComponent.getStrNx("test"));
     }
 
     @Test

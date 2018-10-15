@@ -49,4 +49,11 @@ public interface AccountDao extends JpaRepository<Account, Long> , AccountDaoExt
      * @return
      */
     List<Account> findByAcctNameLikeAndYn(String acctName, Integer yn);
+
+    /**
+     * find by yn
+     * @param yn
+     * @return
+     */
+    List<Account> findByYn(Integer yn);
 }

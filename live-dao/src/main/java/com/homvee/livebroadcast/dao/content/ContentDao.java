@@ -103,4 +103,13 @@ public interface ContentDao extends JpaRepository<Content, Long>,ContentDaoExt {
      * @return
      */
     List<Content> findByRoomIdAndYn(Long roomId, Integer yn);
+
+    /**
+     * find
+     * @param acctId
+     * @param roomId
+     * @param yn
+     * @return
+     */
+    List<Content> findByAcctIdAndRoomIdAndYn(Long acctId, Long roomId, Integer yn);
 }

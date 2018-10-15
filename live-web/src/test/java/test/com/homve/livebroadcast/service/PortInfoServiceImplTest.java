@@ -1,14 +1,20 @@
 package test.com.homve.livebroadcast.service;
 
+import com.google.common.collect.Lists;
 import com.homvee.livebroadcast.dao.content.model.Content;
+import com.homvee.livebroadcast.dao.dictionary.DictionaryDao;
+import com.homvee.livebroadcast.dao.dictionary.model.Dictionary;
 import com.homvee.livebroadcast.dao.sms.PortInfoDao;
 import com.homvee.livebroadcast.dao.sms.model.PortInfo;
 import com.homvee.livebroadcast.service.content.ContentService;
 import com.homvee.livebroadcast.service.sms.PortInfoService;
 import org.junit.Test;
+import org.springframework.util.StringUtils;
 import test.com.homve.BaseTest;
 
 import javax.annotation.Resource;
+import java.io.*;
+import java.util.List;
 
 /**
  * Copyright (c) 2018$. ddyunf.com all rights reserved
@@ -23,15 +29,46 @@ public class PortInfoServiceImplTest extends BaseTest {
     @Resource
     private PortInfoDao portInfoDao
             ;
+
+    @Resource
+    private DictionaryDao dictionaryDao;
     @Test
     public void save() {
-        PortInfo portInfo = new PortInfo();
-        portInfo.setPhoNum("18108691373");
-        portInfo.setPortNum(2);
-        portInfo.setImsi("imsi");
-        portInfo.setIccid("iccid");
-        portInfo = portInfoDao.save(portInfo);
-        System.out.printf("");
+     List<String> words = read();
+
+     for (String word : words){
+         if (StringUtils.isEmpty(word)){
+             continue;
+         }
+         Dictionary dictionary = new Dictionary();
+         dictionary.setContent(word);
+         dictionary.setCreator("sys");
+         try{
+
+             dictionaryDao.save(dictionary);
+         }catch (Exception ex){
+
+         }
+     }
     }
 
+    public List<String> read() {
+        List<String> words = Lists.newArrayList();
+        try {
+            FileReader fr = new FileReader("D:/words.txt");
+            BufferedReader bf = new BufferedReader(fr);
+            String str;
+            // 按行读取字符串
+            while ((str = bf.readLine()) != null) {
+                words.add(str);
+            }
+            bf.close();
+            fr.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+
+        }
+
+        return words;
+    }
 }

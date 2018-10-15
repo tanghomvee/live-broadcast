@@ -5,10 +5,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.data.redis.connection.RedisConnection;
-import org.springframework.data.redis.core.RedisCallback;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.data.redis.core.ZSetOperations;
+import org.springframework.data.redis.core.*;
 import org.springframework.data.redis.support.atomic.RedisAtomicLong;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -17,9 +14,7 @@ import redis.clients.jedis.JedisCluster;
 import redis.clients.jedis.JedisCommands;
 
 import javax.annotation.Resource;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -87,6 +82,16 @@ public class RedisComponent {
             return (LinkedHashSet<String>) operations.range(key , startIndex,endIndex);
         }catch (Exception ex){
             LOGGER.error("getZSetVal key:{},start:{},end:{} from master redis error" , key , startIndex ,endIndex , ex);
+        }
+        return null;
+    }
+    public Set<String> getZSetValByScore(String key , Double max , Double min){
+
+        try{
+            ZSetOperations<String, String> operations = redisTemplate.opsForZSet();
+            return   operations.rangeByScore(key , max,min);
+        }catch (Exception ex){
+            LOGGER.error("getZSetVal key:{},max:{},min:{} from master redis error" , key , max ,min , ex);
         }
         return null;
     }
@@ -220,7 +225,7 @@ public class RedisComponent {
             } catch (Exception e) {
                 return false;
             }
-            result = setRedis(key, expire);
+            result = setRedisLock(key, expire , true);
         }
         return result;
     }
@@ -266,14 +271,29 @@ public class RedisComponent {
         return setRedis(key , expire);
     }
 
+    public String getStrNx(String key){
+        return  redisTemplate.execute(new RedisCallback<String>() {
+            @Override
+            public String doInRedis(RedisConnection connection) throws DataAccessException {
+                JedisCommands commands = (JedisCommands) connection.getNativeConnection();
+                return commands.get(key);
+            }
+        });
+    }
+
     private boolean setRedis(String key, long expire) {
+        return this.setRedisLock(key , expire , false);
+    }
+    private boolean setRedisLock(String key, long expire ,boolean lock) {
         try {
             String result = redisTemplate.execute(new RedisCallback<String>() {
                 @Override
                 public String doInRedis(RedisConnection connection) throws DataAccessException {
                     JedisCommands commands = (JedisCommands) connection.getNativeConnection();
                     String uuid = UUID.randomUUID().toString();
-                    LOCK_VAL.set(uuid);
+                    if (lock){
+                        LOCK_VAL.set(uuid);
+                    }
                     //PX:毫秒;EX:秒
                     return commands.set(key, uuid, "NX", "EX", expire);
                 }
@@ -404,7 +424,29 @@ public class RedisComponent {
         return false;
     }
 
-    public void expire(String roomKey, long seconds) {
-        redisTemplate.expire(roomKey , seconds , TimeUnit.SECONDS);
+    public void expire(String redisKey, long seconds) {
+        redisTemplate.expire(redisKey , seconds , TimeUnit.SECONDS);
+    }
+    public Long del(String ... keys) {
+        return  redisTemplate.delete(Lists.newArrayList(keys));
+    }
+
+    public Long addSet(String key,String ... vals){
+        try {
+            SetOperations<String , String> sets = redisTemplate.opsForSet();
+            return  sets.add(key,vals);
+        }catch (Exception ex){
+            LOGGER.error("向Set中添加值异常:key={},vals={}" , key , Arrays.toString(vals),ex);
+        }
+        return -1L;
+    }
+    public List<String> popSet(String key , Long cnt){
+        try {
+            SetOperations<String , String> sets = redisTemplate.opsForSet();
+            return  sets.pop(key ,cnt);
+        }catch (Exception ex){
+            LOGGER.error("从Set中随机获取并移除元素异常:key={},cnt={}" , key , cnt,ex);
+        }
+        return null;
     }
 }

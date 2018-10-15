@@ -102,7 +102,7 @@ function chat(params){
             console.info("聊天内容不存在!!!");
             return;
         }
-        var chat =  params.content || "haha[emot:dy101] ^_^ ";
+        var chat =  params.content;
         content.val(chat);
         if (sendBtn.length != 1 || sendBtn.hasClass("b-btn-gray")){
             console.info("发送按钮无效");

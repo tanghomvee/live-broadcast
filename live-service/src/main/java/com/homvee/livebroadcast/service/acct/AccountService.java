@@ -68,4 +68,10 @@ public interface AccountService extends BaseService<Account, Long> {
      * @return
      */
     List<Account> findByAcctName(String acctName);
+
+    /**
+     * find  valid all
+     * @return
+     */
+    List<Account> findAll();
 }

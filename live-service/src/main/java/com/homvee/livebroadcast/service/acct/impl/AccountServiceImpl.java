@@ -80,4 +80,9 @@ public class AccountServiceImpl extends BaseServiceImpl<Account,Long> implements
     public List<Account> findByAcctName(String acctName) {
         return accountDao.findByAcctNameLikeAndYn(acctName , YNEnum.YES.getVal());
     }
+
+    @Override
+    public List<Account> findAll() {
+        return accountDao.findByYn(YNEnum.YES.getVal());
+    }
 }

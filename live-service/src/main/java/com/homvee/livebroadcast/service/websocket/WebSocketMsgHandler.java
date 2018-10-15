@@ -208,6 +208,25 @@ public class WebSocketMsgHandler extends TextWebSocketHandler {
         }
     }
     /**
+     * 房间账号是否在线
+     * @param acctRoomKey
+     */
+    public boolean liveAcctRoom(String acctRoomKey) {
+        WebSocketSession user = sessions.get(acctRoomKey);
+        try {
+            if (user == null || !user.isOpen()) {
+                LOGGER.info("房间已经断开:{}" , acctRoomKey);
+                sessions.remove(acctRoomKey);
+                return false;
+            }
+
+            return true;
+        } catch (Exception e) {
+            LOGGER.error("房间发送消息异常:{}" , acctRoomKey , e);
+        }
+        return false;
+    }
+    /**
      * 给所有用户发送消息
      *
      * @param message

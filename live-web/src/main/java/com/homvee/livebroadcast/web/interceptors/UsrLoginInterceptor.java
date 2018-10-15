@@ -21,8 +21,13 @@ public class UsrLoginInterceptor extends HandlerInterceptorAdapter {
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
-        String uri = request.getServletPath();
+        LOGGER.info("来自请求方的IP:remoteAddr={},remoteHost={},remotePort={},forwarded-for={}" ,
+                request.getRemoteAddr() ,
+                request.getRemoteHost(),
+                request.getRemotePort(),
+                request.getHeader("X-FORWARDED-FOR"));
 
+        String uri = request.getServletPath();
         Object operator = request.getSession().getAttribute(SessionKey.USER);
 
         if (operator == null) {

@@ -270,6 +270,11 @@ public class ContentServiceImpl extends BaseServiceImpl<Content , Long> implemen
         return contentDao.findByRoomIdAndYn(roomId ,YNEnum.YES.getVal());
     }
 
+    @Override
+    public List<Content> findByAcctIdAndRoomId(Long acctId, Long roomId) {
+        return contentDao.findByAcctIdAndRoomIdAndYn(acctId , roomId , YNEnum.YES.getVal());
+    }
+
     private String getRandomStr(int num , String defaultContent){
         String[] data = randStrs;
         if (!StringUtils.isEmpty(defaultContent)){

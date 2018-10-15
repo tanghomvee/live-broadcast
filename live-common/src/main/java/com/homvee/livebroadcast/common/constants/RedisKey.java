@@ -10,6 +10,7 @@ public class RedisKey {
      */
     public static final String SMS_SENDING_EXIST = "SMS_SENDING_EXIST";
     public static final String ACCOUNT = "ACCOUNT";
+    public static final String DICTIONARY = "DICTIONARY";
     public static final String ROOM = "ROOM";
 
 }
